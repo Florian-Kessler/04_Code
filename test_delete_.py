@@ -3,6 +3,7 @@ from Imaging_Functions import CTdata as ct
 import numpy as np
 from scipy.spatial import ConvexHull, transform
 from scipy import ndimage
+import time
 import os
 import pandas as pd
 import pyvista as pv
@@ -381,6 +382,7 @@ def controlDirection(bone):
     print('Ende - control direction')
 
 
+t1 = time.time()
 # create an empty bone dictionary to store all important information
 bone = {}
 
@@ -434,13 +436,13 @@ COS_CT_inv = np.linalg.inv(COS_CT)
 
 #rotated_image = ndimage.affine_transform(bone['MASK_array'], np.linalg.inv(COS_CT)[:3, :3],
 #                                         offset=np.linalg.inv(COS_CT)[:3, 3], mode='nearest')
-import time
-t1 = time.time()
+
+
 mask_pos = np.array(np.where(mask[0] == 1))
 mask_pos_ = np.zeros_like(mask_pos)
 for i in range(len(mask_pos[0])):
     point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
-    mask_pos_[:, i] = np.dot(np.linalg.inv(COS_CT), point)[:3].ravel()
+    mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
 print(str(round(time.time()-t1, 2)))
 
 '''
