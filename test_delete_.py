@@ -15,6 +15,7 @@ import sys
 import scipy
 import matplotlib.pyplot as plt
 # import stltovoxel
+import ReadRawMHD as RR
 
 
 def EasyHFE_mapping(bone, filename1, filename2):
@@ -444,6 +445,9 @@ for i in range(len(mask_pos[0])):
     point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
     mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
 print(str(round(time.time()-t1, 2)))
+
+for i in range(len(mask_pos_[0])):
+    bone['Bone_Mask'][mask_pos[0, i]][mask_pos[1, i]][mask_pos[2, i]] = 1
 
 '''
 ## Make CT-image to same size as mask
