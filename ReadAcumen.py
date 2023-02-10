@@ -88,7 +88,7 @@ ax2.set_ylabel('Force / N')
 ax1.axis([0, int(np.ceil(np.max(cycle)/1000)*1000),  -20, 0])
 ax2.axis([0, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
 
-# aenderung
+
 '''
 # file = ['9_04_P_deg00_Lat_mu02c_ThSf']
 # loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/09_CubSiThread/'

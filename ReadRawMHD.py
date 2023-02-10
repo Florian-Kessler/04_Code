@@ -83,6 +83,7 @@ def rot(image, centre_xy, angle):
 def xray(image, axis):
     plt.figure()
     plt.imshow(np.sum(image, axis=axis), cmap='gray')
+    plt.show()
 
 
 def getLargestCC(segm_im):
@@ -474,9 +475,6 @@ def zeros_and_ones(img, th_):
     """Creates a new image with zeros (below threshold) and ones only"""
     img01 = np.array((img >= th_).astype(int))
     return img01
-
-
-
 
 
 '''
