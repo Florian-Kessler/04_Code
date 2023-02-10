@@ -440,11 +440,11 @@ print(str(round(time.time()-t1, 2)))
 im = sitk.GetImageFromArray(mask_pos_, isVector=False)
 im.SetSpacing((0.0607, 0.0607, 0.0607))
 im.SetOrigin((-27.9994, -157.164, -38.7857))
-'''
+
 rotated_image = ndimage.affine_transform(bone['MASK_array'], COS_CT_inv[:3, :3],
                                          offset=COS_CT_inv[:3, 3], mode='nearest', output=bone['Bone_Mask'])
 
-'''
+
 ## Make CT-image to same size as mask
 def sameSize(bone):
     mask = bone['MASK_array']

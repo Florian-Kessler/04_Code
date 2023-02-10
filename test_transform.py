@@ -92,7 +92,7 @@ Test_trans_4_4 = np.array([[-7.91777893e-01,  5.34755369e-02, -6.08463749e-01, -
 
 mask_path='/home/biomech/Downloads/'
 
-img_mask = sitk.ReadImage(mask_path+'Test_Mask.mhd')
+img_mask = sitk.ReadImage(mask_path+'test.mhd')
 
 img_mask_np=np.transpose(sitk.GetArrayFromImage(img_mask),[2,1,0])
 
@@ -119,7 +119,7 @@ f.write(
     "Transform: CompositeTransform_double_3_3\n"
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
-    "Parameters:  "+f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}' + " 10 10 10\n"
+    "Parameters:  "+f'{theta3}' + " " +f'{theta2}' + " " +f'{theta1}' + " 10 10 10\n"
     "FixedParameters: "+f'{Center[0]}' + " " +f'{Center[1]}' + " " +f'{Center[2]}' + " 0\n")
 f.close()
 
