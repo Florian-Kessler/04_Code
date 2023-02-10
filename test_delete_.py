@@ -440,14 +440,26 @@ COS_CT_inv = np.linalg.inv(COS_CT)
 
 
 mask_pos = np.array(np.where(mask[0] == 1))
-mask_pos_ = np.zeros_like(mask_pos)
-for i in range(len(mask_pos[0])):
-    point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
-    mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
-print(str(round(time.time()-t1, 2)))
-
-for i in range(len(mask_pos_[0])):
-    bone['Bone_Mask'][mask_pos[0, i]][mask_pos[1, i]][mask_pos[2, i]] = 1
+#mask_pos_ = np.zeros_like(mask_pos)
+#for i in range(len(mask_pos[0])):
+#    point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
+#    mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
+#print(str(round(time.time()-t1, 2)))
+#
+#for i in range(len(mask_pos_[0])):
+#    bone['Bone_Mask'][mask_pos_[0, i]+int(round(27.9994/0.0607))]\
+#                     [mask_pos_[1, i]+int(round(157.164/0.0607))]\
+#                     [mask_pos_[2, i]+int(round(38.7857/0.0607))] = 1
+#bone_cut = np.array(bone['Bone_Mask'])*np.array(bone['BVTVscaled'])
+#plt.figure()
+#plt.imshow(np.sum(bone_cut, axis=0), cmap='gray')
+#plt.show()
+#plt.figure()
+#plt.imshow(np.sum(bone_cut, axis=1), cmap='gray')
+#plt.show()
+#plt.figure()
+#plt.imshow(np.sum(bone_cut, axis=2), cmap='gray')
+#plt.show()
 
 '''
 ## Make CT-image to same size as mask
