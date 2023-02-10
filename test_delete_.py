@@ -435,31 +435,17 @@ COS_CT = np.array([[-7.91777893e-01,  5.34755369e-02, -6.08463749e-01, -1.335350
                    [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
 COS_CT_inv = np.linalg.inv(COS_CT)
 
-#rotated_image = ndimage.affine_transform(bone['MASK_array'], np.linalg.inv(COS_CT)[:3, :3],
-#                                         offset=np.linalg.inv(COS_CT)[:3, 3], mode='nearest')
-
-
 mask_pos = np.array(np.where(mask[0] == 1))
-#mask_pos_ = np.zeros_like(mask_pos)
-#for i in range(len(mask_pos[0])):
-#    point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
-#    mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
-#print(str(round(time.time()-t1, 2)))
-#
-#for i in range(len(mask_pos_[0])):
-#    bone['Bone_Mask'][mask_pos_[0, i]+int(round(27.9994/0.0607))]\
-#                     [mask_pos_[1, i]+int(round(157.164/0.0607))]\
-#                     [mask_pos_[2, i]+int(round(38.7857/0.0607))] = 1
-#bone_cut = np.array(bone['Bone_Mask'])*np.array(bone['BVTVscaled'])
-#plt.figure()
-#plt.imshow(np.sum(bone_cut, axis=0), cmap='gray')
-#plt.show()
-#plt.figure()
-#plt.imshow(np.sum(bone_cut, axis=1), cmap='gray')
-#plt.show()
-#plt.figure()
-#plt.imshow(np.sum(bone_cut, axis=2), cmap='gray')
-#plt.show()
+mask_pos_ = np.zeros_like(mask_pos)
+for i in range(len(mask_pos[0])):
+    point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
+    mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
+print(str(round(time.time()-t1, 2)))
+im = sitk.GetImageFromArray(mask_pos_, isVector=False)
+im.SetSpacing((0.0607, 0.0607, 0.0607))
+im.SetOrigin((-27.9994, -157.164, -38.7857))
+rotated_image = ndimage.affine_transform(bone['MASK_array'], COS_CT_inv[:3, :3],
+                                         offset=COS_CT_inv[:3, 3], mode='nearest')
 
 '''
 ## Make CT-image to same size as mask
