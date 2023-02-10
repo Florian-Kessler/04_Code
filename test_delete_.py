@@ -233,7 +233,6 @@ def boneMeshMask(bone, path, filename, resolution, mask_name='BoneTest.mhd', con
     reader = pv.get_reader(filename)
     mesh = reader.read()
 
-
     if controlplot==True:
         mesh.plot()
         voxels = pv.voxelize(mesh, density=resolution)
@@ -247,7 +246,6 @@ def boneMeshMask(bone, path, filename, resolution, mask_name='BoneTest.mhd', con
     y = np.arange(y_min, y_max, resolution)
     z = np.arange(z_min, z_max, resolution)
     x, y, z = np.meshgrid(x, y, z)
-
 
     # Create unstructured grid from the structured grid
     grid = pv.StructuredGrid(x, y, z)
@@ -377,8 +375,6 @@ def controlDirection(bone):
     control_img = mask * boneCT
 
     plot3d(control_img)
-
-
 
     print('Ende - control direction')
 

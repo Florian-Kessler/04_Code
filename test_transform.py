@@ -85,7 +85,6 @@ def rotation_angles_from_matrix(matrix, order):
 
 
 # test_transform
-
 Test_trans_4_4 = np.array([[-7.91777893e-01,  5.34755369e-02, -6.08463749e-01, -1.33535091e+03],
                    [ 2.25184329e-02,  9.98038607e-01,  5.84111263e-02,  5.22183419e+02],
                    [ 6.10393879e-01,  3.25469884e-02, -7.91429091e-01,  9.98370437e+01],
@@ -96,7 +95,6 @@ mask_path='/home/biomech/Downloads/'
 img_mask = sitk.ReadImage(mask_path+'Test_Mask.mhd')
 
 img_mask_np=np.transpose(sitk.GetArrayFromImage(img_mask),[2,1,0])
-
 
 greypath = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_Registered/'
 
@@ -112,10 +110,7 @@ winkel= [theta1, theta2, theta3]
 
 trans= Test_trans_4_4[:3,3]*img_mask.GetSpacing()-Center
 
-
 print(winkel)
-
-
 
 f = open(mask_path + 'Test_transformation.tfm', "w")
 f.write(
@@ -124,7 +119,7 @@ f.write(
     "Transform: CompositeTransform_double_3_3\n"
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
-    "Parameters: " + f'{np.pi/6}' + " 0 0 0 0 0\n"
+    "Parameters:  "+f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}' + " 10 10 10\n"
     "FixedParameters: "+f'{Center[0]}' + " " +f'{Center[1]}' + " " +f'{Center[2]}' + " 0\n")
 f.close()
 
