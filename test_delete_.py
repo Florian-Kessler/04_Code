@@ -434,7 +434,7 @@ COS_CT = np.array([[-7.91777893e-01,  5.34755369e-02, -6.08463749e-01, -1.335350
                    [ 6.10393879e-01,  3.25469884e-02, -7.91429091e-01,  9.98370437e+01],
                    [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
 COS_CT_inv = np.linalg.inv(COS_CT)
-
+'''
 mask_pos = np.array(np.where(mask[0] == 1))
 mask_pos_ = np.zeros_like(mask_pos)
 for i in range(len(mask_pos[0])):
@@ -444,8 +444,9 @@ print(str(round(time.time()-t1, 2)))
 im = sitk.GetImageFromArray(mask_pos_, isVector=False)
 im.SetSpacing((0.0607, 0.0607, 0.0607))
 im.SetOrigin((-27.9994, -157.164, -38.7857))
+'''
 rotated_image = ndimage.affine_transform(bone['MASK_array'], COS_CT_inv[:3, :3],
-                                         offset=COS_CT_inv[:3, 3], mode='nearest')
+                                         offset=COS_CT_inv[:3, 3], mode='nearest', output=bone['Bone_Mask'])
 
 '''
 ## Make CT-image to same size as mask
