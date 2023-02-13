@@ -119,7 +119,7 @@ f.write(
     "Transform: CompositeTransform_double_3_3\n"
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
-    "Parameters:  "+f'{theta3}' + " " +f'{theta2}' + " " +f'{theta1}' + " 10 10 10\n"
+    "Parameters:  "+f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}' + " 10 10 10\n"
     "FixedParameters: "+f'{Center[0]}' + " " +f'{Center[1]}' + " " +f'{Center[2]}' + " 0\n")
 f.close()
 
