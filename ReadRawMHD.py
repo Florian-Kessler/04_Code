@@ -749,8 +749,7 @@ print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 
 
 p3 = np.array([1130, 453, 764])  # point on Ti screw, z-axis, origin of COS
-
-p1 = np.array([54, 474, 820])  # point on rotation axis, x-axis
+p1 = np.array([54, 474, 820])  # point on rotation axis (peek screw tulip), x-axis
 v3 = -lineT.vector  # z-axis, found by function
 v2 = np.cross(p1-p3, v3)/np.linalg.norm(np.cross(p1-p3, v3))  # y-axis
 v1 = np.cross(v2, v3)  # x-axis
