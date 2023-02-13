@@ -121,7 +121,7 @@ f.write(
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
 #    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
-    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " 0 0 0\n"
+    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " -10 -10 -30\n"
     "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + " 0\n")  # Center of rotation
 f.close()
 
