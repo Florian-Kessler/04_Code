@@ -109,10 +109,10 @@ greypath = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_
 img_grey = sitk.ReadImage(greypath+'XCT_Icotec_S130672_L5_intact_planned.mhd')
 img_grey.SetOrigin([0, 0, 0])
 
-[theta1, theta2, theta3] = rotation_angles_from_matrix(Test_trans_4_4[:3, :3], 'xyz')
+[theta1, theta2, theta3] = rotation_angles_from_matrix(Test_trans_4_4[:3, :3], 'zyx')
 print(theta1)
 
-Center = np.array(img_mask_np.shape)/2*img_mask.GetSpacing()
+Center = np.array([img_mask_np.shape[0]/2, img_mask_np.shape[1]/2, 0])*img_mask.GetSpacing()
 print(Center)
 angle = [theta1, theta2, theta3]
 
@@ -129,7 +129,7 @@ f.write(
     "Transform: Euler3DTransform_double_3_3\n"
 #    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
     "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " 0 0 0\n"
-    "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + " 0\n")
+    "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + " 0\n")  # Center of rotation
 f.close()
 
 transform = sitk.ReadTransform(mask_path + 'Test_transformation.tfm')

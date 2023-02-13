@@ -80,9 +80,9 @@ def rot(image, centre_xy, angle):
     return im_rot, new + rot_center
 
 
-def xray(image, axis):
+def xray(image, axis_):
     plt.figure()
-    plt.imshow(np.sum(image, axis=axis), cmap='gray')
+    plt.imshow(np.sum(image, axis=axis_), cmap='gray')
     plt.show()
 
 
@@ -173,20 +173,20 @@ def axis3D(img, start, end, test, plot):
     xs = []
     ys = []
     zs = []
-    if plot == 1:
+    if plot == 100:  # ...
         plt.figure(20)
         ax1 = plt.axes(projection='3d')
         ax1.scatter3D([-img.shape[0], img.shape[0]], [-img.shape[1], img.shape[1]], [start, end], alpha=0)
     for i_ in range(start, end):
         # Find slices where screw appears
-        loc_ = np.array(np.where(img[:, :, i_] >= 1))
+        loc_ = np.array(np.where(img[i_, :, :] >= 1))
         if loc_.shape[1]:
             # Find centre of gravity for slice i
             cog = [np.mean(loc_[0]), np.mean(loc_[1])]
-            xs.append(cog[0])
-            ys.append(cog[1])
-            zs.append(i_)
-            if test == 1:
+            xs.append(i_)
+            ys.append(cog[0])
+            zs.append(cog[1])
+            if test == 100:  # not adapted to axis change
                 # Print each slice to visually check centre of gravity
                 print('Screw found on layer ' + str(i_))
                 plt.figure(19)
@@ -194,16 +194,16 @@ def axis3D(img, start, end, test, plot):
                 plt.imshow(img[:, :, i_], cmap='gray')
                 plt.pause(2)
                 plt.close()
-            if plot == 1:
+            if plot == 100:  # not adapted to axis change
                 # ax1 = plt.axes(projection='3d')
                 # ax1.scatter3D(xs, ys, zs, c='b', alpha=0.4)
                 ax1.scatter3D(loc_[0], loc_[1], i_, c='k', alpha=0.1)
                 plt.pause(0.01)
         else:
-            if test == 1:
+            if test == 100:  # ...
                 print('No screw on layer ' + str(i_))
     line_fit = Line.best_fit(np.array([xs, ys, zs]).T)
-    if plot == 1:
+    if plot == 100:  # ...
         t_ = 100
         plt.figure(21)
         ax2 = plt.axes(projection='3d')
@@ -475,7 +475,6 @@ def zeros_and_ones(img, th_):
     """Creates a new image with zeros (below threshold) and ones only"""
     img01 = np.array((img >= th_).astype(int))
     return img01
-
 
 
 t1 = time.time()
@@ -751,7 +750,7 @@ print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 p3 = np.array([1130, 453, 764])  # point on Ti screw, z-axis, origin of COS
 p1 = np.array([54, 474, 820])  # point on rotation axis (peek screw tulip), x-axis
 v3 = -lineT.vector  # z-axis, found by function
-v2 = np.cross(p1-p3, v3)/np.linalg.norm(np.cross(p1-p3, v3))  # y-axis
+v2 = np.cross(p3-p1, v3)/np.linalg.norm(np.cross(p3-p1, v3))  # y-axis
 v1 = np.cross(v2, v3)  # x-axis
 rotation_matrix = np.vstack((np.append(v1, 0), np.append(v2, 0), np.append(v3, 0), np.array([0, 0, 0, 1])))
 translation_matrix = np.array([[1, 0, 0, p3[0]],
@@ -760,3 +759,17 @@ translation_matrix = np.array([[1, 0, 0, p3[0]],
                                [0, 0, 0,    1]])
 COS_CT = np.dot(rotation_matrix, translation_matrix)
 COS_FE = np.eye(4)
+
+# test print of COS
+plt.figure()
+ax = plt.axes(projection='3d')
+fact = 100
+for i in range(-0, 5):
+    ax.scatter3D(p3[0]+i*fact*v1[0], p3[1]+i*fact*v1[1], p3[2]+i*fact*v1[2], c='g', alpha=1)
+    ax.scatter3D(p3[0]+i*fact*v2[0], p3[1]+i*fact*v2[1], p3[2]+i*fact*v2[2], c='b', alpha=1)
+    ax.scatter3D(p3[0]+i*fact*v3[0], p3[1]+i*fact*v3[1], p3[2]+i*fact*v3[2], c='r', alpha=1)
+ax.scatter3D(p1[0], p1[1], p1[2], c='b')
+ax.scatter3D([0, 1500], [0, 1500], [0, 1500], alpha=0)
+ax.scatter3D(686, 480, 177, c='k', alpha=1)  # Ti tip
+# ax.scatter3D(452, 467, 185, c='k', alpha=1)  # PEEK tip
+plt.show()
