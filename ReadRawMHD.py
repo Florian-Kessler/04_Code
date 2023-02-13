@@ -477,7 +477,7 @@ def zeros_and_ones(img, th_):
     return img01
 
 
-'''
+
 t1 = time.time()
 plt.close('all')
 
@@ -489,9 +489,8 @@ inst = 'ICOTEC_S130672_L5_implants_XCTres.mhd'
 im0 = load_itk(loc + bone)
 imD = load_itk(loc + inst)
 
+# Convert to COS:
 lineT = axis3D(imD[0], 670, 1100, 0, 0)
-'''
-
 '''
 lineI = np.array([187, 466, 451]) - np.array([820, 474, 54])
 MT = rotation_matrix_from_vectors(lineT.vector, [0, 1, 0])
@@ -745,18 +744,16 @@ print('Angle between fixation and screw: ' + str(angle_between(v_PEEK, screw_PEE
 print('Angle between PMMA-surface and fixation: ' + str(angle_between(n_PMMA, v_PEEK)))
 '''
 
-'''
+
 print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 
-# p0 = np.array([764, 453, 1130])  # origin, screw shaft
-p0 = np.array([1130, 453, 764])  # origin, screw shaft
-# p1 = np.array([188, 471, 702])
-# p1 = np.array([702, 471, 188])
-# p2 = np.array([820, 474, 54])  # point on rotation axis
-p2 = np.array([54, 474, 820])  # point on rotation axis
-v1 = -lineT.vector
-v2 = np.cross(v1, p2-p0)/np.linalg.norm(np.cross(v1, p2-p0))
-v3 = np.cross(v1, v2)
+
+p0 = np.array([1130, 453, 764])  # Ti screw, z-axis
+
+p2 = np.array([54, 474, 820])  # point on rotation axis, x-axis
+v1 = -lineT.vector  # z-axis
+v2 = np.cross(v1, p2-p0)/np.linalg.norm(np.cross(v1, p2-p0))  # x-axis
+v3 = -np.cross(v1, v2)  # y-axis
 rotation_matrix = np.vstack((np.append(v1, 0), np.append(v2, 0), np.append(v3, 0), np.array([0, 0, 0, 1])))
 translation_matrix = np.array([[1, 0, 0, p0[0]],
                                [0, 1, 0, p0[1]],
@@ -764,4 +761,4 @@ translation_matrix = np.array([[1, 0, 0, p0[0]],
                                [0, 0, 0,    1]])
 COS_CT = np.dot(rotation_matrix, translation_matrix)
 COS_FE = np.eye(4)
-'''
+
