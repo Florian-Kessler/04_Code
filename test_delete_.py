@@ -425,11 +425,7 @@ bone = load_BVTVdata(bone, bone_file)
 print('--> Files loaded')
 
 bone['Bone_Mask'] = np.zeros(bone['BVTVscaled'].shape)
-COS_CT = np.array([[-7.91777893e-01,  5.34755369e-02, -6.08463749e-01, -1.33535091e+03],
-                   [ 2.25184329e-02,  9.98038607e-01,  5.84111263e-02,  5.22183419e+02],
-                   [ 6.10393879e-01,  3.25469884e-02, -7.91429091e-01,  9.98370437e+01],
-                   [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
-COS_CT_inv = np.linalg.inv(COS_CT)
+
 '''
 mask_pos = np.array(np.where(mask[0] == 1))
 mask_pos_ = np.zeros_like(mask_pos)

@@ -84,16 +84,24 @@ def rotation_angles_from_matrix(matrix, order):
     return theta1_, theta2_, theta3_
 
 
-# test_transform
-originalMatrix = np.array([[ 2.72288577e-01, -2.17235560e-01,  9.37372734e-01,  9.25431152e+02],
+# test_transform, original
+transf_Matrix0 = np.array([[ 2.72288577e-01, -2.17235560e-01,  9.37372734e-01,  9.25431152e+02],
                            [-3.03498351e-02, -9.75635824e-01, -2.17286970e-01, -6.42265587e+02],
                            [ 9.61736876e-01,  3.07156519e-02, -2.72247554e-01,  8.92679729e+02],
                            [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
-adapted_Matrix = np.array([[ 2.72288577e-01, -2.17235560e-01,  9.37372734e-01, -9.25431152e+02],
+transf_Matrix1 = np.array([[ 2.72288577e-01, -2.17235560e-01,  9.37372734e-01, -9.25431152e+02],
                            [-3.03498351e-02, -9.75635824e-01, -2.17286970e-01,  6.42265587e+02],
                            [ 9.61736876e-01,  3.07156519e-02, -2.72247554e-01, -8.92679729e+02],
                            [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
-Test_trans_4_4 = adapted_Matrix
+Test_trans_4_4 = transf_Matrix0
+rot_matrix = np.array([[ 0.27228858, -0.21723556,  0.93737273,  0.00000000],
+                       [-0.03034984, -0.97563582, -0.21728697,  0.00000000],
+                       [ 0.96173688,  0.03071565, -0.27224755,  0.00000000],
+                       [ 0.00000000,  0.00000000,  0.00000000,  1.00000000]])
+transl_matrix = np.array([[   1,    0,    0, 1130],
+                          [   0,    1,    0,  453],
+                          [   0,    0,    1,  764],
+                          [   0,    0,    0,    1]])
 mask_path = '/home/biomech/Downloads/'
 
 img_mask = sitk.ReadImage(mask_path+'test.mhd')
@@ -105,14 +113,14 @@ greypath = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_
 img_grey = sitk.ReadImage(greypath+'XCT_Icotec_S130672_L5_intact_planned.mhd')
 img_grey.SetOrigin([0, 0, 0])
 
-[theta1, theta2, theta3] = rotation_angles_from_matrix(Test_trans_4_4[:3, :3], 'zyx')
+[theta1, theta2, theta3] = rotation_angles_from_matrix(Test_trans_4_4[:3, :3], 'xyz')
 print(theta1)
 
 Center = np.array(img_mask_np.shape)/2*img_mask.GetSpacing()
 print(Center)
 angle = [theta1, theta2, theta3]
 
-trans = Test_trans_4_4[:3, 3]*img_mask.GetSpacing()-Center
+trans = Test_trans_4_4[:3, 3]-img_mask.GetSpacing()*Center
 
 print(angle)
 
@@ -123,7 +131,8 @@ f.write(
     "Transform: CompositeTransform_double_3_3\n"
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
-    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " 10 10 10\n"
+#    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
+    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " 0 0 0\n"
     "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + " 0\n")
 f.close()
 
@@ -134,6 +143,8 @@ print(transform_inv)
 
 img_mask_trans = sitk.Resample(img_mask, img_grey, transform_inv, sitk.sitkNearestNeighbor,
                                              0.0, img_grey.GetPixelID())
-sitk.WriteImage(img_mask_trans, mask_path+'Test_mask_trans.mhd')
+sitk.WriteImage(img_mask_trans, mask_path + 'Test_mask_trans.mhd')
+sitk.WriteImage(img_grey, mask_path + 'test_CT.mhd')
 
-#"Parameters: " +f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}' + " " +f'{trans[0]}' + " " +f'{trans[1]}' + " " +f'{trans[2]}' + "\n"
+# "Parameters: " +f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}'
+# + " " +f'{trans[0]}' + " " +f'{trans[1]}' + " " +f'{trans[2]}' + "\n"
