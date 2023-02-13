@@ -15,7 +15,6 @@ import sys
 import scipy
 import matplotlib.pyplot as plt
 # import stltovoxel
-import ReadRawMHD as RR
 
 
 def EasyHFE_mapping(bone, filename1, filename2):

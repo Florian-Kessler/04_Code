@@ -93,7 +93,7 @@ rotTransl_matrix = np.array([[-0.79327354, -0.01318472,  0.60872264, 1130],
 Test_trans_4_4 = rotTransl_matrix
 mask_path = '/home/biomech/Downloads/'
 
-img_mask = sitk.ReadImage(mask_path+'test.mhd')
+img_mask = sitk.ReadImage(mask_path+'BoneTest.mhd')
 
 img_mask_np = np.transpose(sitk.GetArrayFromImage(img_mask), [2, 1, 0])
 
@@ -130,8 +130,7 @@ transform_inv = transform.GetInverse()
 print(transform)
 print(transform_inv)
 
-img_mask_trans = sitk.Resample(img_mask, img_grey, transform, sitk.sitkNearestNeighbor,
-                                             0.0, img_grey.GetPixelID())
+img_mask_trans = sitk.Resample(img_mask, img_grey, transform, sitk.sitkNearestNeighbor, 0.0, img_grey.GetPixelID())
 sitk.WriteImage(img_mask_trans, mask_path + 'Test_mask_trans.mhd')
 sitk.WriteImage(img_grey, mask_path + 'test_CT.mhd')
 
