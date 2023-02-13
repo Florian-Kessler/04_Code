@@ -20,7 +20,7 @@ def load_itk(filename):
     ct_scan = sitk.GetArrayFromImage(itkimage)
 
     # Transform image from z,y,x to x,y,z
-    # ct_scan = np.transpose(ct_scan, [2, 1, 0])
+    ct_scan = np.transpose(ct_scan, [2, 1, 0])
 
     # Read the origin of the ct_scan, will be used to convert the coordinates from world to voxel and vice versa.
     origin = np.array(list(reversed(itkimage.GetOrigin())))
@@ -748,17 +748,16 @@ print('Angle between PMMA-surface and fixation: ' + str(angle_between(n_PMMA, v_
 print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 
 
-p0 = np.array([1130, 453, 764])  # Ti screw, z-axis
+p3 = np.array([1130, 453, 764])  # point on Ti screw, z-axis, origin of COS
 
-p2 = np.array([54, 474, 820])  # point on rotation axis, x-axis
-v1 = -lineT.vector  # z-axis
-v2 = np.cross(v1, p2-p0)/np.linalg.norm(np.cross(v1, p2-p0))  # x-axis
-v3 = -np.cross(v1, v2)  # y-axis
+p1 = np.array([54, 474, 820])  # point on rotation axis, x-axis
+v3 = -lineT.vector  # z-axis, found by function
+v2 = np.cross(p1-p3, v3)/np.linalg.norm(np.cross(p1-p3, v3))  # y-axis
+v1 = np.cross(v2, v3)  # x-axis
 rotation_matrix = np.vstack((np.append(v1, 0), np.append(v2, 0), np.append(v3, 0), np.array([0, 0, 0, 1])))
-translation_matrix = np.array([[1, 0, 0, p0[0]],
-                               [0, 1, 0, p0[1]],
-                               [0, 0, 1, p0[2]],
+translation_matrix = np.array([[1, 0, 0, p3[0]],
+                               [0, 1, 0, p3[1]],
+                               [0, 0, 1, p3[2]],
                                [0, 0, 0,    1]])
 COS_CT = np.dot(rotation_matrix, translation_matrix)
 COS_FE = np.eye(4)
-
