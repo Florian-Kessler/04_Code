@@ -750,8 +750,8 @@ print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 p3 = np.array([1130, 453, 764])  # point on Ti screw, z-axis, origin of COS
 p1 = np.array([54, 474, 820])  # point on rotation axis (peek screw tulip), x-axis
 v3 = -lineT.vector  # z-axis = screw axis, found by function
-v2 = np.cross(p3-p1, v3)/np.linalg.norm(np.cross(p3-p1, v3))  # y-axis
-v1 = np.cross(v2, -v3)  # x-axis
+v2 = np.cross(p1-p3, v3)/np.linalg.norm(np.cross(p1-p3, v3))  # y-axis
+v1 = np.cross(v2, v3)  # x-axis
 rotation_matrix = np.vstack((np.append(v1, 0), np.append(v2, 0), np.append(v3, 0), np.array([0, 0, 0, 1])))
 translation_matrix = np.array([[1, 0, 0, p3[0]],
                                [0, 1, 0, p3[1]],
@@ -765,9 +765,9 @@ plt.figure()
 ax = plt.axes(projection='3d')
 fact = 100
 for i in range(-0, 5):
-    ax.scatter3D(p3[0]+i*fact*v1[0], p3[1]+i*fact*v1[1], p3[2]+i*fact*v1[2], c='g', alpha=1)
-    ax.scatter3D(p3[0]+i*fact*v2[0], p3[1]+i*fact*v2[1], p3[2]+i*fact*v2[2], c='b', alpha=1)
-    ax.scatter3D(p3[0]+i*fact*v3[0], p3[1]+i*fact*v3[1], p3[2]+i*fact*v3[2], c='r', alpha=1)
+    ax.scatter3D(p3[0]+i*fact*v1[0], p3[1]+i*fact*v1[1], p3[2]+i*fact*v1[2], c='r', alpha=1)
+    ax.scatter3D(p3[0]+i*fact*v2[0], p3[1]+i*fact*v2[1], p3[2]+i*fact*v2[2], c='g', alpha=1)
+    ax.scatter3D(p3[0]+i*fact*v3[0], p3[1]+i*fact*v3[1], p3[2]+i*fact*v3[2], c='b', alpha=1)
 ax.scatter3D(p1[0], p1[1], p1[2], c='b')
 ax.scatter3D([0, 1500], [0, 1500], [0, 1500], alpha=0)
 ax.scatter3D(686, 480, 177, c='k', alpha=1)  # Ti tip

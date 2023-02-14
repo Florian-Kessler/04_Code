@@ -86,7 +86,7 @@ def rotation_angles_from_matrix(matrix, order):
 
 # test_transform, original
 rotTransl_matrix = np.array([[ 0.79327354,  0.01318472, -0.60872264, 1130],  # +/- changed n
-                             [ 0.02211240,  0.99848211,  0.05044315,  453],
+                             [-0.02211240, -0.99848211, -0.05044315,  453],
                              [-0.60846375,  0.05347554, -0.79177789,  764],
                              [ 0.00000000,  0.00000000,  0.00000000,    1]])
 # translat.: 4.37307679e+02 5.15837977e+02 -1.26825793e+03
@@ -121,9 +121,10 @@ f.write(
     "Transform: CompositeTransform_double_3_3\n"
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
-#    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
+    "Parameters:  " + f'{theta3}' + " " + f'{theta2-np.pi}' + " " + f'{theta1}' + " " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
 #    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " 35 22 15\n"
-    "Parameters:  0 0 0 0 0 0\n"
+#    "Parameters:  0 0 0 0 0 0\n"
+#    "Parameters: 0 -2.5 0 " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
     "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + f'{Center[2]}'"\n")  # Center of rotation
 f.close()
 
@@ -136,10 +137,10 @@ img_mask_trans = sitk.Resample(img_mask, img_grey, transform_inv, sitk.sitkNeare
 sitk.WriteImage(img_mask_trans, mask_path + 'Test_mask_trans.mhd')
 sitk.WriteImage(img_grey, mask_path + 'test_CT.mhd')
 
-print("\n<<<<<<<<<<\nFinished:\n<<<<<<<<<<\nReload files.\n<<<<<<<<<<")
+print("\n<<<<<<<<<<\nFinished.\n<<<<<<<<<<\nSome text to be visible.\n<<<<<<<<<<")
 
-# "Parameters: " +f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}'
-# + " " +f'{trans[0]}' + " " +f'{trans[1]}' + " " +f'{trans[2]}' + "\n"
+# "Parameters: " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}'
+# + " " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
 
 
 # to do: verschiebung, maske gespiegelt (try in this script inverse for sitk)
