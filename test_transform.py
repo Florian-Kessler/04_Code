@@ -89,8 +89,7 @@ rotTransl_matrix = np.array([[ 0.79327354,  0.01318472, -0.60872264, 1130],  # +
                              [-0.02211240, -0.99848211, -0.05044315,  453],
                              [-0.60846375,  0.05347554, -0.79177789,  764],
                              [ 0.00000000,  0.00000000,  0.00000000,    1]])
-# translat.: 4.37307679e+02 5.15837977e+02 -1.26825793e+03
-# trans_only: 1130, 453, 764
+
 Test_trans_4_4 = rotTransl_matrix
 mask_path = '/home/biomech/Downloads/'
 
@@ -121,11 +120,9 @@ f.write(
     "Transform: CompositeTransform_double_3_3\n"
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
-    "Parameters:  " + f'{theta3}' + " " + f'{theta2-np.pi}' + " " + f'{theta1}' + " " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
-#    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " 35 22 15\n"
-#    "Parameters:  0 0 0 0 0 0\n"
-#    "Parameters: 0 -2.5 0 " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
-    "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + f'{Center[2]}'"\n")  # Center of rotation
+    "Parameters:  " + f'{theta3}' + " " + f'{theta2-np.pi}' + " " + f'{theta1}'
+    + " " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
+    "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + f'{Center[2]}'"\n")  # CoR
 f.close()
 
 transform = sitk.ReadTransform(mask_path + 'Test_transformation.tfm')
