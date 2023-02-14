@@ -478,7 +478,7 @@ def zeros_and_ones(img, th_):
 
 
 t1 = time.time()
-plt.close('all')
+#plt.close('all')
 
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_Registered/'
 
@@ -749,9 +749,9 @@ print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 
 p3 = np.array([1130, 453, 764])  # point on Ti screw, z-axis, origin of COS
 p1 = np.array([54, 474, 820])  # point on rotation axis (peek screw tulip), x-axis
-v3 = -lineT.vector  # z-axis, found by function
+v3 = -lineT.vector  # z-axis = screw axis, found by function
 v2 = np.cross(p3-p1, v3)/np.linalg.norm(np.cross(p3-p1, v3))  # y-axis
-v1 = np.cross(v2, v3)  # x-axis
+v1 = np.cross(v2, -v3)  # x-axis
 rotation_matrix = np.vstack((np.append(v1, 0), np.append(v2, 0), np.append(v3, 0), np.array([0, 0, 0, 1])))
 translation_matrix = np.array([[1, 0, 0, p3[0]],
                                [0, 1, 0, p3[1]],

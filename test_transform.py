@@ -85,7 +85,7 @@ def rotation_angles_from_matrix(matrix, order):
 
 
 # test_transform, original
-rotTransl_matrix = np.array([[-0.79327354, -0.01318472,  0.60872264, 1130],
+rotTransl_matrix = np.array([[-0.79327354, -0.01318472, 0.60872264, 1130],  # +/- changed y
                              [ 0.02211240,  0.99848211,  0.05044315,  453],
                              [-0.60846375,  0.05347554, -0.79177789,  764],
                              [ 0.00000000,  0.00000000,  0.00000000,    1]])
@@ -99,13 +99,13 @@ img_mask_np = np.transpose(sitk.GetArrayFromImage(img_mask), [2, 1, 0])
 
 greypath = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_Registered/'
 
-img_grey = sitk.ReadImage(greypath+'XCT_Icotec_S130672_L5_intact_planned.mhd')
+img_grey = sitk.ReadImage(greypath + 'XCT_Icotec_S130672_L5_intact_planned.mhd')
 img_grey.SetOrigin([0, 0, 0])
 
 [theta1, theta2, theta3] = rotation_angles_from_matrix(Test_trans_4_4[:3, :3], 'zyx')
 print(theta1)
 
-Center = np.array([img_mask_np.shape[0]/2, img_mask_np.shape[1]/2, 0])*img_mask.GetSpacing()
+Center = np.array([img_mask_np.shape[0]/2, img_mask_np.shape[1]/2, 0]) * img_mask.GetSpacing()
 print(Center)
 angle = [theta1, theta2, theta3]
 
@@ -121,7 +121,7 @@ f.write(
     "#Transform 1\n"
     "Transform: Euler3DTransform_double_3_3\n"
 #    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
-    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " -10 -10 -30\n"
+    "Parameters:  " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}' + " -10 -20 -50\n"  # links, runter, rein
     "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + " 0\n")  # Center of rotation
 f.close()
 
@@ -130,9 +130,16 @@ transform_inv = transform.GetInverse()
 print(transform)
 print(transform_inv)
 
+# Using transform, not transform_inv because that is what is computed in other script
 img_mask_trans = sitk.Resample(img_mask, img_grey, transform, sitk.sitkNearestNeighbor, 0.0, img_grey.GetPixelID())
 sitk.WriteImage(img_mask_trans, mask_path + 'Test_mask_trans.mhd')
 sitk.WriteImage(img_grey, mask_path + 'test_CT.mhd')
 
 # "Parameters: " +f'{theta1}' + " " +f'{theta2}' + " " +f'{theta3}'
 # + " " +f'{trans[0]}' + " " +f'{trans[1]}' + " " +f'{trans[2]}' + "\n"
+
+
+# stand: richtung stimmt, zyx stimmt.
+# matrix erster vektor vorzeichen gedreht, noch immer gespiegelt.
+# inverse von matrix stimmt nicht, da COS vermutlich bereits invers.
+# to do: verschiebung, maske gespiegelt (try in this script inverse for sitk)
