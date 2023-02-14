@@ -135,9 +135,3 @@ sitk.WriteImage(img_mask_trans, mask_path + 'Test_mask_trans.mhd')
 sitk.WriteImage(img_grey, mask_path + 'test_CT.mhd')
 
 print("\n<<<<<<<<<<\nFinished.\n<<<<<<<<<<\nSome text to be visible.\n<<<<<<<<<<")
-
-# "Parameters: " + f'{theta1}' + " " + f'{theta2}' + " " + f'{theta3}'
-# + " " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
-
-
-# to do: verschiebung, maske gespiegelt (try in this script inverse for sitk)
