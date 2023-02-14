@@ -168,53 +168,50 @@ def seg(img, th, th2):
     return img_seg
 
 
-def axis3D(img, start, end, test, plot):
+def axis3D(img, start, end, axis_):
+    """
+    Function to find screw axis in 3d image.
+    :param img: 3d array of the segmented image. Background = 0, screw >= 1.
+    :param start: Value <= ROI
+    :param end: Value >= ROI
+    :param axis_: Along which axis to evaluate ('x', 'y' or 'z')
+    :return: Line containing point and vector
+    """
     # centre of gravity for each slice of the screw
     xs = []
     ys = []
     zs = []
-    if plot == 100:  # ...
-        plt.figure(20)
-        ax1 = plt.axes(projection='3d')
-        ax1.scatter3D([-img.shape[0], img.shape[0]], [-img.shape[1], img.shape[1]], [start, end], alpha=0)
-    for i_ in range(start, end):
-        # Find slices where screw appears
-        loc_ = np.array(np.where(img[i_, :, :] >= 1))
-        if loc_.shape[1]:
-            # Find centre of gravity for slice i
-            cog = [np.mean(loc_[0]), np.mean(loc_[1])]
-            xs.append(i_)
-            ys.append(cog[0])
-            zs.append(cog[1])
-            if test == 100:  # not adapted to axis change
-                # Print each slice to visually check centre of gravity
-                print('Screw found on layer ' + str(i_))
-                plt.figure(19)
-                plt.scatter(cog[1], cog[0], c='r')
-                plt.imshow(img[:, :, i_], cmap='gray')
-                plt.pause(2)
-                plt.close()
-            if plot == 100:  # not adapted to axis change
-                # ax1 = plt.axes(projection='3d')
-                # ax1.scatter3D(xs, ys, zs, c='b', alpha=0.4)
-                ax1.scatter3D(loc_[0], loc_[1], i_, c='k', alpha=0.1)
-                plt.pause(0.01)
-        else:
-            if test == 100:  # ...
-                print('No screw on layer ' + str(i_))
+    if axis_ == 'x':
+        for i_ in range(start, end):
+            # Find slices where screw appears
+            loc_ = np.array(np.where(img[i_, :, :] >= 1))
+            if loc_.shape[1]:
+                # Find centre of gravity for slice i
+                cog = [np.mean(loc_[0]), np.mean(loc_[1])]
+                xs.append(i_)
+                ys.append(cog[0])
+                zs.append(cog[1])
+    elif axis_ == 'y':
+        for i_ in range(start, end):
+            # Find slices where screw appears
+            loc_ = np.array(np.where(img[:, i_, :] >= 1))
+            if loc_.shape[1]:
+                # Find centre of gravity for slice i
+                cog = [np.mean(loc_[0]), np.mean(loc_[1])]
+                xs.append(cog[0])
+                ys.append(i_)
+                zs.append(cog[1])
+    elif axis_ == 'z':
+        for i_ in range(start, end):
+            # Find slices where screw appears
+            loc_ = np.array(np.where(img[:, :, i_] >= 1))
+            if loc_.shape[1]:
+                # Find centre of gravity for slice i
+                cog = [np.mean(loc_[0]), np.mean(loc_[1])]
+                xs.append(cog[0])
+                ys.append(cog[1])
+                zs.append(i_)
     line_fit = Line.best_fit(np.array([xs, ys, zs]).T)
-    if plot == 100:  # ...
-        t_ = 100
-        plt.figure(21)
-        ax2 = plt.axes(projection='3d')
-        ax2.plot3D(
-            [line_fit.point[0] - line_fit.vector[0] * t_, line_fit.point[0] + line_fit.vector[0] * t_],
-            [line_fit.point[1] - line_fit.vector[1] * t_, line_fit.point[1] + line_fit.vector[1] * t_],
-            [line_fit.point[2] - line_fit.vector[2] * t_, line_fit.point[2] + line_fit.vector[2] * t_],
-            c='r')
-        # min_ = np.min([line_fit.point - line_fit.vector * t_, line_fit.point + line_fit.vector * t_])
-        # max_ = np.max([line_fit.point - line_fit.vector * t_, line_fit.point + line_fit.vector * t_])
-        ax2.scatter3D([-img.shape[0], img.shape[0]], [-img.shape[1], img.shape[1]], [start, end], alpha=0)
     return line_fit
 
 
@@ -475,301 +472,3 @@ def zeros_and_ones(img, th_):
     """Creates a new image with zeros (below threshold) and ones only"""
     img01 = np.array((img >= th_).astype(int))
     return img01
-
-
-t1 = time.time()
-#plt.close('all')
-
-loc = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_Registered/'
-
-bone = 'XCT_Icotec_S130672_L5_intact_planned.mhd'
-inst = 'ICOTEC_S130672_L5_implants_XCTres.mhd'
-
-im0 = load_itk(loc + bone)
-imD = load_itk(loc + inst)
-
-# Convert to COS:
-lineT = axis3D(imD[0], 670, 1100, 0, 0)
-'''
-lineI = np.array([187, 466, 451]) - np.array([820, 474, 54])
-MT = rotation_matrix_from_vectors(lineT.vector, [0, 1, 0])
-MI = rotation_matrix_from_vectors(lineI, [0, 1, 0])
-[angTX, angTXY, angTXYZ] = rotation_angles_from_matrix(MT, 'xyz')
-[angIX, angIXY, angIXYZ] = rotation_angles_from_matrix(MI, 'xyz')
-w = int(np.ceil(11.5/im0[2][0]/2))
-h = int(np.ceil(17.5/im0[2][0]/2))
-
-im0T_rotX = rotate3Daround(im0[0], angTX, 0)
-im0I_rotX = rotate3Daround(im0[0], angIX, 0)
-del im0
-imDT_rotX = rotate3Daround(imD[0], angTX, 0)
-imDI_rotX = rotate3Daround(imD[0], angIX, 0)
-del imD
-print('RotX done.')
-
-im0T_rotXY = rotate3Daround(im0T_rotX, angTXY, 1)
-im0I_rotXY = rotate3Daround(im0I_rotX, angIXY, 1)
-del im0T_rotX
-del im0I_rotX
-imDT_rotXY = rotate3Daround(imDT_rotX, angTXY, 1)
-imDI_rotXY = rotate3Daround(imDI_rotX, angIXY, 1)
-del imDT_rotX
-del imDI_rotX
-print('RotY done.')
-
-im0T_rotXYZ = rotate3Daround(im0T_rotXY, angTXYZ, 2)
-im0I_rotXYZ = rotate3Daround(im0I_rotXY, angIXYZ, 2)
-del im0T_rotXY
-del im0I_rotXY
-imDT_rotXYZ = rotate3Daround(imDT_rotXY, angTXYZ, 2)
-imDI_rotXYZ = rotate3Daround(imDI_rotXY, angIXYZ, 2)
-del imDT_rotXY
-del imDI_rotXY
-print('RotZ done.')
-
-im0T_fin = rotate3Daround(im0T_rotXYZ, -38.5, 1)
-im0I_fin = rotate3Daround(im0I_rotXYZ, 0, 1)
-del im0T_rotXYZ
-del im0I_rotXYZ
-imDT_fin = rotate3Daround(imDT_rotXYZ, -38.5, 1)
-imDI_fin = rotate3Daround(imDI_rotXYZ, 0, 1)
-del imDT_rotXYZ
-del imDI_rotXYZ
-imDT_fin = zeros_and_ones(imDT_fin, 0.5)
-imDI_fin = zeros_and_ones(imDI_fin, 0.5)
-xray(im0I_fin*0+imDI_fin*5000, 0)
-xray(im0I_fin*0+imDI_fin*5000, 1)
-xray(im0I_fin*0+imDI_fin*5000, 2)
-
-boneT = im0T_fin[584-h:584+h, :, 947-w:947+w]
-# boneI = im0I_fin[584-h:584+h, :, 947-w:947+w]
-#xray(boneT, 0)
-#xray(boneT, 1)
-#xray(boneT, 2)
-'''
-
-'''
-# angX = 49
-im3_rotX = np.zeros((len(im0c[:, 0, 0]),
-                     len(rot(im0c[0, :, :], [0, 0], angX)[0]),
-                     len(rot(im0c[0, :, :], [0, 0], angX)[0][0])))
-for i in range(len(im0c[:, 0, 0])):
-    [im3_rotX[i, :, :], _] = rot(im0c[i, :, :], [0, 0], angX)
-    if np.mod(i, 50) == 0:
-        print(str(i) + '/' + str(len(im0c[:, 0, 0])))
-im3_rotX = np.array(im3_rotX)
-print('First rotation completed.')
-#xray(im0c, 0)
-#xray(im3_rotX, 0)
-del im0c
-
-im3_rotXY = np.zeros((len(rot(im3_rotX[:, 0, :], [0, 0], angXY)[0]),
-                      len(im3_rotX[0, :, 0]),
-                      len(rot(im3_rotX[:, 0, :], [0, 0], angXY)[0][0])))
-for i in range(len(im3_rotX[0, :, 0])):
-    [im3_rotXY[:, i, :], _] = rot(im3_rotX[:, i, :], [0, 0], angXY)
-    if np.mod(i, 50) == 0:
-        print(str(i) + '/' + str(len(im3_rotX[0, :, 0])))
-im3_rotXY = np.array(im3_rotXY)
-print('Second rotation completed.')
-#xray(im3_rotX, 1)
-#xray(im3_rotXY, 1)
-del im3_rotX
-im3_rotXYZ = np.zeros((len(rot(im3_rotXY[:, :, 0], [0, 0], angXYZ)[0]),
-                       len(rot(im3_rotXY[:, :, 0], [0, 0], angXYZ)[0][0]),
-                       len(im3_rotXY[0, 0, :])))
-for i in range(len(im3_rotXY[0, 0, :])):
-    [im3_rotXYZ[:, :, i], _] = rot(im3_rotXY[:, :, i], [0, 0], angXYZ)
-    if np.mod(i, 50) == 0:
-        print(str(i) + '/' + str(len(im3_rotXY[0, 0, :])))
-im3_rotXYZ = np.array(im3_rotXYZ)
-print('Third rotation completed.')
-xray(im3_rotXYZ, 0)
-xray(im3_rotXYZ, 1)
-xray(im3_rotXYZ, 2)
-del im3_rotXY
-'''
-
-'''
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-vox = np.where(imD[0])
-plt.scatter(vox[0] + imD[1][0], vox[1] + imD[1][1], vox[2] + imD[1][2])
-vox = np.where(imI[0])
-plt.scatter(vox[0] + imI[1][0], vox[1] + imI[1][1], vox[2] + imI[1][2])
-'''
-
-'''
-loc = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot2/04_Registered/'
-# file1 = 'Icotec_S130684_L5_intact.mhd'
-# file2 = 'Icotec_S130684_L5_predrilled.mhd'
-file3 = 'Icotec_S130684_L5_instrumented.mhd'
-im3 = load_itk(loc + file3)[0]
-im3_seg = seg(load_itk(loc + file3)[0], 18000, np.inf)
-lfV = axis3D(im3_seg, 140, 230, 0, 0)
-tipP = COGIcoTip(im3_seg, 100, 140)
-
-direct = [0, 1, 0]
-mRot = np.outer(lfV.vector, direct)
-im3_PMMA = seg(load_itk(loc + file3)[0], 6900, 7320)
-
-# Points from PMMA surface read from ITK-SNAP
-PMMA_points = np.array([[  4, 211,  57],
-                        [  4, 253, 140],
-                        [ 33, 163, 160],
-                        [  1, 200,  25],
-                        [ 11, 200,  88],
-                        [ 19, 200, 143],
-                        [ 27, 200, 194],
-                        [ 33, 200, 241],
-                        [ 31, 125,  70],
-                        [ 31, 166, 158],
-                        [ 31, 202, 225],
-                        [ 35, 136, 121],
-                        [ 40, 150, 178],
-                        [ 48, 158, 233]])
-PMMA_centre = [np.mean(PMMA_points[:3, 0]), np.mean(PMMA_points[:3, 1]), np.mean(PMMA_points[:3, 2])]
-
-# ICOTEC mounting
-# [118, 176, 222]
-# [ 65, 261,  28]
-p1_PEEK = np.array([118, 176, 222])
-p2_PEEK = np.array([ 65, 261,  28])
-v_PEEK = (p1_PEEK - p2_PEEK) / np.linalg.norm(p1_PEEK - p2_PEEK)
-# ICOTEC screw
-# [ 91, 206, 104] tip
-# [111,  96,  51]
-tip_PEEK = np.array([ 87, 204, 104])
-head_PEEK = np.array([111,  96,  51])
-screw_PEEK = (tip_PEEK - head_PEEK) / np.linalg.norm(tip_PEEK - head_PEEK)
-
-# Titanium mounting
-# [100, 140, 50] ok
-# [86, 283, 216]  # guessed!
-p1_Ti = np.array([ 100, 140,  50])
-p2_Ti = np.array([ 86, 290, 211])
-v_Titanium = (p1_Ti - p2_Ti) / np.linalg.norm(p1_Ti - p2_Ti)
-# Titanium screw
-# [ 83, 214, 147] tip
-# [123, 141, 228]
-tip_Ti = np.array([ 83, 214, 143])
-head_Ti = np.array([130, 129, 242])
-screw_Ti = (tip_Ti - head_Ti) / np.linalg.norm(tip_Ti - head_Ti)
-
-for i in range(len(PMMA_points)):
-    im3_PMMA[PMMA_points[i, 0], PMMA_points[i, 1], PMMA_points[i, 2]] = 200
-
-xray(im3_PMMA, 0)
-xray(im3_PMMA, 1)
-xray(im3_PMMA, 2)
-'''
-
-'''
-n_PMMA = normal_vector(PMMA_points[0], PMMA_points[1], PMMA_points[2])
-plt.figure()
-ax = plt.axes(projection='3d')
-# Plot PMMA points (lower surface, read in itk)
-for i in range(len(PMMA_points)):
-    ax.scatter3D(PMMA_points[i, 0], PMMA_points[i, 1], PMMA_points[i, 2], c='k')
-    for j in range(i+1, len(PMMA_points)):
-        ax.plot3D([PMMA_points[i, 0], PMMA_points[np.mod(j, 3), 0]],
-                  [PMMA_points[i, 1], PMMA_points[np.mod(j, 3), 1]],
-                  [PMMA_points[i, 2], PMMA_points[np.mod(j, 3), 2]],
-                  c='k')
-
-# Plot PMMA point connections
-ax.plot3D([PMMA_points[0, 0], PMMA_points[1, 0]],
-          [PMMA_points[0, 1], PMMA_points[1, 1]],
-          [PMMA_points[0, 2], PMMA_points[1, 2]],
-          c='k')
-# Plot PMMA normal vector
-t = 150
-ax.plot3D([PMMA_centre[0] - n_PMMA[0] * 0, PMMA_centre[0] + n_PMMA[0] * t],
-          [PMMA_centre[1] - n_PMMA[1] * 0, PMMA_centre[1] + n_PMMA[1] * t],
-          [PMMA_centre[2] - n_PMMA[2] * 0, PMMA_centre[2] + n_PMMA[2] * t],
-          c='k')
-# PMMA surface
-plane = fit_plane(PMMA_points)
-X, Y = np.meshgrid(np.linspace(np.min(PMMA_points[:, 0]), np.max(PMMA_points[:, 0]), 20),
-                   np.linspace(np.min(PMMA_points[:, 1]), np.max(PMMA_points[:, 1]), 20))
-Z = np.array([[plane[0] * x + plane[1] * y + plane[2] for x, y in zip(X_row, Y_row)] for X_row, Y_row in zip(X, Y)])
-ax.scatter3D(X, Y, Z, c='g', alpha=0.1)
-
-# Plot Ti screw vector (found with script)
-ax.plot3D([lfV.point[0] - lfV.vector[0] * t, lfV.point[0] + lfV.vector[0] * t],
-          [lfV.point[1] - lfV.vector[1] * t, lfV.point[1] + lfV.vector[1] * t],
-          [lfV.point[2] - lfV.vector[2] * t, lfV.point[2] + lfV.vector[2] * t],
-          c='b')
-# Plot Ti mounting
-ax.scatter3D(p1_Ti[0], p1_Ti[1], p1_Ti[2], c='b')
-ax.scatter3D(p2_Ti[0], p2_Ti[1], p2_Ti[2], c='b')
-ax.plot3D([p1_Ti[0], p2_Ti[0]],
-          [p1_Ti[1], p2_Ti[1]],
-          [p1_Ti[2], p2_Ti[2]],
-          c='b')
-# Plot Ti screw (read with itk)
-ax.scatter3D(tip_Ti[0], tip_Ti[1], tip_Ti[2], c='b')
-ax.scatter3D(head_Ti[0], head_Ti[1], head_Ti[2], c='b')
-ax.plot3D([tip_Ti[0], head_Ti[0]],
-          [tip_Ti[1], head_Ti[1]],
-          [tip_Ti[2], head_Ti[2]],
-          c='b', linestyle='dashed')
-
-# Plot PEEK mounting
-ax.scatter3D(p1_PEEK[0], p1_PEEK[1], p1_PEEK[2], c='r')
-ax.scatter3D(p2_PEEK[0], p2_PEEK[1], p2_PEEK[2], c='r')
-ax.plot3D([p1_PEEK[0], p2_PEEK[0]],
-          [p1_PEEK[1], p2_PEEK[1]],
-          [p1_PEEK[2], p2_PEEK[2]],
-          c='r')
-# Plot PEEK screw (read with itk)
-ax.scatter3D(tip_PEEK[0], tip_PEEK[1], tip_PEEK[2], c='r')
-ax.scatter3D(head_PEEK[0], head_PEEK[1], head_PEEK[2], c='r')
-ax.plot3D([tip_PEEK[0], head_PEEK[0]],
-          [tip_PEEK[1], head_PEEK[1]],
-          [tip_PEEK[2], head_PEEK[2]],
-          c='r', linestyle='dashed')
-
-# Angle information about Titanium screw
-print('\nTitanium screw:')
-print('Angle between PMMA-surface and screw: ' + str(angle_between(n_PMMA, lfV.vector)))
-print('Angle between fixation and screw: ' + str(angle_between(v_Titanium, lfV.vector)))
-print('Angle between PMMA-surface and fixation: ' + str(angle_between(n_PMMA, v_Titanium)))
-
-# Angle information about PEEK screw
-print('\nPEEK screw:')
-print('Angle between PMMA-surface and screw: ' + str(angle_between(n_PMMA, screw_PEEK)))
-print('Angle between fixation and screw: ' + str(angle_between(v_PEEK, screw_PEEK)))
-print('Angle between PMMA-surface and fixation: ' + str(angle_between(n_PMMA, v_PEEK)))
-'''
-
-
-print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
-
-
-p3 = np.array([1130, 453, 764])  # point on Ti screw, z-axis, origin of COS
-p1 = np.array([54, 474, 820])  # point on rotation axis (peek screw tulip), x-axis
-v3 = -lineT.vector  # z-axis = screw axis, found by function
-v2 = np.cross(p1-p3, v3)/np.linalg.norm(np.cross(p1-p3, v3))  # y-axis
-v1 = np.cross(v2, v3)  # x-axis
-rotation_matrix = np.vstack((np.append(v1, 0), np.append(v2, 0), np.append(v3, 0), np.array([0, 0, 0, 1])))
-translation_matrix = np.array([[1, 0, 0, p3[0]],
-                               [0, 1, 0, p3[1]],
-                               [0, 0, 1, p3[2]],
-                               [0, 0, 0,    1]])
-COS_CT = np.dot(rotation_matrix, translation_matrix)
-COS_FE = np.eye(4)
-
-# test print of COS
-plt.figure()
-ax = plt.axes(projection='3d')
-fact = 100
-for i in range(-0, 5):
-    ax.scatter3D(p3[0]+i*fact*v1[0], p3[1]+i*fact*v1[1], p3[2]+i*fact*v1[2], c='r', alpha=1)
-    ax.scatter3D(p3[0]+i*fact*v2[0], p3[1]+i*fact*v2[1], p3[2]+i*fact*v2[2], c='g', alpha=1)
-    ax.scatter3D(p3[0]+i*fact*v3[0], p3[1]+i*fact*v3[1], p3[2]+i*fact*v3[2], c='b', alpha=1)
-ax.scatter3D(p1[0], p1[1], p1[2], c='b')
-ax.scatter3D([0, 1500], [0, 1500], [0, 1500], alpha=0)
-ax.scatter3D(686, 480, 177, c='k', alpha=1)  # Ti tip
-# ax.scatter3D(452, 467, 185, c='k', alpha=1)  # PEEK tip
-plt.show()

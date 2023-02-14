@@ -215,7 +215,7 @@ def list_txt_files(path):
 
 
 def boneMeshMask(bone, path, filename, resolution, mask_name='BoneTest.mhd', controlplot=False, reshape=True, closing=True):
-    '''
+    """
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
     :param path: path to store a mhd file of the mask
@@ -226,7 +226,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name='BoneTest.mhd', con
     :param reshape: sometimes the order of the slices for the 3d array does not match - activate it if mhd looks weird
     :param closing: sometimes there are some small holes in the mask - activate it if needed
     :return: 3d array mask
-    '''
+    """
 
     # read in the stl to generate the mask
     reader = pv.get_reader(filename)
