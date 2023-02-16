@@ -201,7 +201,7 @@ def readInpBoneDummy(bone, inpFileBoneDummy):
     bone["elsets"] = elsets
     bone["FEelSize"] = evol
 
-    print('createEleSets')
+    # print('createEleSets')
     return bone
 
 
@@ -214,7 +214,7 @@ def list_txt_files(path):
     return files
 
 
-def boneMeshMask(bone, path, filename, resolution, mask_name='BoneTest.mhd', controlplot=False, reshape=True, closing=True):
+def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False, reshape=True, closing=True):
     """
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
@@ -379,7 +379,7 @@ def controlDirection(bone):
 
     print('Ende - control direction')
 
-
+'''
 t1 = time.time()
 # create an empty bone dictionary to store all important information
 bone = {}
@@ -387,7 +387,7 @@ bone = {}
 # Project path
 path_pro = f'/home/biomech/Documents/01_Icotec/'
 # Path to mesh dummy and stl - is needed for mapping (node and element coordinates) and mask
-path_mesh = f'{path_pro}02_FEA/99_Tests/11_Pilot3/'
+path_mesh = f'{path_pro}02_FEA/99_Tests/Pilot3/'
 # Path to the bone image - sample
 # path_CT = f'C:/Users/kirta/Documents/2022_Fynmann_01_local/04_Segmented_Test_72um'
 path_CT = f'{path_pro}01_Experiments/02_Scans/Pilot3/04_Registered/'
@@ -413,7 +413,7 @@ bone = readInpBoneDummy(bone, meshBonnyDummy)
 print('a)')
 
 # Create a mask form bone mesh created in Abaqus
-bone = boneMeshMask(bone, path_mesh, stl_file, 0.0607)  # , controlplot=True)
+bone = boneMeshMask(bone, path_mesh, stl_file, 0.0607, sample + '_mask.mhd')  # , controlplot=True)
 print('b)')
 
 mask = ct.load_itk(f'{path_mesh}/BoneTest.mhd')
@@ -426,7 +426,7 @@ bone = load_BVTVdata(bone, bone_file)
 print('--> Files loaded')
 
 bone['Bone_Mask'] = np.zeros(bone['BVTVscaled'].shape)
-
+'''
 '''
 mask_pos = np.array(np.where(mask[0] == 1))
 mask_pos_ = np.zeros_like(mask_pos)
