@@ -40,7 +40,7 @@ def HFE_mapping_trans(bone, filename1, filename2):
     maskX = bone['MaskX']  # max and min coordinates of the FE mesh
     maskY = bone['MaskY']
     maskZ = bone['MaskZ']
-    # offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
+    offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
 
     elsets["BONE"] = []
     RHOb = {}
@@ -59,8 +59,8 @@ def HFE_mapping_trans(bone, filename1, filename2):
 
         # Find COG of element
         cog_real = np.mean(
-            # [np.asarray(nodes[node].get_coord() - offset2COS) for node in elems[elem].get_nodes()],
-            [np.asarray(nodes[node].get_coord()) for node in elems[elem].get_nodes()],
+            [np.asarray(nodes[node].get_coord() - offset2COS) for node in elems[elem].get_nodes()],
+            # [np.asarray(nodes[node].get_coord()) for node in elems[elem].get_nodes()],
             axis=0,
         )
 
