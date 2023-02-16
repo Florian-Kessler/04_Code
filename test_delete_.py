@@ -29,7 +29,7 @@ def HFE_mapping_trans(bone, filename1, filename2):
     print('... start material mapping with copying boundary layers as ghost layers')
 
     BVTVscaled = bone["BVTVscaled"]
-    MASK_array = bone["MASK_array"]  # COS vom CT gray-scale Bild
+    MASK_array_T = bone["MASK_array_T"]  # COS vom CT gray-scale Bild
     FEelSize = bone["FEelSize"]
     Spacing = bone["Spacing"]
     elems = bone["elems"]
@@ -76,10 +76,10 @@ def HFE_mapping_trans(bone, filename1, filename2):
             elems[elem].set_elset('BONE')
 
             BVTVbone = utils.computeBVTV_onephase(
-                cog, Spacing, ROI_BVTV_size, BVTVscaled, MASK_array, PHIbone
+                cog, Spacing, ROI_BVTV_size, BVTVscaled, MASK_array_T, PHIbone
             )
             BVTVbone_FE = utils.computeBVTV_FEel(
-                cog, Spacing, FEelSize, BVTVscaled, MASK_array
+                cog, Spacing, FEelSize, BVTVscaled, MASK_array_T
             )
 
             RHOb[elem] = BVTVbone
