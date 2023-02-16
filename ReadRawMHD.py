@@ -2,7 +2,6 @@ import SimpleITK as sitk
 from skimage.measure import label
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 from scipy.ndimage import rotate
 from colorama import Fore, Style
 from scipy import stats
@@ -461,9 +460,9 @@ def rotation_angles_from_matrix(matrix, order):
         theta2 = np.arctan(r32 * np.cos(theta1) / r22)
         theta3 = np.arctan(-r31 / r33)
 
-    theta1 = theta1 * 180 / np.pi
-    theta2 = theta2 * 180 / np.pi
-    theta3 = theta3 * 180 / np.pi
+    # theta1 = theta1 * 180 / np.pi
+    # theta2 = theta2 * 180 / np.pi
+    # theta3 = theta3 * 180 / np.pi
 
     return theta1, theta2, theta3
 

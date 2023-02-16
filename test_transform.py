@@ -85,7 +85,7 @@ def rotation_angles_from_matrix(matrix, order):
 
 
 # test_transform, original
-rotTransl_matrix = np.array([[ 0.79327354,  0.01318472, -0.60872264, 1130],  # +/- changed n
+rotTransl_matrix = np.array([[ 0.79327354,  0.01318472, -0.60872264, 1130],
                              [-0.02211240, -0.99848211, -0.05044315,  453],
                              [-0.60846375,  0.05347554, -0.79177789,  764],
                              [ 0.00000000,  0.00000000,  0.00000000,    1]])
@@ -122,7 +122,7 @@ f.write(
     "Transform: Euler3DTransform_double_3_3\n"
     "Parameters:  " + f'{theta3}' + " " + f'{theta2-np.pi}' + " " + f'{theta1}'
     + " " + f'{trans[0]}' + " " + f'{trans[1]}' + " " + f'{trans[2]}' + "\n"
-    "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + f'{Center[2]}'"\n")  # CoR
+    "FixedParameters: " + f'{Center[0]}' + " " + f'{Center[1]}' + " " + f'{Center[2]}' + " 0\n")  # CoR
 f.close()
 
 transform = sitk.ReadTransform(mask_path + 'Test_transformation.tfm')

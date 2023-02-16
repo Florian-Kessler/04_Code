@@ -17,7 +17,11 @@ import matplotlib.pyplot as plt
 # import stltovoxel
 
 
-def EasyHFE_mapping(bone, filename1, filename2):
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Attention !!!!!!!!!!!!!!!!!!!!!
+# discuss calibration curve for BVTV with Ph, currently the calibration curve of Schenk et al. 2022 is included
+
+def HFE_mapping_trans(bone, filename1, filename2):
     """
     Material Mapping, including PSL ghost padding layers as copy of most distal and proximal layers
     """
@@ -25,7 +29,7 @@ def EasyHFE_mapping(bone, filename1, filename2):
     print('... start material mapping with copying boundary layers as ghost layers')
 
     BVTVscaled = bone["BVTVscaled"]
-    MASK_array = bone["MASK_array"]
+    MASK_array = bone["MASK_array"]  # COS vom CT gray-scale Bild
     FEelSize = bone["FEelSize"]
     Spacing = bone["Spacing"]
     elems = bone["elems"]
@@ -36,8 +40,7 @@ def EasyHFE_mapping(bone, filename1, filename2):
     maskX = bone['MaskX']  # max and min coordinates of the FE mesh
     maskY = bone['MaskY']
     maskZ = bone['MaskZ']
-    offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
-
+    # offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
 
     elsets["BONE"] = []
     RHOb = {}
@@ -48,20 +51,22 @@ def EasyHFE_mapping(bone, filename1, filename2):
     m = {}
     cogs = {}
 
-    ROI_BVTV_size = 1.25  # config["roi_bvtv_size"]
+    ROI_BVTV_size = 1.25  # config["roi_bvtv_size"]  # in mm
 
     print("FEelSize material mapping = " + str(FEelSize))
 
     for i, elem in enumerate(elems):
 
+        # Find COG of element
         cog_real = np.mean(
-            [np.asarray(nodes[node].get_coord() - offset2COS) for node in elems[elem].get_nodes()],
+            # [np.asarray(nodes[node].get_coord() - offset2COS) for node in elems[elem].get_nodes()],
+            [np.asarray(nodes[node].get_coord()) for node in elems[elem].get_nodes()],
             axis=0,
         )
 
         elems[elem].set_cog(cog_real)
 
-        cog = cog_real
+        cog = bone['Transform'].TransformPoint(cog_real)
 
         PHIbone = 1
         #
@@ -82,7 +87,7 @@ def EasyHFE_mapping(bone, filename1, filename2):
             PHIb[elem] = PHIbone
             RHOb_corrected[elem] = BVTVbone * PHIbone
 
-            m[elem], mm[elem] = evalue, evect
+            m[elem], mm[elem] = evalue, evect  # fabric anisotropy, evaleu =Eigenvalue, evect= Eigen vector
             cogs[elem] = cog  # included just for debugging reasons
 
             # Update instance variables of element
@@ -297,15 +302,13 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 def load_BVTVdata(bone, filename):
     bone_img = ct.load_itk(filename)
 
-    BVTVscaled = bone_img[0]
+    BVTVscaled = bone_img[0]*0.651+0.05646  # scaling factor/intercept from Schenk et al. 2022, has to be discussed w Ph
 
     # Reorientation of axes
     BVTVscaled = BVTVscaled
 
-
     # Flip image 180° to get same COS origin
-    BVTVscaled = BVTVscaled[:,:,::-1]
-
+    BVTVscaled = BVTVscaled[:, :, ::-1]
 
     bone["BVTVscaled"] = BVTVscaled
     Spacing = bone_img[2]
