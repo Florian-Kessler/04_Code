@@ -294,10 +294,10 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 
 def load_BVTVdata(bone, filename):
 
-    itkimage = sitk.ReadImage(filename)
+    bone["GreyImage"] = sitk.ReadImage(filename)
 
     # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
-    bone_img = sitk.GetArrayFromImage(itkimage)
+    bone_img = sitk.GetArrayFromImage(bone["GreyImage"])
 
     # Transform image from z,y,x to x,y,z
     bone_img = np.transpose(bone_img, [2, 1, 0])
@@ -306,20 +306,13 @@ def load_BVTVdata(bone, filename):
     # origin = np.array(list(reversed(itkimage.GetOrigin())))
 
     # Read the spacing along each dimension
-    spacing = np.array(list(reversed(itkimage.GetSpacing())))
+    bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
 
     # scaling factor/intercept from Schenk et al. 2022, has to be discussed w Ph
     BVTVscaled = rR.zeros_and_ones(bone_img*0.651+0.05646, 320)
 
-    # Reorientation of axes
-    BVTVscaled = BVTVscaled
-
     # Flip image 180° to get same COS origin
-    BVTVscaled = BVTVscaled[:, :, ::-1]
-
-    bone["BVTVscaled"] = 3  # BVTVscaled
-    bone["Spacing"] = spacing
-    bone["GreyImage"] = itkimage
+    bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
 
     return bone
 
