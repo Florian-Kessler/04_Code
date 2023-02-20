@@ -14,6 +14,7 @@ import io_utils_SA as io_utils
 import sys
 import scipy
 import matplotlib.pyplot as plt
+import ReadRawMHD as rR
 # import stltovoxel
 
 
@@ -272,7 +273,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
     reader = pv.get_reader(filename)
     mesh = reader.read()
 
-    if controlplot==True:
+    if controlplot:
         mesh.plot()
         voxels = pv.voxelize(mesh, density=resolution)
         p = pv.Plotter()
@@ -294,7 +295,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
     selection = ugrid.select_enclosed_points(mesh.extract_surface(), tolerance=0.0, check_surface=False)
     mask_ = selection.point_data['SelectedPoints'].view(np.bool_)
 
-    if reshape == True:
+    if reshape:
         # sometimes the order of the matrix gets changed
         mask = mask_.reshape([z.shape[2], z.shape[1], z.shape[0]])
         mask = mask[:, ::-1, :]
@@ -337,7 +338,8 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 def load_BVTVdata(bone, filename):
     bone_img = ct.load_itk(filename)
 
-    BVTVscaled = bone_img[0]*0.651+0.05646  # scaling factor/intercept from Schenk et al. 2022, has to be discussed w Ph
+    # scaling factor/intercept from Schenk et al. 2022, has to be discussed w Ph
+    BVTVscaled = rR.zeros_and_ones(bone_img[0], 320)*0.651+0.05646
 
     # Reorientation of axes
     BVTVscaled = BVTVscaled
