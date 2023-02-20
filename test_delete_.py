@@ -1,61 +1,19 @@
 from MedtoolFunctions import medtool_functions as mf
-from Imaging_Functions import CTdata as ct
 import numpy as np
-from scipy.spatial import ConvexHull, transform
-from scipy import ndimage
-import time
+from scipy.spatial import ConvexHull
 import os
-import pandas as pd
 import pyvista as pv
 import SimpleITK as sitk
 import skimage.morphology as morph
 import utils_SA as utils
-import io_utils_SA as io_utils
 import sys
-import scipy
 import matplotlib.pyplot as plt
 import ReadRawMHD as rR
-# import stltovoxel
 
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Attention !!!!!!!!!!!!!!!!!!!!!
 # discuss calibration curve for BVTV with Ph, currently the calibration curve of Schenk et al. 2022 is included
-
-class IndexTracker(object):
-    def __init__(self, ax, Xa):
-        self.ax = ax
-        ax.set_title('use scroll wheel to navigate images')
-
-        self.Xa = Xa
-        rows, cols, self.slices = Xa.shape
-        self.ind = self.slices // 2
-
-        self.ima = ax.imshow(self.Xa[:, self.ind, :], interpolation='nearest', cmap="bone")
-        # self.cba = plt.colorbar(self.ima)
-        # self.cba.set_label('[]')
-        self.update()
-
-    def onscroll(self, event):
-        print("%s %s" % (event.button, event.step))
-        if event.button == 'up':
-            self.ind = (self.ind + 1) % self.slices
-        else:
-            self.ind = (self.ind - 1) % self.slices
-        self.update()
-
-    def update(self):
-        self.ima.set_data(self.Xa[:, self.ind, :])
-        self.ax.set_ylabel('slice %s' % self.ind)
-        self.ima.axes.figure.canvas.draw()
-
-
-def plot3d(imagea):
-    fig, ax = plt.subplots(1, 1)
-    tracker = IndexTracker(ax, imagea)
-    fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
-    plt.show()
-
 
 def HFE_mapping_trans(bone, filename1, filename2):
     """
@@ -216,7 +174,7 @@ def readInpBoneDummy(bone, inpFileBoneDummy):
     """
     This function will generate an Abaqus input file which defines for each element in the mesh file a separate
     element-set.
-    :param meshInp: Abaqus input file which contains only the mesh
+    :param inpFileBoneDummy: Abaqus input file which contains only the mesh
     :return: An Abaqus input file with the mesh information and element sets
     """
 
@@ -228,12 +186,11 @@ def readInpBoneDummy(bone, inpFileBoneDummy):
     elems = inpDummy[3]
     elsets = inpDummy[4]
 
-
-    # callculate the volume of each element
+    # calculate the volume of each element
     evol = []
     for i, eleid in enumerate(elems):
         nodeid = elems[eleid].get_nodes()
-        node_coo = np.array([nodes[id].get_coord() for id in nodeid])
+        node_coo = np.array([nodes[ids].get_coord() for ids in nodeid])
         evol.append(ConvexHull(node_coo).volume)
 
     # set bone values
@@ -259,6 +216,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
     """
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
+    :param bone: dictionary
     :param path: path to store a mhd file of the mask
     :param filename: name of the stl file
     :param resolution: resolution (voxel size) of the mask
@@ -305,13 +263,12 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 
     mask = np.array(mask)
 
-    if closing == True:
+    if closing:
         # close small holes and gabs:
         for i in range(0, mask.shape[0]):
             mask[i, :, :] = morph.closing(mask[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
-
 
     origin = [0, 0, 0]
     spacing = np.array([1, 1, 1]) * resolution
@@ -326,7 +283,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 
     # set bone values
     bone['MASK_array'] = mask_trans.T
-    # Wird benötigt, um das KOS an die richtige position in der Maske zu verschieben
+    # To move COS to right place in image
     bone['MaskX'] = np.array([x_min, x_max])
     bone['MaskY'] = np.array([y_min, y_max])
     bone['MaskZ'] = np.array([z_min, z_max])
@@ -337,7 +294,6 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 
 def load_BVTVdata(bone, filename):
 
-
     itkimage = sitk.ReadImage(filename)
 
     # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
@@ -347,13 +303,13 @@ def load_BVTVdata(bone, filename):
     bone_img = np.transpose(bone_img, [2, 1, 0])
 
     # Read the origin of the ct_scan, will be used to convert the coordinates from world to voxel and vice versa.
-    #origin = np.array(list(reversed(itkimage.GetOrigin())))
+    # origin = np.array(list(reversed(itkimage.GetOrigin())))
 
     # Read the spacing along each dimension
     spacing = np.array(list(reversed(itkimage.GetSpacing())))
 
     # scaling factor/intercept from Schenk et al. 2022, has to be discussed w Ph
-    BVTVscaled = rR.zeros_and_ones(bone_img[0], 320)*0.651+0.05646
+    BVTVscaled = rR.zeros_and_ones(bone_img*0.651+0.05646, 320)
 
     # Reorientation of axes
     BVTVscaled = BVTVscaled
@@ -361,18 +317,18 @@ def load_BVTVdata(bone, filename):
     # Flip image 180° to get same COS origin
     BVTVscaled = BVTVscaled[:, :, ::-1]
 
-    bone["BVTVscaled"] = BVTVscaled
+    bone["BVTVscaled"] = 3  # BVTVscaled
     bone["Spacing"] = spacing
-    bone["GreyImage"] = bone_img
+    bone["GreyImage"] = itkimage
 
     return bone
 
 
-def HFE_inp_creator(inpDummy, eleSets, material, inpName):
-    outfile = open(inpName, 'w')
+def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name):
+    outfile = open(inp_name, 'w')
 
-    f_inpDummy = open(inpDummy)
-    f_eleSets = open(eleSets)
+    f_inpDummy = open(inp_dummy)
+    f_eleSets = open(ele_sets)
     f_material = open(material)
 
     for lines in f_inpDummy:
@@ -385,19 +341,19 @@ def HFE_inp_creator(inpDummy, eleSets, material, inpName):
                 outfile.write(lines_mat)
     outfile.close()
 
-    print("Ende HFE_inp_creator")
+    print("End HFE_inp_creator")
 
 
 class IndexTracker(object):
-    def __init__(self, ax, Xa):
+    def __init__(self, ax, xa):
         self.ax = ax
         ax.set_title('use scroll wheel to navigate images')
 
-        self.Xa = Xa
-        rows, cols, self.slices = Xa.shape
+        self.xa = xa
+        rows, cols, self.slices = xa.shape
         self.ind = self.slices // 2
 
-        self.ima = ax.imshow(self.Xa[:, :, self.ind], interpolation='nearest', cmap="bone")
+        self.ima = ax.imshow(self.xa[:, :, self.ind], interpolation='nearest', cmap="bone")
         # self.cba = plt.colorbar(self.ima)
         # self.cba.set_label('[]')
         self.update()
@@ -411,14 +367,14 @@ class IndexTracker(object):
         self.update()
 
     def update(self):
-        self.ima.set_data(self.Xa[:, :, self.ind])
+        self.ima.set_data(self.xa[:, :, self.ind])
         self.ax.set_ylabel('slice %s' % self.ind)
         self.ima.axes.figure.canvas.draw()
 
 
-def plot3d(imagea):
+def plot3d(image_a):
     fig, ax = plt.subplots(1, 1)
-    tracker = IndexTracker(ax, imagea)
+    tracker = IndexTracker(ax, image_a)
     fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
     plt.show()
 
@@ -431,117 +387,4 @@ def controlDirection(bone):
 
     plot3d(control_img)
 
-    print('Ende - control direction')
-
-'''
-t1 = time.time()
-# create an empty bone dictionary to store all important information
-bone = {}
-
-# Project path
-path_pro = f'/home/biomech/Documents/01_Icotec/'
-# Path to mesh dummy and stl - is needed for mapping (node and element coordinates) and mask
-path_mesh = f'{path_pro}02_FEA/99_Tests/Pilot3/'
-# Path to the bone image - sample
-# path_CT = f'C:/Users/kirta/Documents/2022_Fynmann_01_local/04_Segmented_Test_72um'
-path_CT = f'{path_pro}01_Experiments/02_Scans/Pilot3/04_Registered/'
-
-
-# File for mapping
-bone_file = f'{path_CT}/XCT_Icotec_S130672_L5_intact_planned.mhd'
-bone['SampleName'] = bone_file
-
-# File to generat mask
-stl_file = f'{path_mesh}/mesh.stl'
-
-# File to get bone mesh information (nodes, elements and cog)
-meshBonnyDummy = f'{path_mesh}mesh.inp'
-
-# Abq input file to generate the file for simulation
-inpDummy = f'{path_mesh}Pilot3_mesh.inp'
-
-
-# Read the bone mesh created in Abaqus - to read out all elements, the connecting nodes and their coordinates
-bone = readInpBoneDummy(bone, meshBonnyDummy)
-
-print('a)')
-
-# Create a mask form bone mesh created in Abaqus
-bone = boneMeshMask(bone, path_mesh, stl_file, 0.0607, sample + '_mask.mhd')  # , controlplot=True)
-print('b)')
-
-mask = ct.load_itk(f'{path_mesh}/BoneTest.mhd')
-print('c)')
-
-
-# Read in the sample for BVTV mapping
-# The sample needs to be oriented and should have the same size as the bone-mask!!!
-bone = load_BVTVdata(bone, bone_file)
-print('--> Files loaded')
-
-bone['Bone_Mask'] = np.zeros(bone['BVTVscaled'].shape)
-'''
-'''
-mask_pos = np.array(np.where(mask[0] == 1))
-mask_pos_ = np.zeros_like(mask_pos)
-for i in range(len(mask_pos[0])):
-    point = np.array(np.append(mask_pos[:, i], 1)).reshape(4, 1)
-    mask_pos_[:, i] = (np.round(np.dot(np.linalg.inv(COS_CT), point)[:3].ravel())).astype(int)
-print(str(round(time.time()-t1, 2)))
-im = sitk.GetImageFromArray(mask_pos_, isVector=False)
-im.SetSpacing((0.0607, 0.0607, 0.0607))
-im.SetOrigin((-27.9994, -157.164, -38.7857))
-
-rotated_image = ndimage.affine_transform(bone['MASK_array'], COS_CT_inv[:3, :3],
-                                         offset=COS_CT_inv[:3, 3], mode='nearest', output=bone['Bone_Mask'])
-
-
-## Make CT-image to same size as mask
-def sameSize(bone):
-    mask = bone['MASK_array']
-    boneCT = bone["BVTVscaled"]
-    same_size = np.zeros_like(mask)
-
-    if mask.shape != boneCT.shape:
-        same_size[0:boneCT.shape[0], 0:boneCT.shape[1], 0:boneCT.shape[2]] = boneCT
-
-
-        plot3d(same_size * mask)
-        print('HALLO')
-
-sameSize(bone)
-
-print('1)')
-
-## Check direction
-controlDirection(bone)
-
-print('2)')
-
-## Do the mapping between CT-image in Abq-Mesh
-## It will create tow separate files. One containing all elements sets and one the related material parameters
-bone = EasyHFE_mapping(bone, 'Element_Set.inp', 'Material.inp')
-print('3)')
-
-HFE_inp_creator(inpDummy, 'Element_Set.inp', 'Material.inp', 'Test_inpFile.inp')
-print('4)')
-# BVTVscaled muss an Mesh-Maske angepasst werden
-# KOS müssen noch richtig zueinander angeordnet werden!!!! -- offest in cog addieren!
-
-
-# Maske und BVTV-scaeld müssen noch in die richtige richtung gedreht werden!!
-# --> kan wahrscheindlich mit .T gemacht werden
-
-
-path = f'C:/Users/kirta/OneDrive - Universitaet Bern/01_MBArtorg/2021_Projects/'\
-       f'2021_Schroedinger/04_SampleInfos/05_IMG_cropped_orientation'
-files = list_txt_files(path)
-
-startpoints = np.array([pd.read_csv(f'{path}/{txt}')['startPoint'] for txt in files])
-print(startpoints.max())
-
-
-print('main')
-
-    # for the mask --> the max startpoint is at position 202 so the mask need to be about XX elements long.
-'''
+    print('End - control direction')
