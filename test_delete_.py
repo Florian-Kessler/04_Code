@@ -21,6 +21,41 @@ import matplotlib.pyplot as plt
 # Attention !!!!!!!!!!!!!!!!!!!!!
 # discuss calibration curve for BVTV with Ph, currently the calibration curve of Schenk et al. 2022 is included
 
+class IndexTracker(object):
+    def __init__(self, ax, Xa):
+        self.ax = ax
+        ax.set_title('use scroll wheel to navigate images')
+
+        self.Xa = Xa
+        rows, cols, self.slices = Xa.shape
+        self.ind = self.slices // 2
+
+        self.ima = ax.imshow(self.Xa[:, self.ind, :], interpolation='nearest', cmap="bone")
+        # self.cba = plt.colorbar(self.ima)
+        # self.cba.set_label('[]')
+        self.update()
+
+    def onscroll(self, event):
+        print("%s %s" % (event.button, event.step))
+        if event.button == 'up':
+            self.ind = (self.ind + 1) % self.slices
+        else:
+            self.ind = (self.ind - 1) % self.slices
+        self.update()
+
+    def update(self):
+        self.ima.set_data(self.Xa[:, self.ind, :])
+        self.ax.set_ylabel('slice %s' % self.ind)
+        self.ima.axes.figure.canvas.draw()
+
+
+def plot3d(imagea):
+    fig, ax = plt.subplots(1, 1)
+    tracker = IndexTracker(ax, imagea)
+    fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
+    plt.show()
+
+
 def HFE_mapping_trans(bone, filename1, filename2):
     """
     Material Mapping, including PSL ghost padding layers as copy of most distal and proximal layers
