@@ -69,17 +69,17 @@ loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 
 file = [loc + PEEK3, loc + TITAN3]
 
-col = [['#0099ff', '#000099'],
-       ['#ff0000', '#cc0099']]
+col = [['#1f6a06', '#0a1eb2'],
+       ['#373737', '#b20a0a']]
 labels = ['ICOTEC', 'Titanium']
-
+cycle = 0
 for i in range(0, len(file)):
     [cycle, d, f, peak, vall] = read_acumen(str(file[i]))
-    ax1.plot(cycle[peak], d[peak], color=col[i][0], label='Displacement ' + labels[i])
-    ax1.plot(cycle[vall], d[vall], color=col[i][0], alpha=0.6, label='_nolegend_')
-    ax2.plot(cycle[peak], f[peak], color=col[i][1], label='Force ICOTEC')
-    ax2.plot(cycle[vall], f[vall], color=col[i][1], alpha=0.6, label='_nolegend_')
-    ax2.plot([-.2, .2], color=col[i][0])
+    ax1.plot(cycle[peak], d[peak], color=col[i][0], label='_nolegend_')
+    ax1.plot(cycle[vall], d[vall], color=col[i][0], alpha=0.75, label='_nolegend_')
+    ax2.plot(cycle[peak], f[peak], color=col[i][1], label='Force ' + str(labels[i]))
+    ax2.plot(cycle[vall], f[vall], color=col[i][1], alpha=0.75, label='_nolegend_')
+    ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
 
 ax2.spines.right.set_visible(True)
 ax1.set_xlabel('Cycle Number')
@@ -141,11 +141,6 @@ for i in range(0, len(file)):
         print(Style.RESET_ALL)
         [uy, rfy] = 2 * [0]
 '''
-plt.legend() #(['Force Amplitude PEEK', 'PEEK (5.5 mm)', 'Force Amplitude Titanium', 'Titanium (6.0 mm)',], loc='lower left')
+plt.legend(loc='lower right')
 
 print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
-
-# ------------------- HYSTERESIS PLOT -------------------
-# plt.figure()
-# plt.scatter(d1[vall1[5000]:vall1[5001]], F1[vall1[5000]:vall1[5001]])
-# plt.plot(-uy, rfy)

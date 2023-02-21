@@ -318,7 +318,7 @@ def rotation_matrix_from_vectors(vec1, vec2):
     return rota_matrix
 
 
-def rotation_matrix_from_angles(theta1, theta2, theta3, order='xyz'):
+def rotation_matrix_from_angles(theta1, theta2, theta3, order):
     """
     input
         theta1, theta2, theta3 = rotation angles in rotation order (degrees)
@@ -326,12 +326,12 @@ def rotation_matrix_from_angles(theta1, theta2, theta3, order='xyz'):
     output
         3x3 rotation matrix (numpy array)
     """
-    c1 = np.cos(theta1 * np.pi / 180)
-    s1 = np.sin(theta1 * np.pi / 180)
-    c2 = np.cos(theta2 * np.pi / 180)
-    s2 = np.sin(theta2 * np.pi / 180)
-    c3 = np.cos(theta3 * np.pi / 180)
-    s3 = np.sin(theta3 * np.pi / 180)
+    c1 = np.cos(theta1)  # * np.pi / 180)
+    s1 = np.sin(theta1)  # * np.pi / 180)
+    c2 = np.cos(theta2)  # * np.pi / 180)
+    s2 = np.sin(theta2)  # * np.pi / 180)
+    c3 = np.cos(theta3)  # * np.pi / 180)
+    s3 = np.sin(theta3)  # * np.pi / 180)
     matrix = []
 
     if order == 'xzx':

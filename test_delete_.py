@@ -256,7 +256,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
     if reshape:
         # sometimes the order of the matrix gets changed
         mask = mask_.reshape([z.shape[2], z.shape[1], z.shape[0]])
-        mask = mask[:, ::-1, :]
+        mask = mask[:, ::-1, :]  # mirroring
         mask = np.rot90(mask, k=-1, axes=(1, 2))
     else:
         mask = mask_.reshape(x.shape)
@@ -318,8 +318,7 @@ def load_BVTVdata(bone, filename):
 
 
 def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name):
-    outfile = open(inp_name, 'w')
-
+    outfile = open(inp_name + '.inp', 'w')
     f_inpDummy = open(inp_dummy)
     f_eleSets = open(ele_sets)
     f_material = open(material)
