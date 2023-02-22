@@ -324,7 +324,8 @@ def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
     f_material = open(material)
 
     for lines in f_inpDummy:
-        outfile.write(lines)
+        if lines != '*Solid Section, elset=Set-Impl, material=PEEK':
+            outfile.write(lines)
         if '*Solid Section, elset=Set-Bone, material=Bone' in lines:
             for lines_sets in f_eleSets:
                 outfile.write(lines_sets)
@@ -334,11 +335,14 @@ def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
                 outfile.write(lines_mat)
             print('Material properties added.')
         if '*Solid Section, elset=Set-Impl, material=PEEK' in lines:
-            print('Section found.')
-            if mat == 'Ti' in lines:
-                outfile.truncate()
+            # print('Section found.')
+            if mat == 'Ti':
+                # outfile.truncate()
                 outfile.write('*Solid Section, elset=Set-Impl, material=Ti')
-                print('Section changed to Ti.')
+                print('Section set to Ti.')
+            elif mat == 'PEEK':
+                outfile.write('*Solid Section, elset=Set-Impl, material=PEEK')
+                print('Section set to PEEK.')
     outfile.close()
 
     print("End HFE_inp_creator")
