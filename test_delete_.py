@@ -76,8 +76,8 @@ def HFE_mapping_trans(bone, filename1, filename2):
                 cog, Spacing, FEelSize, BVTVscaled, MASK_array_T
             )
 
-            RHOb[elem] = BVTVbone
-            RHOb_FE[elem] = BVTVbone_FE
+            RHOb[elem] = BVTVbone*0.651+0.05646
+            RHOb_FE[elem] = BVTVbone_FE*0.651+0.05646
             PHIb[elem] = PHIbone
             RHOb_corrected[elem] = BVTVbone * PHIbone
 
@@ -308,8 +308,8 @@ def load_BVTVdata(bone, filename):
     # Read the spacing along each dimension
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
 
-    # scaling factor/intercept from Schenk et al. 2022, has to be discussed w Ph
-    BVTVscaled = rR.zeros_and_ones(bone_img*0.651+0.05646, 320)
+    # scaling factor/intercept from Schenk et al. 2022. Threshold of 320 was found in paper for trabecular (cort: 450)
+    BVTVscaled = rR.zeros_and_ones(bone_img, 320)
 
     # Flip image 180° to get same COS origin
     bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
