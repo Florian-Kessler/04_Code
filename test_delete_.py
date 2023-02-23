@@ -304,7 +304,7 @@ def load_BVTVdata(bone, filename):
     # Transform image from z,y,x to x,y,z
     bone_img = np.transpose(bone_img, [2, 1, 0])
 
-    # Read the origin of the ct_scan, will be used to convert the coordinates from world to voxel and vice versa.
+    # Read the origin of the ct_scan, will be used to convert the coordinates from world to voxel and vice versa
     # origin = np.array(list(reversed(itkimage.GetOrigin())))
 
     # Read the spacing along each dimension
