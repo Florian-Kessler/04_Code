@@ -7,6 +7,7 @@ from colorama import Fore, Style
 from scipy import stats
 from skspatial.objects import Line
 import imutils
+import sys
 
 
 def load_itk(filename):
@@ -471,3 +472,11 @@ def zeros_and_ones(img, th_):
     """Creates a new image with zeros (below threshold) and ones only"""
     img01 = np.array((img >= th_).astype(int))
     return img01
+
+
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')  # disable printing
+
+
+def enablePrint():
+    sys.stdout = sys.__stdout__   # enable printing

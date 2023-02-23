@@ -1,3 +1,4 @@
+import scipy
 from MedtoolFunctions import medtool_functions as mf
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -45,7 +46,7 @@ def HFE_mapping_trans(bone, filename1, filename2):
     m = {}
     cogs = {}
 
-    ROI_BVTV_size = 1.25  # config["roi_bvtv_size"]  # in mm
+    ROI_BVTV_size = 2.5  # diameter in mm
 
     print("FEelSize material mapping = " + str(FEelSize))
 
@@ -76,7 +77,7 @@ def HFE_mapping_trans(bone, filename1, filename2):
                 cog, Spacing, FEelSize, BVTVscaled, MASK_array_T
             )
 
-            RHOb[elem] = BVTVbone*0.651+0.05646
+            RHOb[elem] = BVTVbone*0.651+0.05646  # --> lowest value will be 6% BV/TV
             RHOb_FE[elem] = BVTVbone_FE*0.651+0.05646
             PHIb[elem] = PHIbone
             RHOb_corrected[elem] = BVTVbone * PHIbone
@@ -295,6 +296,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 def load_BVTVdata(bone, filename):
 
     bone["GreyImage"] = sitk.ReadImage(filename)
+    bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, radius=1)  # Schenk et al. 2022
 
     # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
     bone_img = sitk.GetArrayFromImage(bone["GreyImage"])
@@ -356,10 +358,10 @@ def write_mesh(inp_path, mesh_path):
         if '*Part, name=Bone' in lines:
             start = 1
         if start == 1:
+            if '*Nset' in lines:
+                print('Finished extracting mesh file.')
+                break
             mesh.write(lines)
-            if '*End Part' in lines:
-                start = 0
-                print('Finished writing mesh.')
     mesh.close()
 
 
