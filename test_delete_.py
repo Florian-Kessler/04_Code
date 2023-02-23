@@ -323,7 +323,7 @@ def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
     f_eleSets = open(ele_sets)
     f_material = open(material)
 
-    for lines in f_inpDummy:
+    for lines in f_inpDummy:  # works but complicated, using line = line.replace() could shorten it significantly
         if lines != '*Solid Section, elset=Set-Impl, material=PEEK':
             outfile.write(lines)
         if '*Solid Section, elset=Set-Bone, material=Bone' in lines:
@@ -346,6 +346,21 @@ def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
     outfile.close()
 
     print("End HFE_inp_creator")
+
+
+def write_mesh(inp_path, mesh_path):
+    orig = open(inp_path)
+    mesh = open(mesh_path, 'w')
+    start = 0
+    for lines in orig:
+        if '*Part, name=Bone' in lines:
+            start = 1
+        if start == 1:
+            mesh.write(lines)
+            if '*End Part' in lines:
+                start = 0
+                print('Finished writing mesh.')
+    mesh.close()
 
 
 class IndexTracker(object):
