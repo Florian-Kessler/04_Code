@@ -1,4 +1,3 @@
-import scipy
 from MedtoolFunctions import medtool_functions as mf
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -10,7 +9,8 @@ import utils_SA as utils
 import sys
 import matplotlib.pyplot as plt
 import ReadRawMHD as rR
-import time
+# import time
+# import scipy
 
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -176,6 +176,7 @@ def readInpBoneDummy(bone, inpFileBoneDummy):
     """
     This function will generate an Abaqus input file which defines for each element in the mesh file a separate
     element-set.
+    :param bone: bone dictionary
     :param inpFileBoneDummy: Abaqus input file which contains only the mesh
     :return: An Abaqus input file with the mesh information and element sets
     """
@@ -298,13 +299,11 @@ def load_BVTVdata(bone, filename):
 
     bone["GreyImage"] = sitk.ReadImage(filename)
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, radius=1)  # Schenk et al. 2022
-    #print('Start Gauss filtering')
-    #tG = time.time()
-    #bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk et al. 2022
-    #print('Gauss filtering time: ' + str(int((time.time() - tG) / 60)) + ' min ' + str(
+    # print('Start Gauss filtering')
+    # tG = time.time()
+    # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
+    # print('Gauss filtering time: ' + str(int((time.time() - tG) / 60)) + ' min ' + str(
     #    round(np.mod(time.time() - tG, 60), 1)) + ' sec.')
-
-
 
     # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
     bone_img = sitk.GetArrayFromImage(bone["GreyImage"])

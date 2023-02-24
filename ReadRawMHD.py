@@ -8,6 +8,7 @@ from scipy import stats
 from skspatial.objects import Line
 import imutils
 import sys
+import os
 
 
 def load_itk(filename):
