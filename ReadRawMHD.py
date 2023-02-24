@@ -9,6 +9,8 @@ from skspatial.objects import Line
 import imutils
 import sys
 import os
+import scipy
+import time
 
 
 def load_itk(filename):
@@ -613,3 +615,12 @@ def enablePrint():
     :return:
     """
     sys.stdout = sys.__stdout__   # enable printing
+
+
+t0 = time.time()
+print('start')
+total_image = sitk.ReadImage('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_Registered/XCT_Icotec_S130672_L5_intact_planned.mhd')
+total_image_gauss = scipy.ndimage.gaussian_filter(total_image, sigma=0.8, truncate=1.25)
+sitk.WriteImage(total_image_gauss, '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Pilot3/04_Registered/XCT_Icotec_S130672_L5_intact_planned_gauss.mhd')
+print('done')
+print(str(round(time.time()-t0)))
