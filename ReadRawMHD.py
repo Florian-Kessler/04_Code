@@ -12,6 +12,15 @@ import os
 
 
 def load_itk(filename):
+    """
+    Function to load a raw/mhd image. Includes transformation from zyx to xyz.
+    :param filename: path to mhd file, raw path should be specified in mhd header
+    :rtype filename: str
+    :return: tuple(ct_scan, origin, spacing) ---
+             ct_scan is the image array ---
+             origin is the origin of the image read from the mhd-file ---
+             spacing is the voxel size
+    """
     # Load scan, filename = path of .mhd (.raw in same directory)
 
     # Reads the image using SimpleITK
@@ -32,7 +41,16 @@ def load_itk(filename):
     return ct_scan, origin, spacing
 
 
-def plot_grey(image, axis, pos):
+def plot_grey(image, axis=0, pos=0):
+    """
+    Grey plot of a 3d image slice
+    :param image: 3d array
+    :param axis: Optional; axis of cut (0, 1, 2)
+    :rtype axis: int
+    :param pos: Optional; cutting position
+    :rtype pos: int
+    :return:
+    """
     plt.figure()
     if axis == 0:
         plt.imshow(image[pos, :, :], cmap='gray')
@@ -45,9 +63,20 @@ def plot_grey(image, axis, pos):
         print(Style.RESET_ALL)
 
 
-def plot_HU(image, axis, pos, level, window):
-    """Plot image in defined HU window
-    Input: Image array (2d), level of window centre, window size"""
+def plot_HU(image, axis=0, pos=0, level=0, window=1000):
+    """
+    Plot image in defined HU window
+    :param image: 3d array of image in HU values
+    :param axis: Optional; axis of cut (0, 1, 2)
+    :rtype axis: int
+    :param pos: Optional; position within image on axis
+    :rtype pos: int
+    :param level: Optional; level of centre of HU-window
+    :rtype level: float
+    :param window: Optional; size of window
+    :rtype window: float
+    :return: slice with HU-parameters
+    """
     ma = level + window / 2
     mi = level - window / 2
     slic = image.copy()
@@ -64,13 +93,18 @@ def plot_HU(image, axis, pos, level, window):
     else:
         print(Fore.CYAN + 'Error: Enter valid axis number (0, 1, 2).')
         print(Style.RESET_ALL)
-    return slice
+    return slic
 
 
 def rot(image, centre_xy, angle):
-    """Rotates an image around a rotation centre.
-    Input: Image array (2d), rotation centre, angle in degrees
-    Output: Rotated image array (2d), new rotation centre"""
+    """
+    Rotates an image around a rotation centre.
+    :param image: 2d array of image
+    :param centre_xy: rotation centre
+    :rtype centre_xy: tuple[int]
+    :param angle: rotation angle in degrees
+    :return: tuple(Rotated image 2d array, new rotation centre)
+    """
     im_rot = rotate(image, angle)
     org_center = (np.array(image.shape[:2][::-1]) - 1) / 2.
     rot_center = (np.array(im_rot.shape[:2][::-1]) - 1) / 2.
@@ -81,13 +115,25 @@ def rot(image, centre_xy, angle):
     return im_rot, new + rot_center
 
 
-def xray(image, axis_):
+def xray(image, axis_=0):
+    """
+    Plot an x-ray of ad 3d image (=2d projection)
+    :param image: 3d array of image
+    :param axis_: Optional; axis (0, 1, 2), default = 0
+    :rtype axis_: int
+    :return:
+    """
     plt.figure()
     plt.imshow(np.sum(image, axis=axis_), cmap='gray')
     plt.show()
 
 
 def getLargestCC(segm_im):
+    """
+    Function to find the largest connected region
+    :param segm_im: segmented image array consisting of 0 and 1
+    :return: segmented image array with only largest connected region
+    """
     labels = label(segm_im)
     assert (labels.max() != 0)  # assume at least 1 CC
     largestCC = labels == np.argmax(np.bincount(labels.flat)[1:]) + 1
@@ -95,7 +141,13 @@ def getLargestCC(segm_im):
 
 
 def countOccurrence(arr, x_):
-    """Counts the occurrence of x in array arr"""
+    """
+    Counts the occurrence of x in array arr
+    :param arr: any nd-array
+    :param x_: value to count occurrence in array
+    :rtype x_: int
+    :return: number of occurrences
+    """
     res = 0
     arrF = arr.flatten()
     for j in range(len(arrF)):
@@ -105,9 +157,15 @@ def countOccurrence(arr, x_):
 
 
 def islandFinder(img):
-    """Finds connected islands (connectivity = 1, 2, ..., size(img)).
+    """
+    Finds connected islands (connectivity = 1, 2, ..., size(img), ).
     Returns an array containing the boolean array of each island and
-    the size of each island."""
+    the size of each island.
+    :param img: 3d image array
+    :returns: tuple (islands, island_size) ---
+              island is array with islands ---
+              island_size is array with size of islands, correspond to islands-array
+    """
     [imglabeled, island_count] = label(img, background=0, return_num=True, connectivity=1)
     islands = np.zeros(np.append(island_count, np.append(1, imglabeled.shape)))
     island_size = np.zeros(island_count)
@@ -117,7 +175,21 @@ def islandFinder(img):
     return islands, island_size
 
 
-def axis2D3D(img, start, end, test, plot):
+def axis2D3D(img, start, end, test=0, plot=0):
+    """
+    Find screw axis with linear regressions on two 2d-projections along 3rd (z) axis
+    :param img: 3d image array
+    :param start: start of ROI
+    :type
+    :rtype start: int
+    :param end: end of ROI
+    :rtype end: int
+    :param test: Optional; if 1 shows figures for visual check on each layer
+    :rtype test: int
+    :param plot: Optional; if 1 shows 3d plot at the end
+    :rtype plot: int
+    :return: two points on the regression axis in 3d
+    """
     # centre of gravity for each slice of the screw
     xs = []
     ys = []
@@ -162,21 +234,14 @@ def axis2D3D(img, start, end, test, plot):
     return points
 
 
-def seg(img, th, th2):
-    img[img < th] = 0
-    img[img > th2] = 0
-    img_seg = np.array(img > 0).astype(int)
-    return img_seg
-
-
 def axis3D(img, start, end, axis_):
     """
-    Function to find screw axis in 3d image.
+    Function to find screw axis in 3d image. Orthogonal fit
     :param img: 3d array of the segmented image. Background = 0, screw >= 1.
     :param start: Value <= ROI
     :param end: Value >= ROI
     :param axis_: Along which axis to evaluate ('x', 'y' or 'z')
-    :return: Line containing point and vector
+    :return: point and vector
     """
     # centre of gravity for each slice of the screw
     xs = []
@@ -216,25 +281,70 @@ def axis3D(img, start, end, axis_):
     return line_fit
 
 
-def COGIcoTip(img, start, end):
+def COGIcoTip(img, start, end, axis):
+    """
+    Function to find the center of gravity (COG) in a segmented image
+    :param img: segmented 3d image
+    :param start: starting point for evaluation on specified axis
+    :type start: int
+    :param end: end point for evaluation on specified axis
+    :type end: int
+    :param axis:  along which the evaluation should follow (0/1/2)
+    :type axis: int
+    :return: center of gravity
+    """
     xs = []
     ys = []
     zs = []
-    for i_ in range(start, end):
-        # Find slices where screw tip appears
-        loc_ = np.array(np.where(img[:, :, i_] == 1))
-        if loc_.shape[1]:
-            # Find centre of gravity for slice i
-            print('Tip on slice ' + str(i_))
-            cog = [np.mean(loc_[0]), np.mean(loc_[1])]
-            xs.append(cog[0])
-            ys.append(cog[1])
-            zs.append(i_)
-    S = [np.mean(xs), np.mean(ys), np.mean(zs)]
-    return S, xs, ys, zs
+    S = 0
+    if axis == 0:
+        for i_ in range(start, end):
+            # Find slices where screw tip appears
+            loc_ = np.array(np.where(img[i_, :, :] == 1))
+            if loc_.shape[1]:
+                # Find centre of gravity for slice i_
+                # print('Tip on slice ' + str(i_))
+                cog = [np.mean(loc_[0]), np.mean(loc_[1])]
+                xs.append(i_)
+                ys.append(cog[0])
+                zs.append(cog[1])
+        S = [np.mean(xs), np.mean(ys), np.mean(zs)]
+    elif axis == 1:
+        for i_ in range(start, end):
+            # Find slices where screw tip appears
+            loc_ = np.array(np.where(img[:, i_, :] == 1))
+            if loc_.shape[1]:
+                # Find centre of gravity for slice i_
+                # print('Tip on slice ' + str(i_))
+                cog = [np.mean(loc_[0]), np.mean(loc_[1])]
+                xs.append(cog[0])
+                ys.append(i_)
+                zs.append(cog[1])
+        S = [np.mean(xs), np.mean(ys), np.mean(zs)]
+    elif axis == 2:
+
+        for i_ in range(start, end):
+            # Find slices where screw tip appears
+            loc_ = np.array(np.where(img[:, :, i_] == 1))
+            if loc_.shape[1]:
+                # Find centre of gravity for slice i_
+                # print('Tip on slice ' + str(i_))
+                cog = [np.mean(loc_[0]), np.mean(loc_[1])]
+                xs.append(cog[0])
+                ys.append(cog[1])
+                zs.append(i_)
+        S = [np.mean(xs), np.mean(ys), np.mean(zs)]
+    return S  # , xs, ys, zs
 
 
 def rotate3Daround(img, angle, axis):
+    """
+    Function to rotate a 3d image around a coordinate axis by a specified angle
+    :param img: 3d image array
+    :param angle: angle in degrees (positive direction = anti-clockwise)
+    :param axis: 0/1/2 (standing for x, y, z axis)
+    :return: rotated image in same dimension as input (hence image data gets lost)
+    """
     dim = img.shape
     img_rotated = np.zeros_like(img)
     if axis == 2:
@@ -250,7 +360,13 @@ def rotate3Daround(img, angle, axis):
 
 
 def normal_vector(p1_, p2_, p3_):
-    # Find normal vectors to the plane of three points
+    """
+    Function to find the normal vector to a plane defined by three points
+    :param p1_: Point1 as 3d np array
+    :param p2_: Point2 as 3d np array
+    :param p3_: Point3 as 3d np array
+    :return: Normalised vector normal to the plane. (Note: direction depending on order of points)
+    """
     v1_ = p2_ - p1_
     v2_ = p3_ - p1_
     normal = np.cross(v1_, v2_)
@@ -258,8 +374,12 @@ def normal_vector(p1_, p2_, p3_):
 
 
 def angle_between(v1_, v2_):
-    # Angle between two vectors
-    # Input form: np.array([1, 0, 0])
+    """
+    Function to find the angle between two vectors
+    :param v1_: First 3d-vector as np array
+    :param v2_: Second 3d-vector as np array
+    :return: angle in degrees
+    """
     dot = np.dot(v1_, v2_)
     mag_v1 = np.linalg.norm(v1_)
     mag_v2 = np.linalg.norm(v2_)
@@ -267,12 +387,11 @@ def angle_between(v1_, v2_):
 
 
 def set_axes_equal(axy):
-    """Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    """
+    Make axes of 3D plot have equal scale so that spheres appear as spheres,
     cubes as cubes, etc.  This is one possible solution to Matplotlib 's
     ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
-
-    Input
-      ax: a matplotlib axis, e.g., as output from plt.gca().
+    :param axy: a matplotlib axis, e.g., as output from plt.gca().
     """
 
     x_limits = axy.get_xlim3d()
@@ -306,10 +425,11 @@ def fit_plane(points):
 
 
 def rotation_matrix_from_vectors(vec1, vec2):
-    """ Find the rotation matrix that aligns vec1 to vec2
+    """
+    Find the rotation matrix that aligns vec1 to vec2
     :param vec1: A 3d "source" vector
     :param vec2: A 3d "destination" vector
-    :return mat: A transform matrix (3x3) which when applied to vec1, aligns it with vec2.
+    :return: A transform matrix (3x3) which when applied to vec1, aligns it with vec2.
     """
     a_, b_ = (vec1 / np.linalg.norm(vec1)).reshape(3), (vec2 / np.linalg.norm(vec2)).reshape(3)
     v = np.cross(a_, b_)
@@ -322,11 +442,12 @@ def rotation_matrix_from_vectors(vec1, vec2):
 
 def rotation_matrix_from_angles(theta1, theta2, theta3, order):
     """
-    input
-        theta1, theta2, theta3 = rotation angles in rotation order (degrees)
-        order = rotation order of x,y,z　e.g. XZY rotation -- 'xzy'
-    output
-        3x3 rotation matrix (numpy array)
+    Function to create a rotation matrix from given angles in a specified order
+    :param theta1: angle in rad, rotation around axis 1 (x-axis)
+    :param theta2: angle in rad, rotation around axis 2 (y-axis)
+    :param theta3: angle in rad, rotation around axis 3 (z-axis)
+    :param order: rotation order of x,y,z　e.g. XZY rotation --> 'xzy'
+    :return: 3x3 rotation matrix (numpy array)
     """
     c1 = np.cos(theta1)  # * np.pi / 180)
     s1 = np.sin(theta1)  # * np.pi / 180)
@@ -389,11 +510,10 @@ def rotation_matrix_from_angles(theta1, theta2, theta3, order):
 
 def rotation_angles_from_matrix(matrix, order):
     """
-    input
-        matrix = 3x3 rotation matrix (numpy array)
-        order(str) = rotation order of x, y, z : e.g, rotation XZY -- 'xzy'
-    output
-        theta1, theta2, theta3 = rotation angles in rotation order
+    This function finds rotation angles from a rotation matrix in a specified order of rotation.
+    :param matrix: 3x3 rotation matrix (numpy array)
+    :param order: (str) rotation order of x, y, z : e.g, rotation XZY -- 'xzy'
+    :return: theta1, theta2, theta3 = rotation angles in rotation order
     """
     r11, r12, r13 = matrix[0]
     r21, r22, r23 = matrix[1]
@@ -470,14 +590,26 @@ def rotation_angles_from_matrix(matrix, order):
 
 
 def zeros_and_ones(img, th_):
-    """Creates a new image with zeros (below threshold) and ones only"""
+    """
+    This function creates a new image with zeros (below threshold) and ones only
+    :param img: grey image array
+    :param th_: threshold; below = 0, above = 1
+    :return: np array from segmented image"""
     img01 = np.array((img >= th_).astype(int))
     return img01
 
 
 def blockPrint():
+    """
+    Function to block print output
+    :return:
+    """
     sys.stdout = open(os.devnull, 'w')  # disable printing
 
 
 def enablePrint():
+    """
+    Function to enable print output
+    :return:
+    """
     sys.stdout = sys.__stdout__   # enable printing
