@@ -298,11 +298,11 @@ def load_BVTVdata(bone, filename):
 
     bone["GreyImage"] = sitk.ReadImage(filename)
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, radius=1)  # Schenk et al. 2022
-    print('Start Gauss filtering')
-    tG = time.time()
-    bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk et al. 2022
-    print('Gauss filtering time: ' + str(int((time.time() - tG) / 60)) + ' min ' + str(
-        round(np.mod(time.time() - tG, 60), 1)) + ' sec.')
+    #print('Start Gauss filtering')
+    #tG = time.time()
+    #bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk et al. 2022
+    #print('Gauss filtering time: ' + str(int((time.time() - tG) / 60)) + ' min ' + str(
+    #    round(np.mod(time.time() - tG, 60), 1)) + ' sec.')
 
 
 
@@ -334,7 +334,7 @@ def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
     f_material = open(material)
 
     for lines in f_inpDummy:  # works but complicated, using line = line.replace() could shorten it significantly
-        if lines != '*Solid Section, elset=Set-Impl, material=PEEK':
+        if '*Solid Section, elset=Set-Impl, material=PEEK' not in lines:
             outfile.write(lines)
         if '*Solid Section, elset=Set-Bone, material=Bone' in lines:
             for lines_sets in f_eleSets:
@@ -348,10 +348,10 @@ def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
             # print('Section found.')
             if mat == 'Ti':
                 # outfile.truncate()
-                outfile.write('*Solid Section, elset=Set-Impl, material=Ti')
+                outfile.write('*Solid Section, elset=Set-Impl, material=Ti\n')
                 print('Section set to Ti.')
             elif mat == 'PEEK':
-                outfile.write('*Solid Section, elset=Set-Impl, material=PEEK')
+                outfile.write('*Solid Section, elset=Set-Impl, material=PEEK\n')
                 print('Section set to PEEK.')
     outfile.close()
 
