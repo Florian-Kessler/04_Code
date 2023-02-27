@@ -18,9 +18,11 @@ import ReadRawMHD as rR
 # discuss calibration curve for BVTV with Ph, currently the calibration curve of Schenk et al. 2022 is included
 # problem with curve of Schenk: offset for small density, leading to a minimum of 6% BV/TV (also outside bone!)
 
-def HFE_mapping_trans(bone, filename1, filename2):
+def HFE_mapping_trans(bone, inp):
     """
     Material Mapping, including PSL ghost padding layers as copy of most distal and proximal layers
+    :param bone: bone dictionary
+    :param inp: input
     """
 
     print('... start material mapping with copying boundary layers as ghost layers')
@@ -111,8 +113,6 @@ def HFE_mapping_trans(bone, filename1, filename2):
     elems = {elem: elems[elem] for elem in elsets["BONE"]}
     elems_bone = elems
 
-    INPname1 = filename1
-    INPname2 = filename2
     # mf.writeAbaqus(INPname, None, nodes, None, elems, elsets, NscaResults=None)
     # *****************************************************************
     marray = np.real(np.mean([np.asarray(m[elem]) for elem in m.keys()], axis=0))
@@ -142,9 +142,9 @@ def HFE_mapping_trans(bone, filename1, filename2):
     bone["CoarseFactor"] = bone["FEelSize"][0] / bone["Spacing"][0]
 
     # Write elements and material properties to input file
-    print("\n ... update ABAQUS file       :  " + INPname1 + " and " + INPname2)
-    outfile1 = open(INPname1, 'w')
-    outfile2 = open(INPname2, 'w')
+    print("\n ... update ABAQUS file       :  " + inp['BoneElsets'] + " and " + inp['BoneMaterials'])
+    outfile1 = open(inp['BoneElsets'], 'w')
+    outfile2 = open(inp['BoneMaterials'], 'w')
     outfile1.write("***********************************************************\n")
     outfile2.write("***********************************************************\n")
     outfile2.write("** MATERIALS\n")
@@ -173,17 +173,17 @@ def HFE_mapping_trans(bone, filename1, filename2):
     return bone
 
 
-def readInpBoneDummy(bone, inpFileBoneDummy):
+def readInpBoneDummy(bone, inp):
     """
     This function will generate an Abaqus input file which defines for each element in the mesh file a separate
     element-set.
     :param bone: bone dictionary
-    :param inpFileBoneDummy: Abaqus input file which contains only the mesh
+    :param inp: inp dictionary with abaqus input file details
     :return: An Abaqus input file with the mesh information and element sets
     """
 
     # Read information from Dummy input file of bone
-    inpDummy = mf.readAbaqus(inpFileBoneDummy)
+    inpDummy = mf.readAbaqus(inp['dummyMesh'])
     # title = inp[0]
     nodes = inpDummy[1]
     # nsets = inpDummy[2]
@@ -216,37 +216,33 @@ def list_txt_files(path):
     return files
 
 
-def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False, reshape=True, closing=True):
+def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     """
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
-    :param bone: dictionary
-    :param path: path to store a mhd file of the mask
-    :param filename: name of the stl file
-    :param resolution: resolution (voxel size) of the mask
-    :param mask_name: name of the mhd file
+    :param bone: bone dictionary
+    :param inp: input file dictionary
     :param controlplot: If true a control 3d image of the stl will pop up - close it to proceed
     :param reshape: sometimes the order of the slices for the 3d array does not match - activate it if mhd looks weird
     :param closing: sometimes there are some small holes in the mask - activate it if needed
     :return: 3d array mask
     """
-
     # read in the stl to generate the mask
-    reader = pv.get_reader(filename)
+    reader = pv.get_reader(inp['STL'])
     mesh = reader.read()
 
     if controlplot:
         mesh.plot()
-        voxels = pv.voxelize(mesh, density=resolution)
+        voxels = pv.voxelize(mesh, density=inp['Resolution'])
         p = pv.Plotter()
         p.add_mesh(voxels, color=True, show_edges=True)
         p.add_mesh(mesh, color="red", opacity=0.5)
         p.show()
 
     x_min, x_max, y_min, y_max, z_min, z_max = mesh.bounds
-    x = np.arange(x_min, x_max, resolution)
-    y = np.arange(y_min, y_max, resolution)
-    z = np.arange(z_min, z_max, resolution)
+    x = np.arange(x_min, x_max, inp['Resolution'])
+    y = np.arange(y_min, y_max, inp['Resolution'])
+    z = np.arange(z_min, z_max, inp['Resolution'])
     x, y, z = np.meshgrid(x, y, z)
 
     # Create unstructured grid from the structured grid
@@ -275,15 +271,14 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
 
     origin = [0, 0, 0]
-    spacing = np.array([1, 1, 1]) * resolution
+    spacing = np.array([1, 1, 1]) * inp['Resolution']
 
     mask_trans = mask.astype(np.short)
     itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
     itkmask.SetSpacing(spacing)
     itkmask.SetOrigin(origin)
 
-    path_to_local_folder = path
-    sitk.WriteImage(itkmask, f'{path_to_local_folder}/{mask_name}')
+    sitk.WriteImage(itkmask, inp['Mask'])
 
     # set bone values
     bone['MASK_array'] = mask_trans.T
@@ -327,40 +322,48 @@ def load_BVTVdata(bone, filename):
     return bone
 
 
-def HFE_inp_creator(inp_dummy, ele_sets, material, inp_name, mat):
-    outfile = open(inp_name + '.inp', 'w')
-    f_inpDummy = open(inp_dummy)
-    f_eleSets = open(ele_sets)
-    f_material = open(material)
-
-    for lines in f_inpDummy:  # works but complicated, using line = line.replace() could shorten it significantly
-        if '*Solid Section, elset=Set-Impl, material=PEEK' not in lines:
-            outfile.write(lines)
-        if '*Solid Section, elset=Set-Bone, material=Bone' in lines:
-            for lines_sets in f_eleSets:
-                outfile.write(lines_sets)
-            print('Element sets added.')
-        if '0., 0.06,   1.,   1.,   1.' in lines:
-            for lines_mat in f_material:
-                outfile.write(lines_mat)
-            print('Material properties added.')
-        if '*Solid Section, elset=Set-Impl, material=PEEK' in lines:
-            # print('Section found.')
-            if mat == 'Ti':
-                # outfile.truncate()
-                outfile.write('*Solid Section, elset=Set-Impl, material=Ti\n')
-                print('Section set to Ti.')
-            elif mat == 'PEEK':
-                outfile.write('*Solid Section, elset=Set-Impl, material=PEEK\n')
-                print('Section set to PEEK.')
-    outfile.close()
-
+def HFE_inp_creator(inp):
+    SimMat = ['T', 'P']  # simulated materials
+    for i in range(len(SimMat)):
+        f_inpDummy = open(inp['Template'])
+        f_eleSets = open(inp['BoneElsets'])
+        f_material = open(inp['BoneMaterials'])
+        outfile = open(inp['InputFile'] + '_' + SimMat[i] + '.inp', 'w')
+        for lines in f_inpDummy:  # works but complicated, using line = line.replace() could shorten it significantly
+            if '*Solid Section, elset=Set-Impl, material=PEEK' not in lines:
+                outfile.write(lines)
+            if '*Solid Section, elset=Set-Bone, material=Bone' in lines:
+                for lines_sets in f_eleSets:
+                    outfile.write(lines_sets)
+                print('Element sets added.')
+            if '0., 0.06,   1.,   1.,   1.' in lines:
+                for lines_mat in f_material:
+                    outfile.write(lines_mat)
+                print('Material properties added.')
+            if '*Solid Section, elset=Set-Impl, material=PEEK' in lines:
+                # print('Section found.')
+                if SimMat[i] == 'T':
+                    # outfile.truncate()
+                    outfile.write('*Solid Section, elset=Set-Impl, material=Ti\n')
+                    print('Section set to Ti.')
+                elif SimMat[i] == 'P':
+                    outfile.write('*Solid Section, elset=Set-Impl, material=PEEK\n')
+                    print('Section set to PEEK.')
+        outfile.close()
+        f_inpDummy.close()
+        f_eleSets.close()
+        f_material.close()
     print("End HFE_inp_creator")
 
 
-def write_mesh(inp_path, mesh_path):
-    orig = open(inp_path)
-    mesh = open(mesh_path, 'w')
+def write_mesh(inp):
+    """
+    Extracts the bone mesh from the input file. Part must be called name=Bone
+    :param inp: input file dictionary
+    :return: no return variable, writes an input file containing the bone mesh only
+    """
+    orig = open(inp['Template'])
+    mesh = open(inp['dummyMesh'], 'w')
     start = 0
     for lines in orig:
         if '*Part, name=Bone' in lines:
