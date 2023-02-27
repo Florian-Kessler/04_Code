@@ -299,7 +299,7 @@ def boneMeshMask(bone, path, filename, resolution, mask_name, controlplot=False,
 def load_BVTVdata(bone, filename):
 
     bone["GreyImage"] = sitk.ReadImage(filename)
-    # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, radius=1)  # Schenk et al. 2022
+    # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
     # print('Start Gauss filtering')
     # tG = time.time()
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
