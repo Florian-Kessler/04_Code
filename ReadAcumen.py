@@ -41,11 +41,11 @@ def read_acumen(file_a):
     f_ = pd.DataFrame(df, columns=['Axial Force ']).to_numpy()
     # f_set_ = pd.DataFrame(df, columns=['Axial Force Command ']).to_numpy()
     cycle_ = pd.DataFrame(df, columns=['Axial Count ']).to_numpy()
-    arr_ = 0
+    # arr_ = 0
     peak_ = np.zeros(int(np.max(cycle_)))
     vall_ = np.zeros(int(np.max(cycle_)))
     for j in range(2, int(np.max(cycle_))):
-        del arr_
+        # del arr_
         arr_ = np.where((cycle_ == j) | (cycle_ == j + .5))[0]
         peak_[j] = arr_[int(np.argmin(f_[arr_]))]
         vall_[j] = arr_[int(np.argmax(f_[arr_]))]
