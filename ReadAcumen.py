@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+from scipy.signal import argrelextrema
 
 
 def read_RFnodeFile(file_):
@@ -58,6 +59,8 @@ def read_acumen(file_a):
 
 t1 = time.time()
 plt.close('all')
+
+
 fig, ax1 = plt.subplots(1)
 ax2 = ax1.twinx()
 
@@ -88,59 +91,49 @@ ax2.set_ylabel('Force / N')
 ax1.axis([0, int(np.ceil(np.max(cycle)/1000)*1000),  -20, 0])
 ax2.axis([0, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
 
+plt.legend(loc='lower right')
 
-'''
-# file = ['9_04_P_deg00_Lat_mu02c_ThSf']
-# loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/09_CubSiThread/'
-#file = [#'7_43_P_deg00_Lat_mu02c', '7_43_T_deg00_Lat_mu02c',
-        # '7_44_P_deg00_Lat_mu02c', '7_44_T_deg00_Lat_mu02c',
-        # '7_45_P_deg00_Lat_mu02c', '7_45_T_deg00_Lat_mu02c',
-        #'7_93_P_deg00_Lat_mu02c', '7_93_T_deg00_Lat_mu02c',
-        #'7_63_P_deg00_Lat_mu02c', '7_63_T_deg00_Lat_mu02c',
-        #'7_63_P2_deg00_Lat_mu02c', '7_63_T2_deg00_Lat_mu02c',
-        #'7_63_P3_deg00_Lat_mu02c', '7_63_T3_deg00_Lat_mu02c'
-        #]
-#loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/07_Cuboid/'
-file = ['10_01_P_deg00_Lat_mu02c', '10_01_T_deg00_Lat_mu02c',
-        '10_91_P_deg00_Lat_mu02c', '10_91_T_deg00_Lat_mu02c'
-        ]
-loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/10_CuboidScrewCore/'
 
+loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/Pilot3/archive/'
+sample = '00_Pilot3'
 [uy, rfy] = 2*[0]
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 screw_force = np.zeros([5, 21])
 ang = np.zeros([5, 21])
-for i in range(0, len(file)):
-    del uy, rfy
-    pathRF = loc + str(file[i]) + '_RFnode.txt'
-    pathRFfix = loc + str(file[i]) + '_RFnodeFix.txt'
-    try:
+Screw_mat = ['T', 'P']
+Sim_mat = ['T', 'P']
+plt.figure()
+Fpoint = (-np.array([0, 50, 75, 150, 185, 225, 300])) * (-4950/185)-50
+for i in range(len(Screw_mat)):
+    for j in range(len(Sim_mat)):
+        file = sample + Screw_mat[i] + '_' + Sim_mat[j]
+        del uy, rfy
+        pathRF = loc + str(file) + '_RFnode.txt'
+        pathRFfix = loc + str(file) + '_RFnodeFix.txt'
         [uy, r_] = read_RFnodeFile(pathRF)
         [u_, rfy] = read_RFnodeFile(pathRFfix)
+        plt.plot(uy, rfy)
+
+ax2.scatter(Fpoint, -np.array([0, 50, 75, 150, 185, 225, 300]))
+'''
         Fpmax = np.append(argrelextrema(rfy, np.greater), len(rfy) - 1)
         Fpmin = np.append(0, argrelextrema(rfy, np.less))
-        F_point = rfy[Fpmax] * 20 - 1000
-        if 'P' in file[i]:
-            c = int(i / 2)
+        Fpmax_cycles = rfy[Fpmax] * 20 - 1000
+        Fpmin_cycles = rfy[Fpmax] * 20 - 1000
+        if '_P' in file:
+            c = i
             ax1.scatter(F_point, uy[Fpmax], color=col[c], marker='^', alpha=0.5)
-            ax1.plot(F_point, uy[Fpmax], color=col[c], alpha=0.5)
+            #ax1.plot(F_point, uy[Fpmax], color=col[c], alpha=0.5)
             ax2.scatter(-1E9, 1E9, color=col[c], marker='^')
             ax1.scatter(F_point, uy[Fpmin], color=col[c], marker='^')
             ax1.plot(F_point, uy[Fpmin], color=col[c])
-        elif 'T' in file[i]:
-            c = int((i - 1) / 2)
+        elif '_T' in file:
+            c = i
             ax1.scatter(F_point, uy[Fpmax], color=col[c], marker='o', alpha=0.5)
-            ax1.plot(F_point, uy[Fpmax], color=col[c], alpha=0.5, ls=':')
+            #ax1.plot(F_point, uy[Fpmax], color=col[c], alpha=0.5, ls=':')
             ax2.scatter(-1E9, 1E9, color=col[c], marker='o')
             ax1.scatter(F_point, uy[Fpmin], color=col[c], marker='o')
             ax1.plot(F_point, uy[Fpmin], color=col[c], ls=':')
-        else:
-            print('Invalid file')
-    except FileNotFoundError:
-        print(Fore.CYAN + 'NOTE: "' + str(file[i]) + '" not found.')
-        print(Style.RESET_ALL)
-        [uy, rfy] = 2 * [0]
 '''
-plt.legend(loc='lower right')
 
 print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
