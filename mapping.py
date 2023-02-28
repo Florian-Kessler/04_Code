@@ -325,8 +325,10 @@ def HFE_inp_creator(inp):
         f_inpDummy = open(inp['FEA_loc'] + inp['Model_Code'] + '_model.inp')
         f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp')
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
-        outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']) + '_'
-                       + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+        # Included in input file-name:
+        # Model code (geometry), force maximum, friction, experiment screw material, simulation screw material
+        outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' +
+                       str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
         for lines in f_inpDummy:
 
             # Define step 2
