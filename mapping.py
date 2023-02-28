@@ -369,6 +369,9 @@ def HFE_inp_creator(inp):
 
             # Amplitude settings (number of cycles, peak and valley load)
             # here proceed with amplitude etc.
+
+            # lines.replace(old string, new string) could be used
+
             # elif '*Amplitude, name=Amp-1' in lines:
                 # outfile.write('0., 0.,\n')
                 # for j in range(inp['Cycles']):
