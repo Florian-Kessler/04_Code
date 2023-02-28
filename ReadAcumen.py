@@ -88,22 +88,21 @@ ax2.spines.right.set_visible(True)
 ax1.set_xlabel('Cycle Number')
 ax1.set_ylabel('Displacement / mm')
 ax2.set_ylabel('Force / N')
-ax1.axis([0, int(np.ceil(np.max(cycle)/1000)*1000),  -20, 0])
-ax2.axis([0, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
-
-plt.legend(loc='lower right')
+ax1.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000),  -25, 0])
+ax2.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
 
 
-loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/Pilot3/archive/'
+loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/Pilot3/00_Pilot3/'
 sample = '00_Pilot3'
 [uy, rfy] = 2*[0]
-col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
+# col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 screw_force = np.zeros([5, 21])
 ang = np.zeros([5, 21])
-Screw_mat = ['T', 'P']
-Sim_mat = ['T', 'P']
+Screw_mat = ['P', 'T']
+Sim_mat = ['P', 'T']
 plt.figure()
-Fpoint = (-np.array([0, 50, 75, 150, 185, 225, 300])) * (-4950/185)-50
+
+Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
 for i in range(len(Screw_mat)):
     for j in range(len(Sim_mat)):
         file = sample + Screw_mat[i] + '_' + Sim_mat[j]
@@ -112,9 +111,25 @@ for i in range(len(Screw_mat)):
         pathRFfix = loc + str(file) + '_RFnodeFix.txt'
         [uy, r_] = read_RFnodeFile(pathRF)
         [u_, rfy] = read_RFnodeFile(pathRFfix)
-        plt.plot(uy, rfy)
-
-ax2.scatter(Fpoint, -np.array([0, 50, 75, 150, 185, 225, 300]))
+        plt.plot(-uy, rfy, label='Exp: ' + Screw_mat[i] + ' , sim: ' + Sim_mat[j])
+        cycle = -1E5
+        for k in range(len(rfy)):
+            cycleN = -rfy[k]*-37.037 - 1851
+            if cycleN > cycle:
+                cycle = cycleN
+            if i == j:
+                ax1.scatter(cycle, uy[k], color=col[j][0], label='_nolegend_')
+                if k == 0:
+                    ax2.scatter(1E5, 1E5, color=col[j][0],
+                                label='Exp: ' + Screw_mat[i] + ' , sim: ' + Sim_mat[j])
+            else:
+                ax1.scatter(cycle, uy[k], color=col[j][0], marker='^', label='_nolegend_')
+                if k == 0:
+                    ax2.scatter(1E5, 1E5, color=col[j][0], marker='^',
+                                label='Exp: ' + Screw_mat[i] + ' , sim: ' + Sim_mat[j])
+plt.xlabel('Displacement / mm')
+plt.ylabel('Force / N')
+plt.legend(loc='lower right')
 '''
         Fpmax = np.append(argrelextrema(rfy, np.greater), len(rfy) - 1)
         Fpmin = np.append(0, argrelextrema(rfy, np.less))
