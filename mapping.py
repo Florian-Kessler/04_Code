@@ -13,11 +13,6 @@ import ReadRawMHD as rR
 # import scipy
 
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# Attention !!!!!!!!!!!!!!!!!!!!!
-# discuss calibration curve for BVTV with Ph, currently the calibration curve of Schenk et al. 2022 is included
-# problem with curve of Schenk: offset for small density, leading to a minimum of 6% BV/TV (also outside bone!)
-
 def HFE_mapping_trans(bone, inp):
     """
     Material Mapping, including PSL ghost padding layers as copy of most distal and proximal layers
@@ -81,7 +76,7 @@ def HFE_mapping_trans(bone, inp):
                 cog, Spacing, FEelSize, BVTVscaled, MASK_array_T
             )
 
-            RHOb[elem] = BVTVbone*0.651+0.05646  # --> lowest value will be 6% BV/TV
+            RHOb[elem] = BVTVbone*0.651+0.05646  # Schenk et al. 2022
             RHOb_FE[elem] = BVTVbone_FE*0.651+0.05646
             PHIb[elem] = PHIbone
             RHOb_corrected[elem] = BVTVbone * PHIbone
@@ -142,9 +137,10 @@ def HFE_mapping_trans(bone, inp):
     bone["CoarseFactor"] = bone["FEelSize"][0] / bone["Spacing"][0]
 
     # Write elements and material properties to input file
-    print("\n ... update ABAQUS file       :  " + inp['BoneElsets'] + " and " + inp['BoneMaterials'])
-    outfile1 = open(inp['BoneElsets'], 'w')
-    outfile2 = open(inp['BoneMaterials'], 'w')
+    print("\n ... update ABAQUS file       :  " + inp['FEA_loc'] + inp['Model_Code'] +
+          inp['Screw'] + '_elsets.inp' + " and " + inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
+    outfile1 = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp', 'w')
+    outfile2 = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp', 'w')
     outfile1.write("***********************************************************\n")
     outfile2.write("***********************************************************\n")
     outfile2.write("** MATERIALS\n")
@@ -183,7 +179,7 @@ def readInpBoneDummy(bone, inp):
     """
 
     # Read information from Dummy input file of bone
-    inpDummy = mf.readAbaqus(inp['dummyMesh'])
+    inpDummy = mf.readAbaqus(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.inp')
     # title = inp[0]
     nodes = inpDummy[1]
     # nsets = inpDummy[2]
@@ -228,7 +224,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     :return: 3d array mask
     """
     # read in the stl to generate the mask
-    reader = pv.get_reader(inp['STL'])
+    reader = pv.get_reader(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.stl')
     mesh = reader.read()
 
     if controlplot:
@@ -278,7 +274,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     itkmask.SetSpacing(spacing)
     itkmask.SetOrigin(origin)
 
-    sitk.WriteImage(itkmask, inp['Mask'])
+    sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_mask.mhd')
 
     # set bone values
     bone['MASK_array'] = mask_trans.T
@@ -325,23 +321,24 @@ def load_BVTVdata(bone, filename):
 def HFE_inp_creator(inp):
     SimMat = ['T', 'P']  # simulated materials
     for i in range(len(SimMat)):
-        f_inpDummy = open(inp['Template'])
-        f_eleSets = open(inp['BoneElsets'])
-        f_material = open(inp['BoneMaterials'])
-        outfile = open(inp['InputFile'] + '_' + SimMat[i] + '.inp', 'w')
-        for lines in f_inpDummy:  # works but complicated, using line = line.replace() could shorten it significantly
-            if '*Solid Section, elset=Set-Impl, material=PEEK' not in lines:
-                outfile.write(lines)
-            if '*Solid Section, elset=Set-Bone, material=Bone' in lines:
-                for lines_sets in f_eleSets:
-                    outfile.write(lines_sets)
-                print('Element sets added.')
-            if '0., 0.06,   1.,   1.,   1.' in lines:
-                for lines_mat in f_material:
-                    outfile.write(lines_mat)
-                print('Material properties added.')
+        step = 0
+        f_inpDummy = open(inp['FEA_loc'] + inp['Model_Code'] + '_model.inp')
+        f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp')
+        f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
+        outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']) + '_'
+                       + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+        for lines in f_inpDummy:
+
+            # Define steps
+            if '*Step, name=Step-1,' in lines:
+                step = 1
+            elif '*Step, name=Step-2,' in lines:
+                step = 2
+                print('step2')
+
+            # Set material of implant
             if '*Solid Section, elset=Set-Impl, material=PEEK' in lines:
-                # print('Section found.')
+                # replace material section
                 if SimMat[i] == 'T':
                     # outfile.truncate()
                     outfile.write('*Solid Section, elset=Set-Impl, material=Ti\n')
@@ -349,6 +346,39 @@ def HFE_inp_creator(inp):
                 elif SimMat[i] == 'P':
                     outfile.write('*Solid Section, elset=Set-Impl, material=PEEK\n')
                     print('Section set to PEEK.')
+
+            # Add bone element sets
+            elif '*Solid Section, elset=Set-Bone, material=Bone' in lines:
+                outfile.write(lines)
+                # add elsets
+                for lines_sets in f_eleSets:
+                    outfile.write(lines_sets)
+
+            # Add bone element set material properties for UMAT
+            elif '0., 0.06,   1.,   1.,   1.' in lines:
+                outfile.write(lines)
+                # add bone mat
+                for lines_mat in f_material:
+                    outfile.write(lines_mat)
+
+            # Set force amplitude and direction
+            elif 'Set-RP, 2,' in lines:
+                print('found set-rp')
+                print(step)
+                if step == 2:
+                    outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
+                else:
+                    outfile.write(lines)
+            # here proceed with amplitude etc.
+            # elif '*Amplitude, name=Amp-1' in lines:
+                # outfile.write('0., 0.,\n')
+                # for j in range(inp['Cycles']):
+                #    amp = (j+1)/inp['Cycles']
+
+                # outfile.write('
+            else:
+                outfile.write(lines)
+
         outfile.close()
         f_inpDummy.close()
         f_eleSets.close()
@@ -362,8 +392,8 @@ def write_mesh(inp):
     :param inp: input file dictionary
     :return: no return variable, writes an input file containing the bone mesh only
     """
-    orig = open(inp['Template'])
-    mesh = open(inp['dummyMesh'], 'w')
+    orig = open(inp['FEA_loc'] + inp['Model_Code'] + '_model.inp')
+    mesh = open(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.inp', 'w')
     start = 0
     for lines in orig:
         if '*Part, name=Bone' in lines:
