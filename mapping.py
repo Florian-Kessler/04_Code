@@ -329,12 +329,9 @@ def HFE_inp_creator(inp):
                        + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
         for lines in f_inpDummy:
 
-            # Define steps
-            if '*Step, name=Step-1,' in lines:
-                step = 1
-            elif '*Step, name=Step-2,' in lines:
+            # Define step 2
+            if '*Step, name=Step-2,' in lines:
                 step = 2
-                print('step2')
 
             # Set material of implant
             if '*Solid Section, elset=Set-Impl, material=PEEK' in lines:
@@ -363,12 +360,12 @@ def HFE_inp_creator(inp):
 
             # Set force amplitude and direction
             elif 'Set-RP, 2,' in lines:
-                print('found set-rp')
-                print(step)
                 if step == 2:
                     outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
                 else:
                     outfile.write(lines)
+
+            # Amplitude settings (number of cycles, peak and valley load)
             # here proceed with amplitude etc.
             # elif '*Amplitude, name=Amp-1' in lines:
                 # outfile.write('0., 0.,\n')
