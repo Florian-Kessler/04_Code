@@ -58,10 +58,16 @@ def read_acumen(file_a):
     return cycle_, d_, f_, peak_, vall_
 
 
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
+
+
 t1 = time.time()
 plt.close('all')
 
-'''
+
 fig, ax1 = plt.subplots(1)
 ax2 = ax1.twinx()
 
@@ -72,29 +78,41 @@ TITAN3 = 'Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 
 file = [loc + PEEK3, loc + TITAN3]
-
+exp = {}
 col = [['#1f6a06', '#0a1eb2'],
        ['#373737', '#b20a0a']]
-labels = ['ICOTEC', 'Titanium']
-cycle = 0
+labels = ['PEEK', 'Ti']
 for i in range(0, len(file)):
-    [cycle, d, f, peak, vall] = read_acumen(str(file[i]))
-    ax1.plot(cycle[peak], d[peak], color=col[i][0], label='_nolegend_')
-    ax1.plot(cycle[vall], d[vall], color=col[i][0], alpha=0.75, label='_nolegend_')
-    ax2.plot(cycle[peak], f[peak], color=col[i][1], label='Force ' + str(labels[i]))
-    ax2.plot(cycle[vall], f[vall], color=col[i][1], alpha=0.75, label='_nolegend_')
+    [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
+     exp['vall' + labels[i]]] = read_acumen(str(file[i]))
+    ax1.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
+             color=col[i][0], label='_nolegend_')
+    ax1.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
+             color=col[i][0], alpha=0.75, label='_nolegend_')
+    ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
+             color=col[i][1], label='Force ' + str(labels[i]))
+    ax2.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
+             color=col[i][1], alpha=0.75, label='_nolegend_')
     ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
 
 ax2.spines.right.set_visible(True)
 ax1.set_xlabel('Cycle Number')
 ax1.set_ylabel('Displacement / mm')
 ax2.set_ylabel('Force / N')
-ax1.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000),  -25, 0])
-ax2.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
-'''
+ax1.axis([-2000, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -25, 0])
+ax2.axis([-2000, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -750, 0])
+
+
+cyc1T = find_nearest(exp['fTi'][exp['peakTi']], -75)
+cyc2T = find_nearest(exp['fTi'][exp['peakTi']], -150)
+cyc1P = find_nearest(exp['fPEEK'][exp['peakPEEK']], -75)
+cyc2P = find_nearest(exp['fPEEK'][exp['peakPEEK']], -150)
+
 
 fig1, figP = plt.subplots()
+plt.title('PEEK screw')
 fig2, figT = plt.subplots()
+plt.title('Ti screw')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 number = ['00', '01', '02', '10']
 for i in range(len(number)):
@@ -129,6 +147,15 @@ for i in range(len(number)):
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x')
         else:
             print('\n . . . Invalid file!\n')
+figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
+          -exp['fPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39], color='k')
+figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39],
+          -exp['fPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39], color='k')
+figT.plot(-exp['dTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39],
+          -exp['fTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39], color='k')
+figT.plot(-exp['dTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39],
+          -exp['fTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39], color='k')
+
 
 '''
 for i in range(len(Screw_mat)):
@@ -158,27 +185,6 @@ for i in range(len(Screw_mat)):
 plt.xlabel('Displacement / mm')
 plt.ylabel('Force / N')
 plt.legend(loc='lower right')
-'''
-
-'''
-        Fpmax = np.append(argrelextrema(rfy, np.greater), len(rfy) - 1)
-        Fpmin = np.append(0, argrelextrema(rfy, np.less))
-        Fpmax_cycles = rfy[Fpmax] * 20 - 1000
-        Fpmin_cycles = rfy[Fpmax] * 20 - 1000
-        if '_P' in file:
-            c = i
-            ax1.scatter(F_point, uy[Fpmax], color=col[c], marker='^', alpha=0.5)
-            #ax1.plot(F_point, uy[Fpmax], color=col[c], alpha=0.5)
-            ax2.scatter(-1E9, 1E9, color=col[c], marker='^')
-            ax1.scatter(F_point, uy[Fpmin], color=col[c], marker='^')
-            ax1.plot(F_point, uy[Fpmin], color=col[c])
-        elif '_T' in file:
-            c = i
-            ax1.scatter(F_point, uy[Fpmax], color=col[c], marker='o', alpha=0.5)
-            #ax1.plot(F_point, uy[Fpmax], color=col[c], alpha=0.5, ls=':')
-            ax2.scatter(-1E9, 1E9, color=col[c], marker='o')
-            ax1.scatter(F_point, uy[Fpmin], color=col[c], marker='o')
-            ax1.plot(F_point, uy[Fpmin], color=col[c], ls=':')
 '''
 
 print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
