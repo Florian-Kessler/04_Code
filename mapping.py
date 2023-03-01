@@ -91,7 +91,7 @@ def HFE_mapping_trans(bone, inp):
             elems[elem].set_mm(mm)
 
         sys.stdout.write(
-            "\r" + " ... material mapping element " + str(i+1) + "/" + str(len(elems))
+            "\r" + "... material mapping element " + str(i+1) + "/" + str(len(elems))
         )
         sys.stdout.flush()
 
