@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+import os
 from scipy.signal import argrelextrema
 
 
@@ -92,8 +93,11 @@ ax1.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000),  -25, 0])
 ax2.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
 
 
-loc = '/home/biomech/Documents/01_Icotec/02_FEA/99_Tests/Pilot3/00_Pilot3/'
-sample = '00_Pilot3'
+number = '02'
+loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/'
+folder = [filename for filename in os.listdir(loc) if filename.startswith(number)][0] + '/'
+samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')]
+
 [uy, rfy] = 2*[0]
 # col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 screw_force = np.zeros([5, 21])
@@ -103,12 +107,21 @@ Sim_mat = ['P', 'T']
 plt.figure()
 
 Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
+
+for i in range(len(samples)):
+    file_path = loc + folder + samples[i]
+    [uy, r_] = read_RFnodeFile(file_path)
+    [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+    plt.plot(uy, rfy)
+
+
+'''
 for i in range(len(Screw_mat)):
     for j in range(len(Sim_mat)):
-        file = sample + Screw_mat[i] + '_' + Sim_mat[j]
+        file = sample + '_' + Screw_mat[i] + '_' + Sim_mat[j]
         del uy, rfy
-        pathRF = loc + str(file) + '_RFnode.txt'
-        pathRFfix = loc + str(file) + '_RFnodeFix.txt'
+        pathRF = loc + str(sample.split('_F')[0]) + '/' + str(file) + '_RFnode.txt'
+        pathRFfix = loc + str(sample.split('_F')[0]) + '/' + str(file) + '_RFnodeFix.txt'
         [uy, r_] = read_RFnodeFile(pathRF)
         [u_, rfy] = read_RFnodeFile(pathRFfix)
         plt.plot(-uy, rfy, label='Exp: ' + Screw_mat[i] + ' , sim: ' + Sim_mat[j])
@@ -130,6 +143,8 @@ for i in range(len(Screw_mat)):
 plt.xlabel('Displacement / mm')
 plt.ylabel('Force / N')
 plt.legend(loc='lower right')
+'''
+
 '''
         Fpmax = np.append(argrelextrema(rfy, np.greater), len(rfy) - 1)
         Fpmin = np.append(0, argrelextrema(rfy, np.less))
