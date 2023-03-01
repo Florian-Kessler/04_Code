@@ -45,7 +45,7 @@ def HFE_mapping_trans(bone, inp):
     m = {}
     cogs = {}
 
-    ROI_BVTV_size = 2.5  # diameter in mm
+    ROI_BVTV_size = inp['Mapping_Diameter']  # sphere diameter in mm
 
     print("FEelSize material mapping = " + str(FEelSize))
 
@@ -386,6 +386,25 @@ def HFE_inp_creator(inp):
         f_eleSets.close()
         f_material.close()
     print("End HFE_inp_creator")
+
+
+def write_submit(inp):
+    SimMat = ['P', 'T']
+    for i in range(len(SimMat)):
+        template = open(inp['Project_Folder'] + '02_FEA/97_Templates/abq_submit_template_' + inp['Submit'] + '.sh')
+        abq_file = open(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 'w')
+        inputfile = inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') + '_' +\
+                    inp['Screw'] + '_' + SimMat[i]
+        material_code = inp['Screw'] + SimMat[i]
+        for lines in template:
+            if 'inpname' in lines:
+                new_line = lines.replace('inpname', inputfile)
+                abq_file.write(new_line)
+            elif 'materials' in lines:
+                new_line = lines.replace('materials', material_code)
+                abq_file.write(new_line)
+            else:
+                abq_file.write(lines)
 
 
 def write_mesh(inp):
