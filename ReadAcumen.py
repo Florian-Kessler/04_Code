@@ -105,8 +105,8 @@ ax2.axis([-2000, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -750,
 
 cyc1T = find_nearest(exp['fTi'][exp['peakTi']], -75)
 cyc2T = find_nearest(exp['fTi'][exp['peakTi']], -150)
-cyc1P = find_nearest(exp['fPEEK'][exp['peakPEEK']], -75)
-cyc2P = find_nearest(exp['fPEEK'][exp['peakPEEK']], -150)
+cyc1P = find_nearest(exp['fPEEK'][exp['peakPEEK'][:1330]], -75)
+cyc2P = find_nearest(exp['fPEEK'][exp['peakPEEK'][:1330]], -150)
 
 
 fig1, figP = plt.subplots()
@@ -147,6 +147,7 @@ for i in range(len(number)):
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x')
         else:
             print('\n . . . Invalid file!\n')
+
 figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
           -exp['fPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39], color='k')
 figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39],
@@ -156,7 +157,13 @@ figT.plot(-exp['dTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39],
 figT.plot(-exp['dTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39],
           -exp['fTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39], color='k')
 
+figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
+             -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color='k', s=0.5)
+figT.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],
+             -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='k', s=0.5)
 
+figP.axis([0, 30, 0, 180])
+figT.axis([0, 30, 0, 180])
 '''
 for i in range(len(Screw_mat)):
     for j in range(len(Sim_mat)):
