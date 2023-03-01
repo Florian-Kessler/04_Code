@@ -47,7 +47,7 @@ def HFE_mapping_trans(bone, inp):
 
     ROI_BVTV_size = inp['Mapping_Diameter']  # sphere diameter in mm
 
-    print("FEelSize material mapping = " + str(FEelSize))
+    # print("FEelSize material mapping = " + str(FEelSize))
 
     for i, elem in enumerate(elems):
 
@@ -91,7 +91,7 @@ def HFE_mapping_trans(bone, inp):
             elems[elem].set_mm(mm)
 
         sys.stdout.write(
-            "\r" + " ... material mapping element " + str(i) + "/" + str(len(elems))
+            "\r" + " ... material mapping element " + str(i+1) + "/" + str(len(elems))
         )
         sys.stdout.flush()
 
@@ -117,7 +117,7 @@ def HFE_mapping_trans(bone, inp):
 
     # io_utils.print_mem_usage()
 
-    print("... material mapping finished")
+    print("\n... material mapping finished")
 
     # set bone values
     # bone["RHOb_array"] = RHOb_array
@@ -137,8 +137,8 @@ def HFE_mapping_trans(bone, inp):
     bone["CoarseFactor"] = bone["FEelSize"][0] / bone["Spacing"][0]
 
     # Write elements and material properties to input file
-    print("\n ... update ABAQUS file       :  " + inp['FEA_loc'] + inp['Model_Code'] +
-          inp['Screw'] + '_elsets.inp' + " and " + inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
+    print("\n ... update ABAQUS files:\n" + inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp' +
+          "\nand\n" + inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
     outfile1 = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp', 'w')
     outfile2 = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp', 'w')
     outfile1.write("***********************************************************\n")
