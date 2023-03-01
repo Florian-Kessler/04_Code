@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import pandas as pd
 import os
-from scipy.signal import argrelextrema
+# from scipy.signal import argrelextrema
 
 
 def read_RFnodeFile(file_):
@@ -46,11 +46,11 @@ def read_acumen(file_a):
     # arr_ = 0
     peak_ = np.zeros(int(np.max(cycle_)))
     vall_ = np.zeros(int(np.max(cycle_)))
-    for j in range(2, int(np.max(cycle_))):
+    for j_ in range(2, int(np.max(cycle_))):
         # del arr_
-        arr_ = np.where((cycle_ == j) | (cycle_ == j + .5))[0]
-        peak_[j] = arr_[int(np.argmin(f_[arr_]))]
-        vall_[j] = arr_[int(np.argmax(f_[arr_]))]
+        arr_ = np.where((cycle_ == j_) | (cycle_ == j_ + .5))[0]
+        peak_[j_] = arr_[int(np.argmin(f_[arr_]))]
+        vall_[j_] = arr_[int(np.argmax(f_[arr_]))]
 
     peak_ = peak_.astype(int)
     vall_ = vall_.astype(int)
@@ -61,7 +61,7 @@ def read_acumen(file_a):
 t1 = time.time()
 plt.close('all')
 
-
+'''
 fig, ax1 = plt.subplots(1)
 ax2 = ax1.twinx()
 
@@ -91,29 +91,44 @@ ax1.set_ylabel('Displacement / mm')
 ax2.set_ylabel('Force / N')
 ax1.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000),  -25, 0])
 ax2.axis([-2000, int(np.ceil(np.max(cycle)/1000)*1000), -750, 0])
+'''
 
-
-number = '02'
-loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/'
-folder = [filename for filename in os.listdir(loc) if filename.startswith(number)][0] + '/'
-samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')]
-
-[uy, rfy] = 2*[0]
-# col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
-screw_force = np.zeros([5, 21])
-ang = np.zeros([5, 21])
-Screw_mat = ['P', 'T']
-Sim_mat = ['P', 'T']
-plt.figure()
-
-Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
-
-for i in range(len(samples)):
-    file_path = loc + folder + samples[i]
-    [uy, r_] = read_RFnodeFile(file_path)
-    [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-    plt.plot(uy, rfy)
-
+fig1, figP = plt.subplots()
+fig2, figT = plt.subplots()
+col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
+number = ['00', '01', '02', '10']
+for i in range(len(number)):
+    loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/'
+    folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
+    samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')]
+    [uy, rfy] = 2*[0]
+    screw_force = np.zeros([5, 21])
+    ang = np.zeros([5, 21])
+    Screw_mat = ['P', 'T']
+    Sim_mat = ['P', 'T']
+    Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
+    for j in range(len(samples)):
+        file_path = loc + folder + samples[j]
+        [uy, r_] = read_RFnodeFile(file_path)
+        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+        if 'P_P' in samples[j]:
+            figP.plot(-uy, rfy, color=col[i], linestyle='solid')
+            if rfy[-1] > 30:
+                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x')
+        elif 'T_T' in samples[j]:
+            figT.plot(-uy, rfy, color=col[i], linestyle='solid')
+            if rfy[-1] > 30:
+                figT.scatter(-uy[-1], rfy[-1], color='k', marker='x')
+        elif 'P_T' in samples[j]:
+            figT.plot(-uy, rfy, color=col[i], linestyle='dashdot')
+            if rfy[-1] > 30:
+                figT.scatter(-uy[-1], rfy[-1], color='k', marker='x')
+        elif 'T_P' in samples[j]:
+            figP.plot(-uy, rfy, color=col[i], linestyle='dashdot')
+            if rfy[-1] > 30:
+                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x')
+        else:
+            print('\n . . . Invalid file!\n')
 
 '''
 for i in range(len(Screw_mat)):
