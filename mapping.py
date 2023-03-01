@@ -405,7 +405,8 @@ def write_submit(inp):
                 abq_file.write(new_line)
             else:
                 abq_file.write(lines)
-
+        abq_file.close()
+        os.chmod(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 0o744)
 
 def write_mesh(inp):
     """
