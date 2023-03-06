@@ -327,8 +327,15 @@ def HFE_inp_creator(inp):
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
         # Included in input file-name:
         # Model code (geometry), force maximum, friction, experiment screw material, simulation screw material
-        outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' +
-                       str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+        if inp['F_dir'] == '-':
+            outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' +
+                           str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+        elif inp['F_dir'] == '+':
+            outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_Finv' + str(inp['F_max']) + '_' +
+                           str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+        else:
+            print('Wront F_dir input')
+            exit()
         for lines in f_inpDummy:
 
             # Define step 2
@@ -393,8 +400,12 @@ def write_submit(inp):
     for i in range(len(SimMat)):
         template = open(inp['Project_Folder'] + '02_FEA/97_Templates/abq_submit_template_' + inp['Submit'] + '.sh')
         abq_file = open(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 'w')
-        inputfile = inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') + '_' +\
-                    inp['Screw'] + '_' + SimMat[i]
+        if inp['F_dir'] == '-':
+            inputfile = inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.','') \
+                        + '_' + inp['Screw'] + '_' + SimMat[i]
+        elif inp['F_dir'] == '+':
+            inputfile = inp['Model_Code'] + '_Finv' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') \
+                        + '_' + inp['Screw'] + '_' + SimMat[i]
         material_code = inp['Screw'] + SimMat[i]
         for lines in template:
             if 'inpname' in lines:
