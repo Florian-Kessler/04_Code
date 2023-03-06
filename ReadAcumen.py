@@ -40,6 +40,7 @@ def read_acumen(file_a):
     df = pd.read_csv(file_a, delimiter=';', skiprows=[0, 2])
     # t_ = pd.DataFrame(df, columns=['Time ']).to_numpy()
     d_ = pd.DataFrame(df, columns=['Axial Displacement ']).to_numpy()
+    #d_ = d_ - d_[0]
     f_ = pd.DataFrame(df, columns=['Axial Force ']).to_numpy()
     # f_set_ = pd.DataFrame(df, columns=['Axial Force Command ']).to_numpy()
     cycle_ = pd.DataFrame(df, columns=['Axial Count ']).to_numpy()
@@ -61,6 +62,13 @@ def read_acumen(file_a):
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
+    return idx
+
+
+def find_first(array, value):
+    array = np.asarray(array)
+    idx = next(x for x, val in enumerate(array)
+               if val <= value)
     return idx
 
 
@@ -103,10 +111,10 @@ ax1.axis([-2000, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -25,
 ax2.axis([-2000, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -750, 0])
 
 
-cyc1T = find_nearest(exp['fTi'][exp['peakTi']], -75)
-cyc2T = find_nearest(exp['fTi'][exp['peakTi']], -150)
-cyc1P = find_nearest(exp['fPEEK'][exp['peakPEEK'][:1330]], -75)
-cyc2P = find_nearest(exp['fPEEK'][exp['peakPEEK'][:1330]], -150)
+cyc1T = find_first(exp['fTi'][exp['peakTi']], -75)
+cyc2T = find_first(exp['fTi'][exp['peakTi']], -150)
+cyc1P = find_first(exp['fPEEK'][exp['peakPEEK'][:1330]], -75)
+cyc2P = find_first(exp['fPEEK'][exp['peakPEEK'][:1330]], -150)
 
 
 fig1, figP = plt.subplots()
@@ -114,7 +122,7 @@ plt.title('PEEK screw')
 fig2, figT = plt.subplots()
 plt.title('Ti screw')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
-number = ['00', '01', '02', '10']
+number = ['00', '01', '02', '10', '11']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
@@ -163,7 +171,7 @@ figT.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],
              -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='k', s=0.5)
 
 figP.axis([0, 30, 0, 180])
-figT.axis([0, 30, 0, 180])
+figT.axis([0, 10, 0, 180])
 '''
 for i in range(len(Screw_mat)):
     for j in range(len(Sim_mat)):
