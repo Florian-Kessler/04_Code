@@ -196,7 +196,7 @@ def axis2D3D(img, start, end, test=0, plot=0):
     zs = []
     for i_ in range(start, end):
         # Find slices where screw appears
-        loc_ = np.array(np.where(img[:, :, i_] == 1))
+        loc_ = np.array(np.where(img[:, :, i_] >= 1))
         if loc_.shape[1]:
             # Find centre of gravity for slice i
             cog = [np.mean(loc_[0]), np.mean(loc_[1])]
@@ -300,7 +300,7 @@ def COGIcoTip(img, start, end, axis):
     if axis == 0:
         for i_ in range(start, end):
             # Find slices where screw tip appears
-            loc_ = np.array(np.where(img[i_, :, :] == 1))
+            loc_ = np.array(np.where(img[i_, :, :] >= 1))
             if loc_.shape[1]:
                 # Find centre of gravity for slice i_
                 # print('Tip on slice ' + str(i_))
@@ -312,7 +312,7 @@ def COGIcoTip(img, start, end, axis):
     elif axis == 1:
         for i_ in range(start, end):
             # Find slices where screw tip appears
-            loc_ = np.array(np.where(img[:, i_, :] == 1))
+            loc_ = np.array(np.where(img[:, i_, :] >= 1))
             if loc_.shape[1]:
                 # Find centre of gravity for slice i_
                 # print('Tip on slice ' + str(i_))
@@ -325,7 +325,7 @@ def COGIcoTip(img, start, end, axis):
 
         for i_ in range(start, end):
             # Find slices where screw tip appears
-            loc_ = np.array(np.where(img[:, :, i_] == 1))
+            loc_ = np.array(np.where(img[:, :, i_] >= 1))
             if loc_.shape[1]:
                 # Find centre of gravity for slice i_
                 # print('Tip on slice ' + str(i_))

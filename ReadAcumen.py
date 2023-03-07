@@ -163,10 +163,10 @@ figP.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
 figT.plot(-1E5, -1E5, color='k', label='Tested side')
 figT.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
 
-figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
-          -exp['fPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39], color='k', label='_nolegend_')
-figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39],
-          -exp['fPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39], color='k', label='_nolegend_')
+#figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
+#          -exp['fPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39], color='k', label='_nolegend_')
+#figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39],
+#          -exp['fPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39], color='k', label='_nolegend_')
 #figT.plot(-exp['dTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39],
 #          -exp['fTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39], color='k', label='_nolegend_')
 #figT.plot(-exp['dTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39],

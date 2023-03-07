@@ -334,7 +334,7 @@ def HFE_inp_creator(inp):
             outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_Finv' + str(inp['F_max']) + '_' +
                            str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
         else:
-            print('Wront F_dir input')
+            print('Wrong F_dir input')
             exit()
         for lines in f_inpDummy:
 
@@ -398,10 +398,11 @@ def HFE_inp_creator(inp):
 def write_submit(inp):
     SimMat = ['P', 'T']
     for i in range(len(SimMat)):
+        inputfile = ''
         template = open(inp['Project_Folder'] + '02_FEA/97_Templates/abq_submit_template_' + inp['Submit'] + '.sh')
         abq_file = open(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 'w')
         if inp['F_dir'] == '-':
-            inputfile = inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.','') \
+            inputfile = inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') \
                         + '_' + inp['Screw'] + '_' + SimMat[i]
         elif inp['F_dir'] == '+':
             inputfile = inp['Model_Code'] + '_Finv' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') \
@@ -418,6 +419,7 @@ def write_submit(inp):
                 abq_file.write(lines)
         abq_file.close()
         os.chmod(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 0o744)
+
 
 def write_mesh(inp):
     """
