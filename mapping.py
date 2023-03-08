@@ -17,7 +17,7 @@ def HFE_mapping_trans(bone, inp):
     """
     Material Mapping, including PSL ghost padding layers as copy of most distal and proximal layers
     :param bone: bone dictionary
-    :param inp: input
+    :param inp: inputfile properties
     """
 
     print('... start material mapping with copying boundary layers as ghost layers')
@@ -217,7 +217,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
     :param bone: bone dictionary
-    :param inp: input file dictionary
+    :param inp: input file properties
     :param controlplot: If true a control 3d image of the stl will pop up - close it to proceed
     :param reshape: sometimes the order of the slices for the 3d array does not match - activate it if mhd looks weird
     :param closing: sometimes there are some small holes in the mask - activate it if needed
@@ -288,7 +288,12 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
 
 
 def load_BVTVdata(bone, filename):
-
+    """
+    Load and segment bone CT
+    :param bone: bone dictionary
+    :param filename: path to grey image of bone CT
+    :return: segmented BVTV image in bone dictionary
+    """
     bone["GreyImage"] = sitk.ReadImage(filename)
     print('Image read.')
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
@@ -323,6 +328,11 @@ def load_BVTVdata(bone, filename):
 
 
 def HFE_inp_creator(inp):
+    """
+    Creates inputfile with specified details
+    :param inp: inputfile properties
+    :return: writes input file
+    """
     SimMat = ['T', 'P']  # simulated materials
     for i in range(len(SimMat)):
         step = 0
@@ -400,6 +410,11 @@ def HFE_inp_creator(inp):
 
 
 def write_submit(inp):
+    """
+    Function to write a submit file, either for cortex or for ubelix
+    :param inp: inputfile properties
+    :return: writes .sh files
+    """
     SimMat = ['P', 'T']
     for i in range(len(SimMat)):
         inputfile = ''

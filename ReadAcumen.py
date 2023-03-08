@@ -85,6 +85,8 @@ PEEK3 = 'Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
 TITAN3 = 'Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 
+cor = float(2.0)  # Correction for initial displacement offset
+
 file = [loc + PEEK3, loc + TITAN3]
 exp = {}
 col = [['#1f6a06', '#0a1eb2'],
@@ -93,6 +95,8 @@ labels = ['PEEK', 'Ti']
 for i in range(0, len(file)):
     [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
      exp['vall' + labels[i]]] = read_acumen(str(file[i]))
+    if 'Ti' in labels[i]:
+        exp['dTi'] = exp['dTi'] + cor
     ax1.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
              color=col[i][0], label='_nolegend_')
     ax1.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
@@ -123,7 +127,8 @@ fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Ti screw')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 
-number = ['00', '01', '02', '10', '11', '12']
+# number = ['00', '01', '02', '10', '11', '12']
+number = ['50', '55']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
@@ -203,19 +208,21 @@ figP.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
 figT.plot(-1E5, -1E5, color='k', label='Tested side')
 figT.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
 
-# figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
-#           -exp['fPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39], color='k', label='_nolegend_')
-# figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39],
-#           -exp['fPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39], color='k', label='_nolegend_')
-# figT.plot(-exp['dTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39],
-#           -exp['fTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39], color='k', label='_nolegend_')
-# figT.plot(-exp['dTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39],
-#           -exp['fTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39], color='k', label='_nolegend_')
+'''
+figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
+          -exp['fPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39], color='k', label='_nolegend_')
+figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39],
+          -exp['fPEEK'][exp['peakPEEK'][cyc2P]-39:exp['peakPEEK'][cyc2P]+39], color='k', label='_nolegend_')
+figT.plot(-exp['dTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39],
+          -exp['fTi'][exp['peakTi'][cyc1T]-39:exp['peakTi'][cyc1T]+39], color='k', label='_nolegend_')
+figT.plot(-exp['dTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39],
+          -exp['fTi'][exp['peakTi'][cyc2T]-39:exp['peakTi'][cyc2T]+39], color='k', label='_nolegend_')
+'''
 
 figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
              -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color='k', s=0.5, label='Experiment')
 figT.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],
-             -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='k', s=0.5, label='Experiment')
+             -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='k', s=0.5, label='Experiment, corr.: ' + str(cor) + ' mm')
 
 figP.axis([0, 30, 0, 180])
 figT.axis([0, 15, 0, 180])
