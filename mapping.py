@@ -290,6 +290,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
 def load_BVTVdata(bone, filename):
 
     bone["GreyImage"] = sitk.ReadImage(filename)
+    print('Image read.')
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
     # print('Start Gauss filtering')
     # tG = time.time()
@@ -298,23 +299,26 @@ def load_BVTVdata(bone, filename):
     #    round(np.mod(time.time() - tG, 60), 1)) + ' sec.')
 
     # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
-    bone_img = sitk.GetArrayFromImage(bone["GreyImage"])
-
     # Transform image from z,y,x to x,y,z
-    bone_img = np.transpose(bone_img, [2, 1, 0])
+    bone_img = np.transpose(sitk.GetArrayFromImage(bone["GreyImage"]), [2, 1, 0])
+    print('Transpose.')
+    # Transform image from z,y,x to x,y,z
+    # bone_img = np.transpose(bone_img, [2, 1, 0])
 
     # Read the origin of the ct_scan, will be used to convert the coordinates from world to voxel and vice versa
     # origin = np.array(list(reversed(itkimage.GetOrigin())))
 
     # Read the spacing along each dimension
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
-
+    print('Spacing.')
     # scaling factor/intercept from Schenk et al. 2022. Threshold of 320 was found in paper for trabecular (cort: 450)
-    BVTVscaled = rR.zeros_and_ones(bone_img, 320)
+    # BVTVscaled = rR.zeros_and_ones(bone_img, 320)
 
     # Flip image 180° to get same COS origin
-    bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
+    # bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
 
+    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)
+    print('Segmented.')
     return bone
 
 
@@ -369,7 +373,7 @@ def HFE_inp_creator(inp):
 
             # Set force amplitude and direction
             elif 'Set-RP, 2,' in lines:
-                if step == 2:
+                if step == 5:  # HERE EDITED FOR TESTING DISPLACEMENT CONTROLLED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
                 else:
                     outfile.write(lines)

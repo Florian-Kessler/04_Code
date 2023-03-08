@@ -595,8 +595,7 @@ def zeros_and_ones(img, th_):
     :param img: grey image array
     :param th_: threshold; below = 0, above = 1
     :return: np array from segmented image"""
-    img01 = np.array((img >= th_).astype(int))
-    return img01
+    return np.array((img >= th_).astype(int))
 
 
 def blockPrint():
