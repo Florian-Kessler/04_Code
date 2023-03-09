@@ -72,7 +72,6 @@ def find_first(array, value):
     return idx
 
 
-# To do: 10_...TP RF node files
 t1 = time.time()
 plt.close('all')
 
@@ -85,7 +84,7 @@ PEEK3 = 'Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
 TITAN3 = 'Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 
-cor = float(2.0)  # Correction for initial displacement offset
+cor = float(2.0)  # Correction for displacement offset
 
 file = [loc + PEEK3, loc + TITAN3]
 exp = {}
@@ -105,7 +104,10 @@ for i in range(0, len(file)):
              color=col[i][1], label='Force ' + str(labels[i]))
     ax2.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
              color=col[i][1], alpha=0.75, label='_nolegend_')
-    ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
+    if 'Ti' in labels[i]:
+        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(cor) + ' mm')
+    else:
+        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
 
 ax2.spines.right.set_visible(True)
 ax1.set_xlabel('Cycle Number')
@@ -144,25 +146,28 @@ for i in range(len(number)):
     for j in range(len(samples)):
         lab = 'Screw excess = ' + folder.split('_S')[-1][0] + '.' + folder.split('_S')[-1][1] + ' mm, ' + \
               'diameter = ' + folder.split('_D')[-1][0] + '.' + folder.split('_D')[-1][1] + ' mm'
+        lab = 'Unidirectional'
+        if '55' in number[i]:
+            lab = 'Toggling'
         file_path = loc + folder + samples[j]
         [uy, r_] = read_RFnodeFile(file_path)
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
         if 'P_P' in samples[j]:
             figP.plot(-uy, rfy, color=col[i], linestyle='solid', label=lab)
-            if rfy[-1] > 30:
+            if rfy[-1] > 15:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         elif 'T_T' in samples[j]:
             figT.plot(-uy, rfy, color=col[i], linestyle='solid', label=lab)
-            if rfy[-1] > 30:
+            if rfy[-1] > 15:
                 figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
-        elif 'P_T' in samples[j]:
-            figT.plot(-uy, rfy, color=col[i], linestyle='dashdot', label='_nolegend_')
-            if rfy[-1] > 30:
-                figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
-        elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='dashdot', label='_nolegend_')
-            if rfy[-1] > 30:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
+        #elif 'P_T' in samples[j]:
+        #    figT.plot(-uy, rfy, color=col[i], linestyle='dashdot', label='_nolegend_')
+        #    if rfy[-1] > 15:
+        #        figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
+        #elif 'T_P' in samples[j]:
+        #    figP.plot(-uy, rfy, color=col[i], linestyle='dashdot', label='_nolegend_')
+        #    if rfy[-1] > 15:
+        #        figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
 
@@ -203,10 +208,10 @@ for i in range(len(number)):
         else:
             print('\n . . . Invalid file!\n')'''
 
-figP.plot(-1E5, -1E5, color='k', label='Tested side')
-figP.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
-figT.plot(-1E5, -1E5, color='k', label='Tested side')
-figT.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
+#figP.plot(-1E5, -1E5, color='k', label='Tested side')
+#figP.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
+#figT.plot(-1E5, -1E5, color='k', label='Tested side')
+#figT.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
 
 '''
 figP.plot(-exp['dPEEK'][exp['peakPEEK'][cyc1P]-39:exp['peakPEEK'][cyc1P]+39],
@@ -224,12 +229,25 @@ figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
 figT.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],
              -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='k', s=0.5, label='Experiment, corr.: ' + str(cor) + ' mm')
 
-figP.axis([0, 30, 0, 180])
-figT.axis([0, 15, 0, 180])
+figP.axis([-30, 30, -180, 180])
+figT.axis([-15, 15, -180, 180])
 figP.set_xlabel('Displacement / mm')
 figP.set_ylabel('Force / N')
 figT.set_xlabel('Displacement / mm')
 figT.set_ylabel('Force / N')
 figP.legend(loc='lower right')
 figT.legend(loc='lower right')
+
+
+#temp
+fig5, ax5 = plt.subplots(1, 1, figsize=(9, 6))
+file_ = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/50_L50_S00_D30/E_PEEK.txt'
+df = np.loadtxt(file_, delimiter='\t')
+timeX = np.array(df[:, 0])
+strain = np.array(df[:, 1])
+plt.plot(timeX[40:]-1, strain[40:])
+plt.plot([0, 1], [0.01, 0.01], linestyle='dashed', c='k')
+plt.xlabel('Step time')
+plt.ylabel('Logarithmic strain')
+
 print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')

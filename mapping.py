@@ -341,6 +341,7 @@ def HFE_inp_creator(inp):
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
         # Included in input file-name:
         # Model code (geometry), force maximum, friction, experiment screw material, simulation screw material
+
         if inp['F_dir'] == '-':
             outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' +
                            str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
@@ -350,8 +351,8 @@ def HFE_inp_creator(inp):
         else:
             print('Wrong F_dir input')
             exit()
-        for lines in f_inpDummy:
 
+        for lines in f_inpDummy:
             # Define step 2
             if '*Step, name=Step-2,' in lines:
                 step = 2
