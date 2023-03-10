@@ -234,22 +234,21 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
         p.add_mesh(voxels, color=True, show_edges=True)
         p.add_mesh(mesh, color="red", opacity=0.5)
         p.show()
+
     x_min, x_max, y_min, y_max, z_min, z_max = mesh.bounds
     x = np.arange(x_min, x_max, inp['Resolution'])
     y = np.arange(y_min, y_max, inp['Resolution'])
     z = np.arange(z_min, z_max, inp['Resolution'])
     x, y, z = np.meshgrid(x, y, z)
 
-
     # Create unstructured grid from the structured grid
     grid = pv.StructuredGrid(x, y, z)
     ugrid = pv.UnstructuredGrid(grid)
-    del grid
+
     # get part of the mesh within the mesh's bounding surface.
     selection = ugrid.select_enclosed_points(mesh.extract_surface(), tolerance=0.0, check_surface=False)
-    del ugrid
     mask_ = selection.point_data['SelectedPoints'].view(np.bool_)
-    del mesh
+
     if reshape:
         # sometimes the order of the matrix gets changed
         mask = mask_.reshape([z.shape[2], z.shape[1], z.shape[0]])
@@ -257,29 +256,33 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
         mask = np.rot90(mask, k=-1, axes=(1, 2))
     else:
         mask = mask_.reshape(x.shape)
-    del mask_
+
     mask = np.array(mask)
+
     if closing:
         # close small holes and gabs:
         for i in range(0, mask.shape[0]):
             mask[i, :, :] = morph.closing(mask[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
+
     origin = [0, 0, 0]
     spacing = np.array([1, 1, 1]) * inp['Resolution']
+
     mask_trans = mask.astype(np.short)
-    del mask
     itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
     itkmask.SetSpacing(spacing)
     itkmask.SetOrigin(origin)
+
     sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_mask.mhd')
+
     # set bone values
     bone['MASK_array'] = mask_trans.T
-    del mask_trans
     # To move COS to right place in image
     bone['MaskX'] = np.array([x_min, x_max])
     bone['MaskY'] = np.array([y_min, y_max])
     bone['MaskZ'] = np.array([z_min, z_max])
+
     print('BoneMeshMask')
     return bone
 
@@ -291,8 +294,8 @@ def load_BVTVdata(bone, filename):
     :param filename: path to grey image of bone CT
     :return: segmented BVTV image in bone dictionary
     """
-    # bone["GreyImage"] = sitk.ReadImage(filename)
-    # print('Image read.')
+    bone["GreyImage"] = sitk.ReadImage(filename)
+    print('Image read.')
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
     # print('Start Gauss filtering')
     # tG = time.time()
@@ -302,12 +305,8 @@ def load_BVTVdata(bone, filename):
 
     # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
     # Transform image from z,y,x to x,y,z
-    bone["BVTVscaled"] = rR.zeros_and_ones(np.transpose(sitk.GetArrayFromImage(sitk.ReadImage(filename)),
-                                                        [2, 1, 0]), 320)
-    print('Transpose and segmented.')
-    bone["BVTVscaled"].SetOrigin([0, 0, 0])
-    del bone["GreyImage"]
-    print('Del Grey.')
+    bone_img = np.transpose(sitk.GetArrayFromImage(bone["GreyImage"]), [2, 1, 0])
+    print('Transpose.')
     # Transform image from z,y,x to x,y,z
     # bone_img = np.transpose(bone_img, [2, 1, 0])
 
@@ -315,7 +314,7 @@ def load_BVTVdata(bone, filename):
     # origin = np.array(list(reversed(itkimage.GetOrigin())))
 
     # Read the spacing along each dimension
-    bone["Spacing"] = np.array(list(reversed(bone["BVTVscaled"].GetSpacing())))
+    bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
     print('Spacing.')
     # scaling factor/intercept from Schenk et al. 2022. Threshold of 320 was found in paper for trabecular (cort: 450)
     # BVTVscaled = rR.zeros_and_ones(bone_img, 320)
@@ -323,8 +322,8 @@ def load_BVTVdata(bone, filename):
     # Flip image 180° to get same COS origin
     # bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
 
-    # bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)
-    # print('Segmented.')
+    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)
+    print('Segmented.')
     return bone
 
 
@@ -342,7 +341,6 @@ def HFE_inp_creator(inp):
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
         # Included in input file-name:
         # Model code (geometry), force maximum, friction, experiment screw material, simulation screw material
-
         if inp['F_dir'] == '-':
             outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' +
                            str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
@@ -352,8 +350,8 @@ def HFE_inp_creator(inp):
         else:
             print('Wrong F_dir input')
             exit()
-
         for lines in f_inpDummy:
+
             # Define step 2
             if '*Step, name=Step-2,' in lines:
                 step = 2
