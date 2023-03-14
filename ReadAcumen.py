@@ -75,20 +75,23 @@ def find_first(array, value):
 t1 = time.time()
 plt.close('all')
 
+specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5']
+specimen = specimens[5]
+
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
+plt.title('Experimental results ' + specimen.split('_')[1])
 ax2 = ax1.twinx()
 
-specimen = '05_Pilot5'
 
 # PEEK1 = '01_Pilot1/S131840_L4_S1_PEEK.csv'
 # TITAN1 = '01_Pilot1/S191840_L4_S2_DPS.csv'
 PEEK = ''
 TITAN = ''
-cor = 0
+q = 0
 if '03' in specimen:
     PEEK = '03_Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
     TITAN = '03_Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
-    cor = float(2.0)  # Correction for displacement offset for Ti
+    q = float(2.0)  # Correction for displacement offset for Ti
 elif '04' in specimen:
     PEEK = '04_Pilot4/ICOTEC_S130672_L4_icotec_accumen.csv'
     TITAN = '04_Pilot4/ICOTEC_S130672_L4_icotec_kwire_accumen.csv'
@@ -107,27 +110,34 @@ for i in range(0, len(file)):
     [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
      exp['vall' + labels[i]]] = read_acumen(str(file[i]))
     if 'Ti' in labels[i]:
-        exp['dTi'] = exp['dTi'] + cor
+        exp['dTi'] = exp['dTi'] + q
     ax1.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
              color=col[i][0], label='_nolegend_')
     ax1.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
              color=col[i][0], alpha=0.75, label='_nolegend_')
-    ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
-             color=col[i][1], label='Force ' + str(labels[i]))
-    ax2.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
-             color=col[i][1], alpha=0.75, label='_nolegend_')
-    if 'Ti' in labels[i]:
-        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(cor) + ' mm')
+    if 'Ti' in labels[i] and q > 0:
+        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(q) + ' mm')
     else:
         ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
+    if i == 1:
+        ax2.plot(exp['cycle' + labels[1]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
+                 color=col[i][1], label='Force')
+        ax2.plot(exp['cycle' + labels[1]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
+                 color=col[i][1], alpha=0.75, label='_nolegend_')
+    #else:
+    #    ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
+    #             color=col[i][1], label='_nolegend_')
+    #
+
 
 ax2.spines.right.set_visible(True)
 ax1.set_xlabel('Cycle Number')
 ax1.set_ylabel('Displacement / mm')
 ax2.set_ylabel('Force / N')
-ax1.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
+ax1.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -12, 0])
 ax2.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
-ax2.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+#ax2.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+ax2.legend()
 
 try:
     cyc1T = find_first(exp['fTi'][exp['peakTi']], -75)
@@ -149,20 +159,21 @@ except StopIteration:
     cyc1P = 0
     cyc2P = 0
 
+
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('PEEK screw')
+plt.title(specimen.split('_')[1])
 # fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
 # plt.title('Ti screw')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 
 # number = ['00', '01', '02', '10', '11', '12']
-number = ['50']  # , '55']
+# number = ['80', '90']  # , '55']
+number = ['50']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
     samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')
                and '_02_' in filename]
-    print(samples)
     [uy, rfy] = 2*[0]
     screw_force = np.zeros([5, 21])
     ang = np.zeros([5, 21])
@@ -176,23 +187,23 @@ for i in range(len(number)):
         if '55' in number[i]:
             lab = 'Toggling'
         file_path = loc + folder + samples[j]
-        [uy, r_] = read_RFnodeFile(file_path)
-        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+        [uy, rf_] = read_RFnodeFile(file_path)  # switch for inverse loading
+        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
         if 'P_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label=lab)
-            if rfy[-1] > 15:
+            figP.plot(-uy, rfy, color=col[j], linestyle='solid', alpha=0.6, label='Left, Icotec VADER')
+            if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         elif 'T_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label=lab)  # figT
-            if rfy[-1] > 15:
+            figP.plot(-uy, rfy, color=col[j], linestyle='solid', label=lab)  # figT
+            if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'P_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='dashdot', label='_nolegend_')  # figT
-            if rfy[-1] > 15:
+            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', label='_nolegend_')  # figT
+            if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='dashdot', label='_nolegend_')
-            if rfy[-1] > 15:
+            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', alpha=0.6, label='Right, Icotec VADER')
+            if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
@@ -204,16 +215,24 @@ for i in range(len(number)):
 
 if cyc2P:
     figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
-                 -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color='k', s=0.5, label='Experiment')
+                 -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color=col[0], s=1, label='Experiment')
 else:
     figP.scatter(-exp['dPEEK'][exp['peakPEEK']],
-                 -exp['fPEEK'][exp['peakPEEK']], color='k', s=0.5, label='Experiment')
+                 -exp['fPEEK'][exp['peakPEEK']], color=col[0], s=1, label='Experiment')
 if cyc2T:
-    figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],  # figT, 'k'
-                 -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='r', s=0.5, label='Experiment, corr.: '+str(cor)+' mm')
+    if q > 0:
+        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],  # figT, 'k'
+                     -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color=col[1], s=1, label='Experiment, corr.: '+str(q)+' mm')
+    else:
+        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T + 1000]],  # figT, 'k'
+                     -exp['fTi'][exp['peakTi'][:cyc2T + 1000]], color=col[1], s=1, label='Experiment')
 else:
-    figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                 -exp['fTi'][exp['peakTi']], color='r', s=0.5, label='Experiment, corr.: ' + str(cor) + ' mm')
+    if q > 0:
+        figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
+                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment, corr.: ' + str(q) + ' mm')
+    else:
+        figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
+                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment')
 
 figP.axis([0, 15, 0, 180])  # 30
 figP.axis([0, 15, 0, 180])  # figP
@@ -236,5 +255,68 @@ plt.plot([0, 1], [0.01, 0.01], linestyle='dashed', c='k')
 plt.xlabel('Step time')
 plt.ylabel('Logarithmic strain')
 
-print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 '''
+
+specimens = ['03_Pilot3', '04_Pilot4', '05_Pilot5']
+
+figC, ax10 = plt.subplots(1, 1, figsize=(9, 6))
+plt.title('Experimental results')
+
+ax20 = ax10.twinx()
+
+for k in range(len(specimens)):
+    # PEEK1 = '01_Pilot1/S131840_L4_S1_PEEK.csv'
+    # TITAN1 = '01_Pilot1/S191840_L4_S2_DPS.csv'
+    PEEK = ''
+    TITAN = ''
+    q = 0
+    specimen = specimens[k]
+    if '03' in specimen:
+        PEEK = '03_Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
+        TITAN = '03_Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
+        q = float(2.0)  # Correction for displacement offset for Ti
+    elif '04' in specimen:
+        PEEK = '04_Pilot4/ICOTEC_S130672_L4_icotec_accumen.csv'
+        TITAN = '04_Pilot4/ICOTEC_S130672_L4_icotec_kwire_accumen.csv'
+    elif '05' in specimen:
+        PEEK = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
+        TITAN = '05_Pilot5/ICOTEC_S130684_L4_kwire_accumen.csv'
+
+    loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
+
+    file = [loc + PEEK, loc + TITAN]
+    exp = {}
+    col = [['#1f6a06', '#0a1eb2'],
+           ['#373737', '#b20a0a']]
+    labels = ['PEEK', 'Ti']
+    for i in range(0, len(file)):
+        [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
+         exp['vall' + labels[i]]] = read_acumen(str(file[i]))
+        if 'Ti' in labels[i]:
+            exp['dTi'] = exp['dTi'] + q
+        ax10.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
+                  color=col[i][0], label='_nolegend_')
+        # ax10.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
+        #           color=col[i][0], alpha=0.75, label='_nolegend_')
+        # ax20.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
+        #           color=col[i][1], label='Force ' + str(labels[i]))
+        # ax20.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
+        #           color=col[i][1], alpha=0.75, label='_nolegend_')
+        # if 'Ti' in labels[i] and q > 0:
+        #   ax20.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(q) + ' mm')
+        # else:
+        ax20.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
+    if '03' in specimen:
+        ax20.plot(exp['cycle' + labels[1]][exp['peak' + labels[1]]], exp['f' + labels[1]][exp['peak' + labels[1]]],
+                  color='k', label='Force')
+
+ax20.spines.right.set_visible(True)
+ax10.set_xlabel('Cycle Number')
+ax10.set_ylabel('Displacement / mm')
+ax20.set_ylabel('Force / N')
+ax10.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
+ax20.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
+ax20.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+
+
+print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
