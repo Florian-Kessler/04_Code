@@ -382,7 +382,7 @@ def HFE_inp_creator(inp):
                     outfile.write(lines_mat)
 
             # Set force amplitude and direction
-            elif 'Set-RP, 2,' in lines:
+            elif 'Set-RP, 2xyz,' in lines:  # HERE xyz INSERTED TO BLOCK COMMAND
                 if step == 5:  # HERE EDITED FOR TESTING DISPLACEMENT CONTROLLED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
                 else:

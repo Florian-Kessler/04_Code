@@ -255,15 +255,14 @@ print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
 '''
 
 #%%
-
+import numpy as np
 s = 10
-E = 14700
-r = 1.59
-I = np.pi * r**4 / 4
-l = 8
+E = 15000
+r = 2.25
+II = np.pi * r**4 / 4
+L = 45
 
-F_max = (3 * E * I * s) / (l**3)
+F_max = (3 * E * II * s) / (L**3)
+print(round(F_max, 2))
 
-S = F_max / s
-
-print(S)
+print(2*r)
