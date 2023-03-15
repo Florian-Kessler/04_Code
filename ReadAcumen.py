@@ -76,7 +76,7 @@ t1 = time.time()
 plt.close('all')
 
 specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5']
-specimen = specimens[5]
+specimen = specimens[3]
 
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Experimental results ' + specimen.split('_')[1])
@@ -168,7 +168,7 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 
 # number = ['00', '01', '02', '10', '11', '12']
 # number = ['80', '90']  # , '55']
-number = ['50']
+number = ['03']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
@@ -190,19 +190,19 @@ for i in range(len(number)):
         [uy, rf_] = read_RFnodeFile(file_path)  # switch for inverse loading
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
         if 'P_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='solid', alpha=0.6, label='Left, Icotec VADER')
+            figP.plot(-uy, rfy, color=col[j], linestyle='solid', alpha=0.6, label='Icotec VADER')
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         elif 'T_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='solid', label=lab)  # figT
+            figP.plot(-uy, rfy, color=col[j], linestyle='solid', label='DPS')  # figT
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'P_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', label='_nolegend_')  # figT
+            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', label='DPS (in PEEK)')  # figT
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', alpha=0.6, label='Right, Icotec VADER')
+            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', alpha=0.6, label='Icotec VADER (in Ti)')
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
@@ -234,14 +234,14 @@ else:
         figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
                      -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment')
 
-figP.axis([0, 15, 0, 180])  # 30
-figP.axis([0, 15, 0, 180])  # figP
+figP.axis([0, 15, 0, 260])  # 30
 figP.set_xlabel('Displacement / mm')
 figP.set_ylabel('Force / N')
-figP.set_xlabel('Displacement / mm')  # figP
-figP.set_ylabel('Force / N')  # figP
 figP.legend(loc='lower right')
-figP.legend(loc='lower right')  # figP
+# figT.axis([0, 15, 0, 250])  # figT
+# figT.set_xlabel('Displacement / mm')  # figT
+# figT.set_ylabel('Force / N')  # figT
+# figT.legend(loc='lower right')  # figT
 
 '''
 # temp #
