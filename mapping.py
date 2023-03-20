@@ -224,7 +224,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     :return: 3d array mask
     """
     # read in the stl to generate the mask
-    reader = pv.get_reader(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.stl')
+    reader = pv.get_reader(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_mesh.stl')
     mesh = reader.read()
 
     if controlplot:
@@ -336,7 +336,7 @@ def HFE_inp_creator(inp):
     SimMat = ['T', 'P']  # simulated materials
     for i in range(len(SimMat)):
         step = 0
-        f_inpDummy = open(inp['FEA_loc'] + inp['Model_Code'] + '_model.inp')
+        f_inpDummy = open(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_model.inp')
         f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp')
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
         # Included in input file-name:
@@ -446,7 +446,7 @@ def write_mesh(inp):
     :param inp: input file dictionary
     :return: no return variable, writes an input file containing the bone mesh only
     """
-    orig = open(inp['FEA_loc'] + inp['Model_Code'] + '_model.inp')
+    orig = open(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_model.inp')
     mesh = open(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.inp', 'w')
     start = 0
     for lines in orig:
