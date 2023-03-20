@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
-import os
+# import os
 # from scipy.signal import argrelextrema
 
 
@@ -60,14 +60,16 @@ def read_acumen(file_a):
 
 
 def read_ARAMIS(file_A):
-    df_ = pd.read_csv(file_A, delimiter=';', skiprows=[0, 1])
+    df_ = pd.read_csv(file_A, delimiter=';', skiprows=[0])
+    stop = np.where(df_.isnull())[0][0]
     lx = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LX [mm]'])
     ly = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LY [mm]'])
     lz = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LZ [mm]'])
     phiX = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Phi(X) [°]'])
     thetaY = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Theta(Y) [°]'])
     psiZ = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Psi(Z) [°]'])
-    return lx, ly, lz, phiX, thetaY, psiZ
+
+    return lx[:stop], ly[:stop], lz[:stop], phiX[:stop], thetaY[:stop], psiZ[:stop]
 
 
 def find_nearest(array, value):
@@ -78,14 +80,14 @@ def find_nearest(array, value):
 
 def find_first(array, value):
     array = np.asarray(array)
-    idx = next(x for x, val in enumerate(array)
+    idx = next(xd for xd, val in enumerate(array)
                if val <= value)
     return idx
 
 
 t1 = time.time()
 plt.close('all')
-
+'''
 specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5']
 specimen = specimens[3]
 
@@ -233,7 +235,8 @@ else:
 if cyc2T:
     if q > 0:
         figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+5000]],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi'][:cyc2T+5000]], color=col[1], s=1, label='Experiment DPS, corr.: '+str(q)+' mm')
+                     -exp['fTi'][exp['peakTi'][:cyc2T+5000]], color=col[1], s=1, label='Experiment DPS, corr.: ' + 
+                     str(q)+' mm')
     else:
         figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T + 5000]],  # figT, 'k'
                      -exp['fTi'][exp['peakTi'][:cyc2T + 5000]], color=col[1], s=1, label='Experiment DPS')
@@ -256,15 +259,15 @@ figP.legend(loc='lower right')
 
 '''
 # temp #
-fig5, ax5 = plt.subplots(1, 1, figsize=(9, 6))
-file = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/50_L50_S00_D30/E_PEEK.txt'
-df = np.loadtxt(file, delimiter='\t')
-timeX = np.array(df[:, 0])
-strain = np.array(df[:, 1])
-plt.plot(timeX[40:]-1, strain[40:])
-plt.plot([0, 1], [0.01, 0.01], linestyle='dashed', c='k')
-plt.xlabel('Step time')
-plt.ylabel('Logarithmic strain')
+# fig5, ax5 = plt.subplots(1, 1, figsize=(9, 6))
+# file = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/50_L50_S00_D30/E_PEEK.txt'
+# df = np.loadtxt(file, delimiter='\t')
+# timeX = np.array(df[:, 0])
+# strain = np.array(df[:, 1])
+# plt.plot(timeX[40:]-1, strain[40:])
+# plt.plot([0, 1], [0.01, 0.01], linestyle='dashed', c='k')
+# plt.xlabel('Step time')
+# plt.ylabel('Logarithmic strain')
 
 '''
 
@@ -328,6 +331,23 @@ ax20.set_ylabel('Force / N')
 ax10.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
 ax20.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
 ax20.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+'''
+
+fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
+# df = read_ARAMIS(fileAramis)
+[x, y, z, rX, rY, rZ] = read_ARAMIS(fileAramis)
+plt.figure()
+plt.title('Displacement)')
+plt.plot(x)
+plt.plot(y)
+plt.plot(z)
+plt.legend(['X', 'Y', 'Z'])
+plt.figure()
+plt.title('Angles')
+plt.plot(rX)
+plt.plot(rY)
+plt.plot(rZ)
+plt.legend(['rX', 'rY', 'rZ'])
 
 
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
