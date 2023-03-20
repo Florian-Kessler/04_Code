@@ -136,7 +136,7 @@ ax1.set_ylabel('Displacement / mm')
 ax2.set_ylabel('Force / N')
 ax1.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -12, 0])
 ax2.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
-#ax2.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+# ax2.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
 ax2.legend()
 
 try:
@@ -161,7 +161,7 @@ except StopIteration:
 
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
-plt.title(specimen.split('_')[1])
+# plt.title(specimen.split('_')[1])
 # fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
 # plt.title('Ti screw')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
@@ -190,7 +190,7 @@ for i in range(len(number)):
         [uy, rf_] = read_RFnodeFile(file_path)  # switch for inverse loading
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
         if 'P_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='solid', alpha=0.6, label='Icotec VADER')
+            figP.plot(-uy, rfy, color=col[j], linestyle='solid', alpha=0.6, label='Icotec')
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         elif 'T_T' in samples[j]:
@@ -198,11 +198,11 @@ for i in range(len(number)):
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'P_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', label='DPS (in PEEK)')  # figT
+            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', label='DPS (on PEEK side)')  # figT
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', alpha=0.6, label='Icotec VADER (in Ti)')
+            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', alpha=0.6, label='Icotec (on Ti side)')
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
@@ -215,26 +215,26 @@ for i in range(len(number)):
 
 if cyc2P:
     figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
-                 -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color=col[0], s=1, label='Experiment')
+                 -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color=col[0], s=1, label='Experiment Icotec')
 else:
     figP.scatter(-exp['dPEEK'][exp['peakPEEK']],
-                 -exp['fPEEK'][exp['peakPEEK']], color=col[0], s=1, label='Experiment')
+                 -exp['fPEEK'][exp['peakPEEK']], color=col[0], s=1, label='Experiment Icotec')
 if cyc2T:
     if q > 0:
-        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color=col[1], s=1, label='Experiment, corr.: '+str(q)+' mm')
+        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+5000]],  # figT, 'k'
+                     -exp['fTi'][exp['peakTi'][:cyc2T+5000]], color=col[1], s=1, label='Experiment DPS, corr.: '+str(q)+' mm')
     else:
-        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T + 1000]],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi'][:cyc2T + 1000]], color=col[1], s=1, label='Experiment')
+        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T + 5000]],  # figT, 'k'
+                     -exp['fTi'][exp['peakTi'][:cyc2T + 5000]], color=col[1], s=1, label='Experiment DPS')
 else:
     if q > 0:
         figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment, corr.: ' + str(q) + ' mm')
+                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment DPS, corr.: ' + str(q) + ' mm')
     else:
         figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment')
+                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment DPS')
 
-figP.axis([0, 15, 0, 260])  # 30
+figP.axis([0, 15, 0, 300])  # 30
 figP.set_xlabel('Displacement / mm')
 figP.set_ylabel('Force / N')
 figP.legend(loc='lower right')
