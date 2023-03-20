@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import pandas as pd
 import os
+from scipy.signal import find_peaks
 
 
 # from scipy.signal import argrelextrema
@@ -38,6 +39,20 @@ def read_RFnodeFile(file_):
     return uy_, rfy_
 
 
+def read_ARAMIS(file_A):
+    df_ = pd.read_csv(file_A, delimiter=';', skiprows=[0])
+    stop = np.where(df_.isnull())[0][0]
+    lx = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LX [mm]'])
+    ly = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LY [mm]'])
+    lz = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LZ [mm]'])
+    phiX = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Phi(X) [°]'])
+    thetaY = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Theta(Y) [°]'])
+    psiZ = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Psi(Z) [°]'])
+    t_ = pd.DataFrame(df_, columns=['Time UTC'])
+
+    return lx[:stop], ly[:stop], lz[:stop], phiX[:stop], thetaY[:stop], psiZ[:stop], t_[:stop]
+
+
 def read_acumen(file_a):
     df_ = pd.read_csv(file_a, delimiter=';', skiprows=[0, 2])
     # t_ = pd.DataFrame(df_, columns=['Time ']).to_numpy()
@@ -69,7 +84,7 @@ def find_nearest(array, value):
 
 def find_first(array, value):
     array = np.asarray(array)
-    idx = next(x for x, val in enumerate(array)
+    idx = next(xd for xd, val in enumerate(array)
                if val <= value)
     return idx
 
@@ -266,3 +281,46 @@ F_max = (3 * E * II * s) / (L**3)
 print(round(F_max, 2))
 
 print(2*r)
+
+#%%
+fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
+fileAcumen = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
+# df = read_ARAMIS(fileAramis)
+[x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAramis)
+
+plt.figure()
+plt.title('Displacement')
+plt.plot(x)
+plt.plot(y)
+plt.plot(z)
+plt.legend(['X', 'Y', 'Z'])
+
+plt.figure()
+plt.title('Angles')
+plt.plot(rX)
+plt.plot(rY)
+plt.plot(rZ)
+plt.legend(['rX', 'rY', 'rZ'])
+y = y.to_numpy().flatten()
+valls, _ = find_peaks(y, distance=30)
+peaks, _ = find_peaks(-y, distance=30)
+plt.figure()
+plt.plot(y[valls])
+plt.plot(y[peaks])
+t = np.array(t).flatten()
+
+for i in range(len(t)):
+    hhmmss = t[i].split(' ')[1]
+    hh = hhmmss.split(':')[0]
+    mm = hhmmss.split(':')[1]
+    ss = hhmmss.split(':')[2].split(',')[0]
+    fr = hhmmss.split(':')[2].split(',')[1]
+    t[i] = int(hh)*3600 + int(mm)*60 + int(ss) + int(fr)/1000
+
+peak = []
+vall = []
+for s in range(int(t[0]), int(np.max(t))):
+    arr = np.where(s + 1 > t and t >= s)[0]  # HERE find from one second (sampling: 1 Hz) and then within this second
+    # find peak and valley values
+    peak.append(arr[int(np.argmin(y[arr]))])
+    vall.append(arr[int(np.argmax(y[arr]))])

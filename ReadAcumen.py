@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
-# import os
+from scipy.signal import find_peaks
+import os
 # from scipy.signal import argrelextrema
 
 
@@ -38,7 +39,7 @@ def read_RFnodeFile(file_):
 
 def read_acumen(file_a):
     df_ = pd.read_csv(file_a, delimiter=';', skiprows=[0, 2])
-    # t_ = pd.DataFrame(df_, columns=['Time ']).to_numpy()
+    t_ = pd.DataFrame(df_, columns=['Time ']).to_numpy()
     d_ = pd.DataFrame(df_, columns=['Axial Displacement ']).to_numpy()
     # d_ = d_ - d_[0]  # calibrate displacement to zero at beginning
     f_ = pd.DataFrame(df_, columns=['Axial Force ']).to_numpy()
@@ -56,7 +57,7 @@ def read_acumen(file_a):
     peak_ = peak_.astype(int)
     vall_ = vall_.astype(int)
 
-    return cycle_, d_, f_, peak_, vall_
+    return cycle_, d_, f_, peak_, vall_, t_
 
 
 def read_ARAMIS(file_A):
@@ -68,8 +69,9 @@ def read_ARAMIS(file_A):
     phiX = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Phi(X) [°]'])
     thetaY = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Theta(Y) [°]'])
     psiZ = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Psi(Z) [°]'])
+    t_ = pd.DataFrame(df_, columns=['Time UTC'])
 
-    return lx[:stop], ly[:stop], lz[:stop], phiX[:stop], thetaY[:stop], psiZ[:stop]
+    return lx[:stop], ly[:stop], lz[:stop], phiX[:stop], thetaY[:stop], psiZ[:stop], t_[:stop]
 
 
 def find_nearest(array, value):
@@ -87,9 +89,9 @@ def find_first(array, value):
 
 t1 = time.time()
 plt.close('all')
-'''
+
 specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5']
-specimen = specimens[3]
+specimen = specimens[5]
 
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Experimental results ' + specimen.split('_')[1])
@@ -121,7 +123,7 @@ col = [['#1f6a06', '#0a1eb2'],
 labels = ['PEEK', 'Ti']
 for i in range(0, len(file)):
     [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
-     exp['vall' + labels[i]]] = read_acumen(str(file[i]))
+     exp['vall' + labels[i]], exp['time' + labels[i]]] = read_acumen(str(file[i]))
     if 'Ti' in labels[i]:
         exp['dTi'] = exp['dTi'] + q
     ax1.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
@@ -305,7 +307,7 @@ for k in range(len(specimens)):
     labels = ['PEEK', 'Ti']
     for i in range(0, len(file)):
         [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
-         exp['vall' + labels[i]]] = read_acumen(str(file[i]))
+         exp['vall' + labels[i]], exp['time' + labels[i]]] = read_acumen(str(file[i]))
         if 'Ti' in labels[i]:
             exp['dTi'] = exp['dTi'] + q
         ax10.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
@@ -331,23 +333,9 @@ ax20.set_ylabel('Force / N')
 ax10.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
 ax20.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
 ax20.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
-'''
 
-fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
-# df = read_ARAMIS(fileAramis)
-[x, y, z, rX, rY, rZ] = read_ARAMIS(fileAramis)
-plt.figure()
-plt.title('Displacement)')
-plt.plot(x)
-plt.plot(y)
-plt.plot(z)
-plt.legend(['X', 'Y', 'Z'])
-plt.figure()
-plt.title('Angles')
-plt.plot(rX)
-plt.plot(rY)
-plt.plot(rZ)
-plt.legend(['rX', 'rY', 'rZ'])
+
+
 
 
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
