@@ -59,6 +59,17 @@ def read_acumen(file_a):
     return cycle_, d_, f_, peak_, vall_
 
 
+def read_ARAMIS(file_A):
+    df_ = pd.read_csv(file_A, delimiter=';', skiprows=[0, 1])
+    lx = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LX [mm]'])
+    ly = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LY [mm]'])
+    lz = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LZ [mm]'])
+    phiX = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Phi(X) [°]'])
+    thetaY = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Theta(Y) [°]'])
+    psiZ = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Psi(Z) [°]'])
+    return lx, ly, lz, phiX, thetaY, psiZ
+
+
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
