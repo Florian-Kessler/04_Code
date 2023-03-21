@@ -215,14 +215,14 @@ for i in range(len(number)):
         else:
             print('\n . . . Invalid file!\n')
 
-figP.plot(-1E5, -1E5, color='k', label='Tested side')
-figP.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
-figP.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
-figP.plot(-1E5, -1E5, color=col[1], label='Screw-excess = 0 mm')
-figT.plot(-1E5, -1E5, color='k', label='Tested side')
-figT.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
-figT.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
-figT.plot(-1E5, -1E5, color=col[1], label='Screw-excess = 0 mm')
+# figP.plot(-1E5, -1E5, color='k', label='Tested side')
+# figP.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
+# figP.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
+# figP.plot(-1E5, -1E5, color=col[1], label='Screw-excess = 0 mm')
+# figT.plot(-1E5, -1E5, color='k', label='Tested side')
+# figT.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
+# figT.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
+# figT.plot(-1E5, -1E5, color=col[1], label='Screw-excess = 0 mm')
 
 
 #%%
@@ -264,22 +264,24 @@ for i in range(len(t)):
     t[i] = int(hh)*3600 + int(mm)*60 + int(ss) + int(fr)/1000
 
 plt.figure()
-peak = []
-vall = []
-for s in range(int(t[0]), int(np.max(t))):
+peak = [0]
+vall = [0]
+for s in range(int(t[0]), int(np.max(t)-1)):
     arr = np.where(t.astype(int) == s)[0]
     peak.append(arr[int(np.argmin(y[arr]))])
     vall.append(arr[int(np.argmax(y[arr]))])
 
-peakAc = []
-vallAc = []
+start = 17
+
+peakAc = [0]
+vallAc = [0]
 for s in range(int(T[0]), int(np.max(T))):
     arrAc = np.where(T.astype(int) == s)[0]
     peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
     vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
 
-plt.plot(y[peak[18:]], c='r', label='ARAMIS')
-plt.plot(y[vall[18:]], c='r')
+plt.plot(y[peak[start:]], c='r', label='ARAMIS')
+plt.plot(y[vall[start:]], c='r')
 plt.plot(D[peakAc], c='b', label='ACUMEN')
 plt.plot(D[vallAc], c='b')
 plt.plot(F[peakAc], c='k', label='Force')
@@ -287,5 +289,7 @@ plt.plot(F[vallAc], c='k')
 plt.legend()
 
 plt.figure()
-plt.plot(y[peak[18:]], F[peakAc])
+plt.plot(y[peak[start:]], F[peakAc])
 plt.plot(uy, rfy)
+
+figP.scatter(-y[peak[start:]], -F[peakAc])
