@@ -268,8 +268,13 @@ peak = [0]
 vall = [0]
 for s in range(int(t[0]), int(np.max(t)-1)):
     arr = np.where(t.astype(int) == s)[0]
-    peak.append(arr[int(np.argmin(y[arr]))])
-    vall.append(arr[int(np.argmax(y[arr]))])
+    if np.argmin(y[arr]) < y[peak[-1]] and np.argmax(y[arr]) > y[vall[-1]]:
+        print('ok at ' + str(s))
+        peak.append(arr[int(np.argmin(y[arr]))])
+        vall.append(arr[int(np.argmax(y[arr]))])
+    # else:
+    #     peak.append(arr[int(np.argmin(y[arr]))])
+    #     vall.append(arr[int(np.argmax(y[arr]))])
 
 start = 17
 
@@ -277,8 +282,13 @@ peakAc = [0]
 vallAc = [0]
 for s in range(int(T[0]), int(np.max(T))):
     arrAc = np.where(T.astype(int) == s)[0]
-    peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-    vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
+    if np.argmin(D[arrAc]) < D[peakAc[-1]] and np.argmax(D[arrAc]) > D[vallAc[-1]]:
+        peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
+        # if np.argmax(D[arrAc]) > D[vallAc[-1]]:
+        vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
+    # else:
+    #     peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
+    #     vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
 
 plt.plot(y[peak[start:]], c='r', label='ARAMIS')
 plt.plot(y[vall[start:]], c='r')
