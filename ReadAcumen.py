@@ -397,5 +397,4 @@ plt.plot(F[vallAc], c='k')
 plt.legend()
 
 
-
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
