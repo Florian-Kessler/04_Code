@@ -266,22 +266,33 @@ for i in range(len(t)):
 plt.figure()
 peak = [0]
 vall = [0]
-for s in range(int(t[0]), int(np.max(t)-1)):
+for s in range(int(t[0]), int(t[0]+100)):  # int(np.max(t)-1)):
     arr = np.where(t.astype(int) == s)[0]
-    if np.argmin(y[arr]) < y[peak[-1]] and np.argmax(y[arr]) > y[vall[-1]]:
-        print('ok at ' + str(s))
+    print('\nNew:')
+    print(y[np.argmin(y[arr])])  # here: problem is that argmin gives only relative index of value, but absolute needed!
+    print('should be smaller than')
+    print(y[peak[-1]])
+    #print(y[np.argmax(y[arr])])
+    #print(y[vall[-1]])
+    if y[np.argmin(y[arr])] < y[peak[-1]]: #and y[np.argmax(y[arr])] < y[vall[-1]]:
+        print('\n\n\nok at ' + str(s) + '\n\n\n')
         peak.append(arr[int(np.argmin(y[arr]))])
         vall.append(arr[int(np.argmax(y[arr]))])
     # else:
     #     peak.append(arr[int(np.argmin(y[arr]))])
     #     vall.append(arr[int(np.argmax(y[arr]))])
 
+'''
 start = 17
-
 peakAc = [0]
 vallAc = [0]
-for s in range(int(T[0]), int(np.max(T))):
+for s in range(int(T[0]), int(T[0]+5)):  # int(np.max(T))):
     arrAc = np.where(T.astype(int) == s)[0]
+    print('\nNew:')
+    print(np.argmin(D[arrAc]))
+    print(D[peakAc[-1]])
+    print(np.argmax(D[arrAc]))
+    print(D[vallAc[-1]])
     if np.argmin(D[arrAc]) < D[peakAc[-1]] and np.argmax(D[arrAc]) > D[vallAc[-1]]:
         peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
         # if np.argmax(D[arrAc]) > D[vallAc[-1]]:
@@ -303,3 +314,4 @@ plt.plot(y[peak[start:]], F[peakAc])
 plt.plot(uy, rfy)
 
 figP.scatter(-y[peak[start:]], -F[peakAc])
+'''
