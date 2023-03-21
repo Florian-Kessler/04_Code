@@ -55,7 +55,7 @@ def read_ARAMIS(file_A):
 
 def read_acumen(file_a):
     df_ = pd.read_csv(file_a, delimiter=';', skiprows=[0, 2])
-    # t_ = pd.DataFrame(df_, columns=['Time ']).to_numpy()
+    t_ = pd.DataFrame(df_, columns=['Time ']).to_numpy()
     d_ = pd.DataFrame(df_, columns=['Axial Displacement ']).to_numpy()
     # d_ = d_ - d_[0]  # calibrate displacement to zero at beginning
     f_ = pd.DataFrame(df_, columns=['Axial Force ']).to_numpy()
@@ -73,7 +73,7 @@ def read_acumen(file_a):
     peak_ = peak_.astype(int)
     vall_ = vall_.astype(int)
 
-    return cycle_, d_, f_, peak_, vall_
+    return cycle_, d_, f_, peak_, vall_, t_
 
 
 def find_nearest(array, value):
@@ -92,7 +92,7 @@ def find_first(array, value):
 t1 = time.time()
 plt.close('all')
 
-specimen = '03_Pilot3'
+specimen = '05_Pilot5'
 
 '''
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
@@ -177,7 +177,7 @@ plt.title('Inverse simulations Ti (YM = 110 GPa), force controlled')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 
 # number = ['00', '01', '02', '10', '11', '12']
-number = ['80', '90']  # , '55']
+number = ['03', '13']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
@@ -193,11 +193,9 @@ for i in range(len(number)):
         lab = 'Screw excess = ' + folder.split('_S')[-1][0] + '.' + folder.split('_S')[-1][1] + ' mm, ' \
               # + 'diameter = ' + folder.split('_D')[-1][0] + '.' + folder.split('_D')[-1][1] + ' mm'
         # lab = 'Unidirectional'
-        if '55' in number[i]:
-            lab = 'Toggling'
         file_path = loc + folder + samples[j]
-        [u_, rfy] = read_RFnodeFile(file_path)  # switch for inverse loading
-        [uy, rf_] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
+        [uy, rf_] = read_RFnodeFile(file_path)  # switch for inverse loading
+        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
         if 'P_P' in samples[j]:
             figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='_nolegend_')
             if rfy[-1] > 20:
@@ -226,69 +224,15 @@ figT.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
 figT.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
 figT.plot(-1E5, -1E5, color=col[1], label='Screw-excess = 0 mm')
 
-'''
-if cyc2P:
-    figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
-                 -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color='k', s=0.5, label='Experiment')
-else:
-    figP.scatter(-exp['dPEEK'][exp['peakPEEK']],
-                 -exp['fPEEK'][exp['peakPEEK']], color='k', s=0.5, label='Experiment')
-if cyc2T:
-    figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+1000]],  # figT, 'k'
-                 -exp['fTi'][exp['peakTi'][:cyc2T+1000]], color='r', s=0.5, label='Experiment, corr.: '+str(cor)+' mm')
-else:
-    if cor > 0:
-        figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi']], color='r', s=0.5, label='Experiment, corr.: ' + str(cor) + ' mm')
-    else:
-        figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi']], color='r', s=0.5, label='Experiment')
-'''
-
-figP.axis([0, 3, 0, 180])
-figP.set_xlabel('Displacement / mm')
-figP.set_ylabel('Force / N')
-figP.legend(loc='lower right')
-figT.axis([0, 0.5, 0, 180])  # figP
-figT.set_xlabel('Displacement / mm')  # figP
-figT.set_ylabel('Force / N')  # figP
-figT.legend(loc='lower right')  # figP
-
-'''
-# temp #
-fig5, ax5 = plt.subplots(1, 1, figsize=(9, 6))
-file = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/50_L50_S00_D30/E_PEEK.txt'
-df = np.loadtxt(file, delimiter='\t')
-timeX = np.array(df[:, 0])
-strain = np.array(df[:, 1])
-plt.plot(timeX[40:]-1, strain[40:])
-plt.plot([0, 1], [0.01, 0.01], linestyle='dashed', c='k')
-plt.xlabel('Step time')
-plt.ylabel('Logarithmic strain')
-
-print('\nRuntime: ' + str(round(time.time() - t1, 2)) + ' seconds.')
-'''
-
-#%%
-import numpy as np
-s = 10
-E = 15000
-r = 2.25
-II = np.pi * r**4 / 4
-L = 45
-
-F_max = (3 * E * II * s) / (L**3)
-print(round(F_max, 2))
-
-print(2*r)
 
 #%%
 fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
-fileAcumen = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
+fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
 # df = read_ARAMIS(fileAramis)
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAramis)
+[C, D, F, P, V, T] = read_acumen(fileAcumen)
 
-plt.figure()
+'''plt.figure()
 plt.title('Displacement')
 plt.plot(x)
 plt.plot(y)
@@ -300,15 +244,17 @@ plt.title('Angles')
 plt.plot(rX)
 plt.plot(rY)
 plt.plot(rZ)
-plt.legend(['rX', 'rY', 'rZ'])
+plt.legend(['rX', 'rY', 'rZ'])'''
+
 y = y.to_numpy().flatten()
 valls, _ = find_peaks(y, distance=30)
 peaks, _ = find_peaks(-y, distance=30)
-plt.figure()
-plt.plot(y[valls])
-plt.plot(y[peaks])
-t = np.array(t).flatten()
 
+'''plt.figure()
+plt.plot(y[valls])
+plt.plot(y[peaks])'''
+
+t = np.array(t).flatten()
 for i in range(len(t)):
     hhmmss = t[i].split(' ')[1]
     hh = hhmmss.split(':')[0]
@@ -317,10 +263,29 @@ for i in range(len(t)):
     fr = hhmmss.split(':')[2].split(',')[1]
     t[i] = int(hh)*3600 + int(mm)*60 + int(ss) + int(fr)/1000
 
+plt.figure()
 peak = []
 vall = []
 for s in range(int(t[0]), int(np.max(t))):
-    arr = np.where(s + 1 > t and t >= s)[0]  # HERE find from one second (sampling: 1 Hz) and then within this second
-    # find peak and valley values
+    arr = np.where(t.astype(int) == s)[0]
     peak.append(arr[int(np.argmin(y[arr]))])
     vall.append(arr[int(np.argmax(y[arr]))])
+
+peakAc = []
+vallAc = []
+for s in range(int(T[0]), int(np.max(T))):
+    arrAc = np.where(T.astype(int) == s)[0]
+    peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
+    vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
+
+plt.plot(y[peak[18:]], c='r', label='ARAMIS')
+plt.plot(y[vall[18:]], c='r')
+plt.plot(D[peakAc], c='b', label='ACUMEN')
+plt.plot(D[vallAc], c='b')
+plt.plot(F[peakAc], c='k', label='Force')
+plt.plot(F[vallAc], c='k')
+plt.legend()
+
+plt.figure()
+plt.plot(y[peak[18:]], F[peakAc])
+plt.plot(uy, rfy)

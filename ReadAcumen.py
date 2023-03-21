@@ -183,7 +183,7 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 
 # number = ['00', '01', '02', '10', '11', '12']
 # number = ['80', '90']  # , '55']
-number = ['03']
+number = ['03', '13']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
@@ -272,7 +272,7 @@ figP.legend(loc='lower right')
 # plt.ylabel('Logarithmic strain')
 
 '''
-
+'''
 specimens = ['03_Pilot3', '04_Pilot4', '05_Pilot5']
 
 figC, ax10 = plt.subplots(1, 1, figsize=(9, 6))
@@ -333,8 +333,68 @@ ax20.set_ylabel('Force / N')
 ax10.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
 ax20.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
 ax20.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+'''
 
+#%%
+fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
+fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
+# df = read_ARAMIS(fileAramis)
+[x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAramis)
+[C, D, F, P, V, T] = read_acumen(fileAcumen)
 
+'''plt.figure()
+plt.title('Displacement')
+plt.plot(x)
+plt.plot(y)
+plt.plot(z)
+plt.legend(['X', 'Y', 'Z'])
+
+plt.figure()
+plt.title('Angles')
+plt.plot(rX)
+plt.plot(rY)
+plt.plot(rZ)
+plt.legend(['rX', 'rY', 'rZ'])'''
+
+y = y.to_numpy().flatten()
+valls, _ = find_peaks(y, distance=30)
+peaks, _ = find_peaks(-y, distance=30)
+
+'''plt.figure()
+plt.plot(y[valls])
+plt.plot(y[peaks])'''
+
+t = np.array(t).flatten()
+for i in range(len(t)):
+    hhmmss = t[i].split(' ')[1]
+    hh = hhmmss.split(':')[0]
+    mm = hhmmss.split(':')[1]
+    ss = hhmmss.split(':')[2].split(',')[0]
+    fr = hhmmss.split(':')[2].split(',')[1]
+    t[i] = int(hh)*3600 + int(mm)*60 + int(ss) + int(fr)/1000
+
+plt.figure()
+peak = []
+vall = []
+for s in range(int(t[0]), int(np.max(t))):
+    arr = np.where(t.astype(int) == s)[0]
+    peak.append(arr[int(np.argmin(y[arr]))])
+    vall.append(arr[int(np.argmax(y[arr]))])
+
+peakAc = []
+vallAc = []
+for s in range(int(T[0]), int(np.max(T))):
+    arrAc = np.where(T.astype(int) == s)[0]
+    peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
+    vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
+
+plt.plot(y[peak[19:]], c='r', label='ARAMIS')
+plt.plot(y[vall[19:]], c='r')
+plt.plot(D[peakAc], c='b', label='ACUMEN')
+plt.plot(D[vallAc], c='b')
+plt.plot(F[peakAc], c='k', label='Force')
+plt.plot(F[vallAc], c='k')
+plt.legend()
 
 
 
