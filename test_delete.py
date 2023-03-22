@@ -145,24 +145,38 @@ for i in range(len(samplesD)):
         [C, D, F, _, _, T] = read_acumen(loc + folder + samplesF[i])
         peakAc = [0]
         vallAc = [0]
-        for s in range(int(C[0]), int(np.max(C) - 1)):
-            arrAc = np.where(C.astype(int) == s)[0]
+        for s in range(int(T[0]), int(np.max(T) - 1)):
+            arrAc = np.where(T.astype(int) == s)[0]
             if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:
                 peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
                 vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
             else:
                 peakAc.append(peakAc[-1])
                 vallAc.append(vallAc[-1])
-        if i == 0 or 1:
-            figP.scatter(y[peak], F[peakAc], color=col[i], s=1)
-        elif i == 2:
-            figT.scatter(y[peak], F[peakAc], color=col[i], s=1)
+        if len(peakAc) > len(peak):
+            start = len(peakAc) - len(peak)
+            if i == 0 or 1:
+                figP.scatter(-y[peak], -F[peakAc[start:]], color=col[i], s=1)
+            elif i == 2:
+                figT.scatter(-y[peak], -F[peakAc[start:]], color=col[i], s=1)
+        elif len(peak) > len(peakAc):
+            start = len(peak) - len(peakAc)
+            if i == 0 or 1:
+                figP.scatter(-y[peak[start:]], -F[peakAc], color=col[i], s=1)
+            elif i == 2:
+                figT.scatter(-y[peak[start:]], -F[peakAc], color=col[i], s=1)
+        else:
+            if i == 0 or 1:
+                figP.scatter(-y[peak], -F[peakAc], color=col[i], s=1)
+            elif i == 2:
+                figT.scatter(-y[peak], -F[peakAc], color=col[i], s=1)
+
 
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
 for i in range(len(number)):
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
-    samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')
-               and '_02_' in filename]
+    samples = [filename for filename in os.listdir(loc + folder + '/')
+               if filename.endswith('RFnode.txt') and '_02_' in filename]
     [uy, rfy] = 2 * [0]
     screw_force = np.zeros([5, 21])
     ang = np.zeros([5, 21])
@@ -172,7 +186,6 @@ for i in range(len(number)):
     for j in range(len(samples)):
         lab = 'Screw excess = ' + folder.split('_S')[-1][0] + '.' + folder.split('_S')[-1][1] + ' mm, ' \
               # + 'diameter = ' + folder.split('_D')[-1][0] + '.' + folder.split('_D')[-1][1] + ' mm'
-        # lab = 'Unidirectional'
         file_path = loc + folder + samples[j]
         [uy, rf_] = read_RFnodeFile(file_path)  # switch for inverse loading
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
@@ -253,3 +266,12 @@ for s in range(int(T[0]), int(np.max(T)-1)):
 
 figP.scatter(-y[peak[start:]], -F[peakAc])
 '''
+
+tRun = time.time()-t1
+if tRun >= 3600:
+    print('Execution time: ' + str(int(tRun/3600)) + ' h ' + str(int(np.mod(tRun, 3600)/60)) + ' min ' +
+          str(round(np.mod(tRun, 60), 1)) + ' sec.')
+elif tRun >= 60:
+    print('Execution time: ' + str(int(tRun/60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
+else:
+    print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
