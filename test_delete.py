@@ -93,15 +93,8 @@ t1 = time.time()
 plt.close('all')
 
 specimen = '05_Pilot5'
-
+number = specimen.split('_')[0]
 '''
-fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
-ax2 = ax1.twinx()
-
-
-
-# PEEK1 = '01_Pilot1/S131840_L4_S1_PEEK.csv'
-# TITAN1 = '01_Pilot1/S191840_L4_S2_DPS.csv'
 PEEK = ''
 TITAN = ''
 cor = 0
@@ -115,60 +108,54 @@ elif '04' in specimen:
 elif '05' in specimen:
     PEEK = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
     TITAN = '05_Pilot5/ICOTEC_S130684_L4_kwire_accumen.csv'
+'''
 
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 
-file = [loc + PEEK, loc + TITAN]
-exp = {}
-col = [['#1f6a06', '#0a1eb2'],
-       ['#373737', '#b20a0a']]
-labels = ['PEEK', 'Ti']
-for i in range(0, len(file)):
-    [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
-     exp['vall' + labels[i]]] = read_acumen(str(file[i]))
-    if 'Ti' in labels[i]:
-        exp['dTi'] = exp['dTi'] + cor
-    ax1.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
-             color=col[i][0], label='_nolegend_')
-    ax1.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
-             color=col[i][0], alpha=0.75, label='_nolegend_')
-    ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
-             color=col[i][1], label='Force ' + str(labels[i]))
-    ax2.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
-             color=col[i][1], alpha=0.75, label='_nolegend_')
-    if 'Ti' in labels[i]:
-        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(cor) + ' mm')
-    else:
-        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
+folder = [filename for filename in os.listdir(loc) if filename.startswith(number)][0] + '/'
+samplesD = [filename for filename in os.listdir(loc + folder) if 'aramis' in filename]
+samplesF = [filename for filename in os.listdir(loc + folder) if 'acumen' in filename]
 
-ax2.spines.right.set_visible(True)
-ax1.set_xlabel('Cycle Number')
-ax1.set_ylabel('Displacement / mm')
-ax2.set_ylabel('Force / N')
-ax1.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
-ax2.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
-ax2.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
+for i in range(len(samplesD)):
+    [x, y, z, rX, rY, rZ, t] = read_ARAMIS(samplesD[i])
+    y = y.to_numpy().flatten()
+    t = np.array(t).flatten()
+    for j in range(len(t)):
+        hhmmss = t[j].split(' ')[1]
+        hh = hhmmss.split(':')[0]
+        mm = hhmmss.split(':')[1]
+        ss = hhmmss.split(':')[2].split(',')[0]
+        fr = hhmmss.split(':')[2].split(',')[1]
+        t[j] = int(hh) * 3600 + int(mm) * 60 + int(ss) + int(fr) / 1000
+    peak = [0]
+    vall = [0]
+    for s in range(int(t[0]), int(np.max(t) - 1)):
+        arr = np.where(t.astype(int) == s)[0]
+        if y[arr[np.argmin(y[arr])]] < y[peak[-1]]:  # and y[arr[np.argmax(y[arr])]] < y[vall[-1]]:
+            peak.append(arr[int(np.argmin(y[arr]))])
+            vall.append(arr[int(np.argmax(y[arr]))])
+        else:
+            peak.append(peak[-1])
+            vall.append(vall[-1])
 
-try:
-    cyc1T = find_first(exp['fTi'][exp['peakTi']], -75)
-    try:
-        cyc2T = find_first(exp['fTi'][exp['peakTi']], -150)
-    except StopIteration:
-        cyc2T = 0
-except StopIteration:
-    cyc1T = 0
-    cyc2T = 0
+for i in range(len(samplesF)):
+    [C, D, F, _, _, T] = read_acumen(samplesF[i])
+    peakAc = [0]
+    vallAc = [0]
+    for s in range(int(T[0]), int(np.max(T) - 1)):
+        arrAc = np.where(T.astype(int) == s)[0]
+        if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:  # and D[arrAc[np.argmax(D[arrAc])]] > D[vallAc[-1]]:
+            peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
+            vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
+        else:
+            peakAc.append(peakAc[-1])
+            vallAc.append(vallAc[-1])
 
-try:
-    cyc1P = find_first(exp['fPEEK'][exp['peakPEEK']], -75)
-    try:
-        cyc2P = find_first(exp['fPEEK'][exp['peakPEEK']], -150)
-    except StopIteration:
-        cyc2P = 0
-except StopIteration:
-    cyc1P = 0
-    cyc2P = 0
-'''
+
+start = 18
+plt.figure()
+plt.scatter(-y[peak[start:]], -F[peakAc])
+#%%
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Inverse simulations PEEK (YM = 15 GPa), force controlled')
@@ -214,7 +201,7 @@ for i in range(len(number)):
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
-
+figP.axis([0, 12, 0, 250])
 # figP.plot(-1E5, -1E5, color='k', label='Tested side')
 # figP.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
 # figP.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
@@ -232,27 +219,11 @@ fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAramis)
 [C, D, F, P, V, T] = read_acumen(fileAcumen)
 
-'''plt.figure()
-plt.title('Displacement')
-plt.plot(x)
-plt.plot(y)
-plt.plot(z)
-plt.legend(['X', 'Y', 'Z'])
-
-plt.figure()
-plt.title('Angles')
-plt.plot(rX)
-plt.plot(rY)
-plt.plot(rZ)
-plt.legend(['rX', 'rY', 'rZ'])'''
 
 y = y.to_numpy().flatten()
 valls, _ = find_peaks(y, distance=30)
 peaks, _ = find_peaks(-y, distance=30)
 
-'''plt.figure()
-plt.plot(y[valls])
-plt.plot(y[peaks])'''
 
 t = np.array(t).flatten()
 for i in range(len(t)):
@@ -266,52 +237,26 @@ for i in range(len(t)):
 plt.figure()
 peak = [0]
 vall = [0]
-for s in range(int(t[0]), int(t[0]+100)):  # int(np.max(t)-1)):
+for s in range(int(t[0]), int(np.max(t)-1)):
     arr = np.where(t.astype(int) == s)[0]
-    print('\nNew:')
-    print(y[np.argmin(y[arr])])  # here: problem is that argmin gives only relative index of value, but absolute needed!
-    print('should be smaller than')
-    print(y[peak[-1]])
-    #print(y[np.argmax(y[arr])])
-    #print(y[vall[-1]])
-    if y[np.argmin(y[arr])] < y[peak[-1]]: #and y[np.argmax(y[arr])] < y[vall[-1]]:
-        print('\n\n\nok at ' + str(s) + '\n\n\n')
+    if y[arr[np.argmin(y[arr])]] < y[peak[-1]]:  # and y[arr[np.argmax(y[arr])]] < y[vall[-1]]:
         peak.append(arr[int(np.argmin(y[arr]))])
         vall.append(arr[int(np.argmax(y[arr]))])
-    # else:
-    #     peak.append(arr[int(np.argmin(y[arr]))])
-    #     vall.append(arr[int(np.argmax(y[arr]))])
+    else:
+        peak.append(peak[-1])
+        vall.append(vall[-1])
 
-'''
-start = 17
+
+start = 18
 peakAc = [0]
 vallAc = [0]
-for s in range(int(T[0]), int(T[0]+5)):  # int(np.max(T))):
+for s in range(int(T[0]), int(np.max(T)-1)):
     arrAc = np.where(T.astype(int) == s)[0]
-    print('\nNew:')
-    print(np.argmin(D[arrAc]))
-    print(D[peakAc[-1]])
-    print(np.argmax(D[arrAc]))
-    print(D[vallAc[-1]])
-    if np.argmin(D[arrAc]) < D[peakAc[-1]] and np.argmax(D[arrAc]) > D[vallAc[-1]]:
+    if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:  # and D[arrAc[np.argmax(D[arrAc])]] > D[vallAc[-1]]:
         peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-        # if np.argmax(D[arrAc]) > D[vallAc[-1]]:
         vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
-    # else:
-    #     peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-    #     vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
-
-plt.plot(y[peak[start:]], c='r', label='ARAMIS')
-plt.plot(y[vall[start:]], c='r')
-plt.plot(D[peakAc], c='b', label='ACUMEN')
-plt.plot(D[vallAc], c='b')
-plt.plot(F[peakAc], c='k', label='Force')
-plt.plot(F[vallAc], c='k')
-plt.legend()
-
-plt.figure()
-plt.plot(y[peak[start:]], F[peakAc])
-plt.plot(uy, rfy)
+    else:
+        peakAc.append(peakAc[-1])
+        vallAc.append(vallAc[-1])
 
 figP.scatter(-y[peak[start:]], -F[peakAc])
-'''
