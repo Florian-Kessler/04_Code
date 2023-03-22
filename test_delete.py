@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import time
 import pandas as pd
 import os
-from scipy.signal import find_peaks
 
 
 # from scipy.signal import argrelextrema
@@ -92,81 +91,75 @@ def find_first(array, value):
 t1 = time.time()
 plt.close('all')
 
-specimen = '05_Pilot5'
-number = specimen.split('_')[0]
-'''
-PEEK = ''
-TITAN = ''
-cor = 0
-if '03' in specimen:
-    PEEK = '03_Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
-    TITAN = '03_Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
-    cor = float(2.0)  # Correction for displacement offset for Ti
-elif '04' in specimen:
-    PEEK = '04_Pilot4/ICOTEC_S130672_L4_icotec_accumen.csv'
-    TITAN = '04_Pilot4/ICOTEC_S130672_L4_icotec_kwire_accumen.csv'
-elif '05' in specimen:
-    PEEK = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
-    TITAN = '05_Pilot5/ICOTEC_S130684_L4_kwire_accumen.csv'
-'''
-
+# # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-
-folder = [filename for filename in os.listdir(loc) if filename.startswith(number)][0] + '/'
-samplesD = [filename for filename in os.listdir(loc + folder) if 'aramis' in filename]
-samplesF = [filename for filename in os.listdir(loc + folder) if 'acumen' in filename]
-
-for i in range(len(samplesD)):
-    [x, y, z, rX, rY, rZ, t] = read_ARAMIS(samplesD[i])
-    y = y.to_numpy().flatten()
-    t = np.array(t).flatten()
-    for j in range(len(t)):
-        hhmmss = t[j].split(' ')[1]
-        hh = hhmmss.split(':')[0]
-        mm = hhmmss.split(':')[1]
-        ss = hhmmss.split(':')[2].split(',')[0]
-        fr = hhmmss.split(':')[2].split(',')[1]
-        t[j] = int(hh) * 3600 + int(mm) * 60 + int(ss) + int(fr) / 1000
-    peak = [0]
-    vall = [0]
-    for s in range(int(t[0]), int(np.max(t) - 1)):
-        arr = np.where(t.astype(int) == s)[0]
-        if y[arr[np.argmin(y[arr])]] < y[peak[-1]]:  # and y[arr[np.argmax(y[arr])]] < y[vall[-1]]:
-            peak.append(arr[int(np.argmin(y[arr]))])
-            vall.append(arr[int(np.argmax(y[arr]))])
-        else:
-            peak.append(peak[-1])
-            vall.append(vall[-1])
-
-for i in range(len(samplesF)):
-    [C, D, F, _, _, T] = read_acumen(samplesF[i])
-    peakAc = [0]
-    vallAc = [0]
-    for s in range(int(T[0]), int(np.max(T) - 1)):
-        arrAc = np.where(T.astype(int) == s)[0]
-        if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:  # and D[arrAc[np.argmax(D[arrAc])]] > D[vallAc[-1]]:
-            peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-            vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
-        else:
-            peakAc.append(peakAc[-1])
-            vallAc.append(vallAc[-1])
-
-
-start = 18
-plt.figure()
-plt.scatter(-y[peak[start:]], -F[peakAc])
-#%%
+specimen = '05_Pilot5'
+number = ['03', '13']  # simulations
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('Inverse simulations PEEK (YM = 15 GPa), force controlled')
+plt.title('PEEK (YM = 15 GPa')
 fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('Inverse simulations Ti (YM = 110 GPa), force controlled')
+plt.title('Ti (YM = 100 GPa')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 
-# number = ['00', '01', '02', '10', '11', '12']
-number = ['03', '13']
+no = specimen.split('_')[0]
+folder = [filename for filename in os.listdir(loc) if filename.startswith(no)][0] + '/'
+sampleIPD = ([filename for filename in os.listdir(loc + folder)
+             if 'aramis' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
+sampleIPF = ([filename for filename in os.listdir(loc + folder)
+             if 'acumen' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
+sampleIKD = ([filename for filename in os.listdir(loc + folder)
+             if 'aramis' in filename and 'kwire' in filename] or [None])[0]
+sampleIKF = ([filename for filename in os.listdir(loc + folder)
+             if 'acumen' in filename and 'kwire' in filename] or [None])[0]
+sampleTiD = ([filename for filename in os.listdir(loc + folder)
+             if 'aramis' in filename and 'DPS' in filename] or [None])[0]
+sampleTiF = ([filename for filename in os.listdir(loc + folder)
+             if 'acumen' in filename and 'DPS' in filename] or [None])[0]
+samplesD = sampleIPD, sampleIKD, sampleTiD
+samplesF = sampleIPF, sampleIKF, sampleTiF
+label_screw = ['Icotec', 'Icotec2', 'DPS']
+for i in range(len(samplesD)):
+    if samplesD[i] and samplesF[i]:
+        [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
+        y = y.to_numpy().flatten()
+        t = np.array(t).flatten()
+        for j in range(len(t)):
+            hhmmss = t[j].split(' ')[1]
+            hh = hhmmss.split(':')[0]
+            mm = hhmmss.split(':')[1]
+            ss = hhmmss.split(':')[2].split(',')[0]
+            fr = hhmmss.split(':')[2].split(',')[1]
+            t[j] = int(hh) * 3600 + int(mm) * 60 + int(ss) + int(fr) / 1000
+        peak = [0]
+        vall = [0]
+        for s in range(int(t[0]), int(np.max(t) - 1)):
+            arr = np.where(t.astype(int) == s)[0]
+            if y[arr[np.argmin(y[arr])]] < y[peak[-1]]:
+                peak.append(arr[int(np.argmin(y[arr]))])
+                vall.append(arr[int(np.argmax(y[arr]))])
+            else:
+                peak.append(peak[-1])
+                vall.append(vall[-1])
+
+        [C, D, F, _, _, T] = read_acumen(loc + folder + samplesF[i])
+        peakAc = [0]
+        vallAc = [0]
+        for s in range(int(C[0]), int(np.max(C) - 1)):
+            arrAc = np.where(C.astype(int) == s)[0]
+            if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:
+                peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
+                vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
+            else:
+                peakAc.append(peakAc[-1])
+                vallAc.append(vallAc[-1])
+        if i == 0 or 1:
+            figP.scatter(y[peak], F[peakAc], color=col[i], s=1)
+        elif i == 2:
+            figT.scatter(y[peak], F[peakAc], color=col[i], s=1)
+
+loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
 for i in range(len(number)):
-    loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
     samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')
                and '_02_' in filename]
@@ -201,7 +194,8 @@ for i in range(len(number)):
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
-figP.axis([0, 12, 0, 250])
+figP.axis([0, 12, 0, 350])
+figT.axis([0, 12, 0, 350])
 # figP.plot(-1E5, -1E5, color='k', label='Tested side')
 # figP.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
 # figP.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
@@ -210,9 +204,10 @@ figP.axis([0, 12, 0, 250])
 # figT.plot(-1E5, -1E5, color='k', linestyle='dashed', label='Collateral side')
 # figT.plot(-1E5, -1E5, color=col[0], label='Screw-excess = 5 mm')
 # figT.plot(-1E5, -1E5, color=col[1], label='Screw-excess = 0 mm')
-
+plt.legend()
 
 #%%
+'''
 fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
 fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
 # df = read_ARAMIS(fileAramis)
@@ -221,9 +216,6 @@ fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5
 
 
 y = y.to_numpy().flatten()
-valls, _ = find_peaks(y, distance=30)
-peaks, _ = find_peaks(-y, distance=30)
-
 
 t = np.array(t).flatten()
 for i in range(len(t)):
@@ -260,3 +252,4 @@ for s in range(int(T[0]), int(np.max(T)-1)):
         vallAc.append(vallAc[-1])
 
 figP.scatter(-y[peak[start:]], -F[peakAc])
+'''
