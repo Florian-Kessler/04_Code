@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import pandas as pd
 import os
+import scipy
 
 
 # from scipy.signal import argrelextrema
@@ -50,7 +51,7 @@ def read_ARAMIS(file_A):
     thetaY = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Theta(Y) [°]'])
     psiZ = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Psi(Z) [°]'])
     t_ = pd.DataFrame(df_, columns=['Time UTC'])
-    print(len(lx))
+    # print(len(lx))
     if stop:
         return lx[:stop], ly[:stop], lz[:stop], phiX[:stop], thetaY[:stop], psiZ[:stop], t_[:stop]
     else:
@@ -73,11 +74,25 @@ def read_acumen(file_a):
         arr_ = np.where((cycle_ == j_) | (cycle_ == j_ + .5))[0]
         peak_[j_] = arr_[int(np.argmin(f_[arr_]))]
         vall_[j_] = arr_[int(np.argmax(f_[arr_]))]
-
+    # print(len(d_))
     peak_ = peak_.astype(int)
     vall_ = vall_.astype(int)
 
     return cycle_, d_, f_, peak_, vall_, t_
+
+
+def read_resample(file_r):
+    df_ = pd.read_csv(file_r)
+    ArX_ = pd.DataFrame(df_, columns=['Aramis X'])
+    ArY_ = pd.DataFrame(df_, columns=['Aramis Y'])
+    ArZ_ = pd.DataFrame(df_, columns=['Aramis Z'])
+    ArrX_ = pd.DataFrame(df_, columns=['Aramis rX'])
+    ArrY_ = pd.DataFrame(df_, columns=['Aramis rY'])
+    ArrZ_ = pd.DataFrame(df_, columns=['Aramis rZ'])
+    AcY_ = pd.DataFrame(df_, columns=['Acumen Y'])
+    AcFy_ = pd.DataFrame(df_, columns=['Acumen Fy'])
+    AcC_ = pd.DataFrame(df_, columns=['Acumen C'])
+    return ArX_, ArY_, ArZ_, ArrX_, ArrY_, ArrZ_, AcY_, AcFy_, AcC_
 
 
 def find_nearest(array, value):
@@ -91,6 +106,12 @@ def find_first(array, value):
     idx = next(xd for xd, val in enumerate(array)
                if val <= value)
     return idx
+
+
+def smooth(y_, box_pts):
+    box = np.ones(box_pts)/box_pts
+    y_smooth = np.convolve(y_, box, mode='same')
+    return y_smooth
 
 
 t1 = time.time()
@@ -109,7 +130,8 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 
 no = specimen.split('_')[0]
 folder = [filename for filename in os.listdir(loc) if filename.startswith(no)][0] + '/'
-sampleIPD = ([filename for filename in os.listdir(loc + folder)
+
+'''sampleIPD = ([filename for filename in os.listdir(loc + folder)
               if 'aramis' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
 sampleIPF = ([filename for filename in os.listdir(loc + folder)
               if 'acumen' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
@@ -120,67 +142,66 @@ sampleIKF = ([filename for filename in os.listdir(loc + folder)
 sampleTiD = ([filename for filename in os.listdir(loc + folder)
               if 'aramis' in filename and 'DPS' in filename] or [None])[0]
 sampleTiF = ([filename for filename in os.listdir(loc + folder)
-              if 'acumen' in filename and 'DPS' in filename] or [None])[0]
-samplesD = sampleIPD, sampleIKD, sampleTiD
-samplesF = sampleIPF, sampleIKF, sampleTiF
-label_screw = ['Icotec', 'Icotec2', 'DPS']
-for i in range(len(samplesD)):
-    if samplesD[i] and samplesF[i]:
-        [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
-        y = y.to_numpy().flatten()
-        t = np.array(t).flatten()
-        for j in range(len(t)):
-            hhmmss = t[j].split(' ')[1]
-            hh = hhmmss.split(':')[0]
-            mm = hhmmss.split(':')[1]
-            ss = hhmmss.split(':')[2].split(',')[0]
-            fr = hhmmss.split(':')[2].split(',')[1]
-            t[j] = int(hh) * 3600 + int(mm) * 60 + int(ss) + int(fr) / 1000
-        peak = [0]
-        vall = [0]
-        for s in range(int(t[0]), int(np.max(t) - 1)):
-            arr = np.where(t.astype(int) == s)[0]
-            if y[arr[np.argmin(y[arr])]] < y[peak[-1]]:
-                peak.append(arr[int(np.argmin(y[arr]))])
-                vall.append(arr[int(np.argmax(y[arr]))])
-            else:
-                peak.append(peak[-1])
-                vall.append(vall[-1])
+              if 'acumen' in filename and 'DPS' in filename] or [None])[0]'''
 
-        [C, D, F, _, _, T] = read_acumen(loc + folder + samplesF[i])
-        peakAc = [0]
-        vallAc = [0]
-        for s in range(int(T[0]), int(np.max(T) - 1)):
-            arrAc = np.where(T.astype(int) == s)[0]
-            if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:
-                peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-                vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
-            else:
-                peakAc.append(peakAc[-1])
-                vallAc.append(vallAc[-1])
-        if len(peakAc) > len(peak):
-            start = len(peakAc) - len(peak)
-            if i == 0 or 1:
-                figP.scatter(-y[peak], -F[peakAc[start:]], color=col[i], s=1, label='Experiment ' + label_screw[i])
-            elif i == 2:
-                figT.scatter(-y[peak], -F[peakAc[start:]], color=col[i], s=1, label='Experiment ' + label_screw[i])
-        elif len(peak) > len(peakAc):
+sampleIco = ([filename for filename in os.listdir(loc + folder)
+              if 'resample' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
+sampleKwi = ([filename for filename in os.listdir(loc + folder)
+              if 'resample' in filename and 'icotec' in filename and 'kwire' in filename] or [None])[0]
+sampleDPS = ([filename for filename in os.listdir(loc + folder)
+              if 'resample' in filename and 'DPS' in filename] or [None])[0]
+
+samples = sampleIco, sampleKwi, sampleDPS
+
+label_screw = ['Icotec', 'Icotec2', 'DPS']
+plt.figure()
+for i in range(len(samples)):
+    if samples[i]:
+        print(samples[i])
+        [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(loc + folder + samples[i])
+        print(3)
+        AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
+        print(ArY)
+        print(AcFy)
+        plt.plot(AcFy)
+        plt.plot(AcFy_smooth)
+        peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
+        valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
+
+        if i == 0 or 1:
+            figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + label_screw[i])
+        elif i == 2:
+            figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + label_screw[i])
+
+        '''elif len(peak) > len(peakAc):
+            print('Ar more data points')
             start = len(peak) - len(peakAc)
-            if i == 0 or 1:
+            plt.plot(-y[peak[start:]], c='b')
+            plt.plot(-y[peak], c='k')
+            plt.plot(-D[peakAc], c='r')
+            if i == 0:
+                figP.scatter(-y[peak[23:-start+23]], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
+                plt.plot(-y[peak[23:-start + 23]], c='b')
+                plt.plot(-y[peak], c='k')
+                plt.plot(-D[peakAc], c='r')
+            elif i == 1:
                 figP.scatter(-y[peak[start:]], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
             elif i == 2:
                 figT.scatter(-y[peak[start:]], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
-        else:
+        elif len(peak) == len(peakAc):
+            print('same length')
+            plt.plot(-y[peak])
+            plt.plot(-D[peakAc])
             if i == 0 or 1:
                 figP.scatter(-y[peak], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
             elif i == 2:
-                figT.scatter(-y[peak], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
+                figT.scatter(-y[peak], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])'''
 
 
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
 for i in range(len(number)):
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
-    samples = [filename for filename in os.listdir(loc + folder + '/')
+    samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
                if filename.endswith('RFnode.txt') and '_02_' in filename]
     [uy, rfy] = 2 * [0]
     screw_force = np.zeros([5, 21])
