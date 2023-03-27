@@ -119,7 +119,7 @@ plt.close('all')
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '05_Pilot5'
+specimen = '03_Pilot3'
 number = ['03']  # simulations
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
@@ -197,8 +197,8 @@ for i in range(len(number)):
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
-figP.axis([0, 10.5, 0, 350])
-figT.axis([0, 10.5, 0, 350])
+figP.axis([0, 10.5, 0, 450])
+figT.axis([0, 10.5, 0, 450])
 
 figP.legend()
 figP.set_xlabel('Displacement / mm')
