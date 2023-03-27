@@ -119,8 +119,8 @@ plt.close('all')
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '05_Pilot5'
-number = ['13']  # , '13']  # simulations
+specimen = '04_Pilot4'
+number = ['50']  # simulations
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -130,19 +130,6 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 
 no = specimen.split('_')[0]
 folder = [filename for filename in os.listdir(loc) if filename.startswith(no)][0] + '/'
-
-'''sampleIPD = ([filename for filename in os.listdir(loc + folder)
-              if 'aramis' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
-sampleIPF = ([filename for filename in os.listdir(loc + folder)
-              if 'acumen' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
-sampleIKD = ([filename for filename in os.listdir(loc + folder)
-              if 'aramis' in filename and 'kwire' in filename] or [None])[0]
-sampleIKF = ([filename for filename in os.listdir(loc + folder)
-              if 'acumen' in filename and 'kwire' in filename] or [None])[0]
-sampleTiD = ([filename for filename in os.listdir(loc + folder)
-              if 'aramis' in filename and 'DPS' in filename] or [None])[0]
-sampleTiF = ([filename for filename in os.listdir(loc + folder)
-              if 'acumen' in filename and 'DPS' in filename] or [None])[0]'''
 
 sampleIco = ([filename for filename in os.listdir(loc + folder)
               if 'resample' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
@@ -157,12 +144,12 @@ label_screw = ['Icotec', 'Icotec2', 'DPS']
 plt.figure()
 for i in range(len(samples)):
     if samples[i]:
-        print(samples[i])
+        #print(samples[i])
         [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(loc + folder + samples[i])
-        print(3)
+        #print(3)
         AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
-        print(ArY)
-        print(AcFy)
+        #print(ArY)
+        #print(AcFy)
         plt.plot(AcFy)
         plt.plot(AcFy_smooth)
         peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
@@ -172,30 +159,6 @@ for i in range(len(samples)):
             figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + label_screw[i])
         elif i == 2:
             figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + label_screw[i])
-
-        '''elif len(peak) > len(peakAc):
-            print('Ar more data points')
-            start = len(peak) - len(peakAc)
-            plt.plot(-y[peak[start:]], c='b')
-            plt.plot(-y[peak], c='k')
-            plt.plot(-D[peakAc], c='r')
-            if i == 0:
-                figP.scatter(-y[peak[23:-start+23]], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
-                plt.plot(-y[peak[23:-start + 23]], c='b')
-                plt.plot(-y[peak], c='k')
-                plt.plot(-D[peakAc], c='r')
-            elif i == 1:
-                figP.scatter(-y[peak[start:]], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
-            elif i == 2:
-                figT.scatter(-y[peak[start:]], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
-        elif len(peak) == len(peakAc):
-            print('same length')
-            plt.plot(-y[peak])
-            plt.plot(-D[peakAc])
-            if i == 0 or 1:
-                figP.scatter(-y[peak], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])
-            elif i == 2:
-                figT.scatter(-y[peak], -F[peakAc], color=col[i], s=1, label='Experiment ' + label_screw[i])'''
 
 
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
@@ -215,6 +178,11 @@ for i in range(len(number)):
         file_path = loc + folder + samples[j]
         [uy, rf_] = read_RFnodeFile(file_path)
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+        print('\n' + samples[j])
+        print('Displacement:')
+        print(uy)
+        print('Force:')
+        print(rfy)
         if 'P_P' in samples[j]:
             figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec')
             if rfy[-1] > 20:
@@ -238,54 +206,11 @@ figP.axis([0, 10.5, 0, 250])
 figT.axis([0, 10.5, 0, 350])
 
 figP.legend()
+figP.set_xlabel('Displacement / mm')
+figP.set_ylabel('Force / N')
+figT.set_xlabel('Displacement / mm')
+figT.set_ylabel('Force / N')
 
-
-'''
-fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
-fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
-# df = read_ARAMIS(fileAramis)
-[x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAramis)
-[C, D, F, P, V, T] = read_acumen(fileAcumen)
-
-
-y = y.to_numpy().flatten()
-
-t = np.array(t).flatten()
-for i in range(len(t)):
-    hhmmss = t[i].split(' ')[1]
-    hh = hhmmss.split(':')[0]
-    mm = hhmmss.split(':')[1]
-    ss = hhmmss.split(':')[2].split(',')[0]
-    fr = hhmmss.split(':')[2].split(',')[1]
-    t[i] = int(hh)*3600 + int(mm)*60 + int(ss) + int(fr)/1000
-
-plt.figure()
-peak = [0]
-vall = [0]
-for s in range(int(t[0]), int(np.max(t)-1)):
-    arr = np.where(t.astype(int) == s)[0]
-    if y[arr[np.argmin(y[arr])]] < y[peak[-1]]:  # and y[arr[np.argmax(y[arr])]] < y[vall[-1]]:
-        peak.append(arr[int(np.argmin(y[arr]))])
-        vall.append(arr[int(np.argmax(y[arr]))])
-    else:
-        peak.append(peak[-1])
-        vall.append(vall[-1])
-
-
-start = 18
-peakAc = [0]
-vallAc = [0]
-for s in range(int(T[0]), int(np.max(T)-1)):
-    arrAc = np.where(T.astype(int) == s)[0]
-    if D[arrAc[np.argmin(D[arrAc])]] < D[peakAc[-1]]:  # and D[arrAc[np.argmax(D[arrAc])]] > D[vallAc[-1]]:
-        peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-        vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
-    else:
-        peakAc.append(peakAc[-1])
-        vallAc.append(vallAc[-1])
-
-figP.scatter(-y[peak[start:]], -F[peakAc])
-'''
 
 tRun = time.time()-t1
 if tRun >= 3600:

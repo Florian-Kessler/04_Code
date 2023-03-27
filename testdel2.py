@@ -99,8 +99,8 @@ plt.close('all')
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '05_Pilot5'
-number = ['13']  # , '13']  # simulations
+specimen = '03_Pilot3'
+i = 2
 
 '''fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -127,20 +127,31 @@ samplesF = sampleIPF, sampleIKF, sampleTiF
 label_screw = ['Icotec', 'Icotec2', 'DPS']
 plt.figure()
 
-i = 1
-cut = 553
 
 print(samplesD[i])
 print(samplesF[i])
+
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
-x = x.to_numpy().flatten()[cut:-(9320-252)]
-y = y.to_numpy().flatten()[cut:-(9320-252)]
-z = z.to_numpy().flatten()[cut:-(9320-252)]
-rX = rX.to_numpy().flatten()[cut:-(9320-252)]
-rY = rY.to_numpy().flatten()[cut:-(9320-252)]
-rZ = rZ.to_numpy().flatten()[cut:-(9320-252)]
+# # # # # INPUT # # # # #
+startBlue = 690
+cutBlue = 2524
+# a = np.arange(21073, 21551)
+a = [94000]
+
+x = x.to_numpy().flatten()[startBlue:-cutBlue]
+x = np.delete(x, a)
+y = y.to_numpy().flatten()[startBlue:-cutBlue]
+y = np.delete(y, a)
+z = z.to_numpy().flatten()[startBlue:-cutBlue]
+z = np.delete(z, a)
+rX = rX.to_numpy().flatten()[startBlue:-cutBlue]
+rX = np.delete(rX, a)
+rY = rY.to_numpy().flatten()[startBlue:-cutBlue]
+rY = np.delete(rY, a)
+rZ = rZ.to_numpy().flatten()[startBlue:-cutBlue]
+rZ = np.delete(rZ, a)
+plt.plot(y-2.5, color='b', label='ARAMIS')
 t = np.array(t).flatten()
-plt.plot(y)
 for j in range(len(t)):
     hhmmss = t[j].split(' ')[1]
     hh = hhmmss.split(':')[0]
@@ -149,14 +160,21 @@ for j in range(len(t)):
     fr = hhmmss.split(':')[2].split(',')[1]
     t[j] = int(hh) * 3600 + int(mm) * 60 + int(ss) + int(fr) / 1000
 
+
 [C, D, F, _, _, T] = read_acumen(loc + folder + samplesF[i])
-Ds = resample(D, int(len(D)/128*30))#[:len(y)]
+# # # # # INPUT # # # # #
+startRed = 123
+cutRed = 8
+
+
+Ds = resample(D, int(len(D)/128*30))[startRed:-cutRed]
 Ds = Ds.reshape(len(Ds),)
-Fs = resample(F, int(len(F)/128*30))#[:len(y)]
+Fs = resample(F, int(len(F)/128*30))[startRed:-cutRed]
 Fs = Fs.reshape(len(Fs),)
-Cs = resample(C, int(len(D)/128*30))#[:len(y)]
+Cs = resample(C, int(len(D)/128*30))[startRed:-cutRed]
 Cs = Cs.reshape(len(Cs),)
-plt.plot(Ds)
+plt.plot(Ds, color='r', label='ACUMEN')
+plt.legend()
 
 if not len(y) - len(Ds):
     print('\nEqual length.')
@@ -170,6 +188,7 @@ if not len(y) - len(Ds):
                        'Acumen Fy': Fs,
                        'Acumen C': Cs})
     df.to_csv(loc + folder + samplesD[i].split('_a')[0] + '_resample.csv')
+    print('resample.csv written.')
 else:
     print(len(y))
     print(len(Ds))
