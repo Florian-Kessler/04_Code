@@ -119,8 +119,8 @@ plt.close('all')
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '04_Pilot4'
-number = ['50']  # simulations
+specimen = '05_Pilot5'
+number = ['03']  # simulations
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -140,25 +140,20 @@ sampleDPS = ([filename for filename in os.listdir(loc + folder)
 
 samples = sampleIco, sampleKwi, sampleDPS
 
-label_screw = ['Icotec', 'Icotec2', 'DPS']
-plt.figure()
+l_s = ['Icotec', 'Icotec2', 'DPS']
 for i in range(len(samples)):
     if samples[i]:
-        #print(samples[i])
+        print('ok    ' + str(i))
         [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(loc + folder + samples[i])
-        #print(3)
         AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
-        #print(ArY)
-        #print(AcFy)
-        plt.plot(AcFy)
-        plt.plot(AcFy_smooth)
         peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
         valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
-
-        if i == 0 or 1:
-            figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + label_screw[i])
+        if i == 0 or i == 1:
+            print('Ico ' + samples[i] + '   ' + str(i))
+            figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
         elif i == 2:
-            figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + label_screw[i])
+            print('Ti ' + samples[i] + '   ' + str(i))
+            figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
 
 
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
@@ -178,11 +173,11 @@ for i in range(len(number)):
         file_path = loc + folder + samples[j]
         [uy, rf_] = read_RFnodeFile(file_path)
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-        print('\n' + samples[j])
-        print('Displacement:')
-        print(uy)
-        print('Force:')
-        print(rfy)
+        # print('\n' + samples[j])
+        # print('Displacement:')
+        # print(uy)
+        # print('Force:')
+        # print(rfy)
         if 'P_P' in samples[j]:
             figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec')
             if rfy[-1] > 20:
@@ -202,12 +197,13 @@ for i in range(len(number)):
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
-figP.axis([0, 10.5, 0, 250])
+figP.axis([0, 10.5, 0, 350])
 figT.axis([0, 10.5, 0, 350])
 
 figP.legend()
 figP.set_xlabel('Displacement / mm')
 figP.set_ylabel('Force / N')
+figT.legend()
 figT.set_xlabel('Displacement / mm')
 figT.set_ylabel('Force / N')
 
