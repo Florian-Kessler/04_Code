@@ -143,16 +143,13 @@ samples = sampleIco, sampleKwi, sampleDPS
 l_s = ['Icotec', 'Icotec2', 'DPS']
 for i in range(len(samples)):
     if samples[i]:
-        print('ok    ' + str(i))
         [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(loc + folder + samples[i])
         AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
         peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
         valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
         if i == 0 or i == 1:
-            print('Ico ' + samples[i] + '   ' + str(i))
             figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
         elif i == 2:
-            print('Ti ' + samples[i] + '   ' + str(i))
             figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
 
 
