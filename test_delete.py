@@ -120,7 +120,7 @@ plt.close('all')
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 specimen = '03_Pilot3'
-number = ['03']  # simulations
+number = ['01']  # simulations
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -148,9 +148,11 @@ for i in range(len(samples)):
         peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
         valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
         if i == 0 or i == 1:
-            figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
+            # figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
+            figP.plot(-np.array(ArY), -AcFy_smooth, color=col[i], alpha=0.2, label='Experiment ' + l_s[i])
         elif i == 2:
-            figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
+            # figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
+            figT.plot(-np.array(ArY), -AcFy_smooth, color=col[0], alpha=0.2, label='Experiment ' + l_s[i])
 
 
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
@@ -188,14 +190,14 @@ for i in range(len(number)):
             if rfy[-1] > 20:
                 figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[1], linestyle='solid', label='FE Icotec2')  # here:
+            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec Osteoporosis')  # here:
             # changed dashed to solid and color i to 1
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
             print('\n . . . Invalid file!\n')
-figP.axis([0, 10.5, 0, 450])
-figT.axis([0, 10.5, 0, 450])
+figP.axis([0, 10.5, 0, 250])
+figT.axis([0, 10.5, 0, 250])
 
 figP.legend()
 figP.set_xlabel('Displacement / mm')
