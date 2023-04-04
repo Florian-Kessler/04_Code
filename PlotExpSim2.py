@@ -120,8 +120,8 @@ mue = ['07', '05', '03', '02', '01', '00']
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '03_Pilot3'
-number = ['01']  # simulations
+specimen = '05_Pilot5'
+number = ['13']  # simulations
 
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
@@ -193,16 +193,15 @@ for n in range(len(mue)):
                 if uy[-1] > 1.01:
                     figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
             elif 'T_T' in samples[j]:
-                figT.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)  # figT
+                figT.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)
                 if uy[-1] > 1.01:
-                    figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')  # figT
-            #elif 'P_T' in samples[j]:
-            #    figT.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')  # figT
-            #    if uy[-1] > 1.01:
-            #        figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')  # figT
+                    figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
+            elif 'P_T' in samples[j]:
+                figT.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')
+                if uy[-1] > 1.01:
+                    figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
             elif 'T_P' in samples[j]:
-                figP.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')  # here:
-                # changed dashed to solid and color i to 1
+                figP.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')
                 if uy[-1] > 1.01:
                     figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
             else:
