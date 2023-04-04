@@ -119,8 +119,9 @@ plt.close('all')
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '03_Pilot3'
-number = ['01']  # simulations
+specimen = '05_Pilot5'
+number = ['43']  # simulations
+friction = '02'
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -128,9 +129,9 @@ fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Ti (YM = 100 GPa)')
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 
+# # # # # Experiments # # # # #
 no = specimen.split('_')[0]
 folder = [filename for filename in os.listdir(loc) if filename.startswith(no)][0] + '/'
-
 sampleIco = ([filename for filename in os.listdir(loc + folder)
               if 'resample' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
 sampleKwi = ([filename for filename in os.listdir(loc + folder)
@@ -155,11 +156,12 @@ for i in range(len(samples)):
             figT.plot(-np.array(ArY), -AcFy_smooth, color=col[0], alpha=0.2, label='Experiment ' + l_s[i])
 
 
+# # # # # Simulations # # # # #
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
 for i in range(len(number)):
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
     samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
-               if filename.endswith('RFnode.txt') and '_02_' in filename]
+               if filename.endswith('RFnode.txt') and '_' + friction + '_' in filename]
     [uy, rfy] = 2 * [0]
     screw_force = np.zeros([5, 21])
     ang = np.zeros([5, 21])
