@@ -116,14 +116,13 @@ def smooth(y_, box_pts):
 
 t1 = time.time()
 plt.close('all')
-mue = ['00', '01', '02', '03', '05', '07']
-#for i in len(mue):
-#friction = mue(i)
-# #    # # # INPUT # # # # #
+mue = ['07', '05', '03', '02', '01', '00']
+
+# # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 specimen = '03_Pilot3'
 number = ['01']  # simulations
-friction = '00'
+
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -143,6 +142,8 @@ sampleDPS = ([filename for filename in os.listdir(loc + folder)
 
 samples = sampleIco, sampleKwi, sampleDPS
 
+style = ['solid', 'dashed', 'dashed']
+
 l_s = ['Icotec', 'Icotec2', 'DPS']
 for i in range(len(samples)):
     if samples[i]:
@@ -152,56 +153,62 @@ for i in range(len(samples)):
         valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
         if i == 0 or i == 1:
             # figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
-            figP.plot(-np.array(ArY), -AcFy_smooth, color=col[i], alpha=0.2, label='Experiment ' + l_s[i])
+            figP.plot(-np.array(ArY), -AcFy_smooth,
+                      color=col[i], alpha=0.2, linestyle=style[i], label='Experiment ' + l_s[i])
         elif i == 2:
             # figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
-            figT.plot(-np.array(ArY), -AcFy_smooth, color=col[0], alpha=0.2, label='Experiment ' + l_s[i])
+            figT.plot(-np.array(ArY), -AcFy_smooth,
+                      color=col[0], alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[i])
 
 
 # # # # # Simulations # # # # #
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
-for i in range(len(number)):
-    folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
-    samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
-               if filename.endswith('RFnode.txt') and '_' + friction + '_' in filename]
-    [uy, rfy] = 2 * [0]
-    screw_force = np.zeros([5, 21])
-    ang = np.zeros([5, 21])
-    Screw_mat = ['P', 'T']
-    Sim_mat = ['P', 'T']
-    Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
-    for j in range(len(samples)):
-        lab = 'Screw excess = ' + folder.split('_S')[-1][0] + '.' + folder.split('_S')[-1][1] + ' mm, ' \
-              # + 'diameter = ' + folder.split('_D')[-1][0] + '.' + folder.split('_D')[-1][1] + ' mm'
-        file_path = loc + folder + samples[j]
-        [uy, rf_] = read_RFnodeFile(file_path)
-        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-        # print('\n' + samples[j])
-        # print('Displacement:')
-        # print(uy)
-        # print('Force:')
-        # print(rfy)
-        if 'P_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec')
-            if rfy[-1] > 20:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
-        elif 'T_T' in samples[j]:
-            figT.plot(-uy, rfy, color=col[i], linestyle='solid', label='DPS')  # figT
-            if rfy[-1] > 20:
-                figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
-        elif 'P_T' in samples[j]:
-            figT.plot(-uy, rfy, color=col[i], linestyle='dashed', label='DPS (C)')  # figT
-            if rfy[-1] > 20:
-                figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
-        elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec Osteoporosis')  # here:
-            # changed dashed to solid and color i to 1
-            if rfy[-1] > 20:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
-        else:
-            print('\n . . . Invalid file!\n')
+for n in range(len(mue)):
+    friction = mue[n]
+    lab = '\u03BC = 0.' + str(int(friction))
+    if friction == '00':
+        lab += '5'
+    for i in range(len(number)):
+        folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
+        samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
+                   if filename.endswith('RFnode.txt') and '_' + friction + '_' in filename]
+        [uy, rfy] = 2 * [0]
+        screw_force = np.zeros([5, 21])
+        ang = np.zeros([5, 21])
+        Screw_mat = ['P', 'T']
+        Sim_mat = ['P', 'T']
+        Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
+        for j in range(len(samples)):
+            file_path = loc + folder + samples[j]
+            [uy, rf_] = read_RFnodeFile(file_path)
+            [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+            # print('\n' + samples[j])
+            # print('Displacement:')
+            # print(uy)
+            # print('Force:')
+            # print(rfy)
+
+            if 'P_P' in samples[j]:
+                figP.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)
+                if uy[-1] > 1.01:
+                    figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
+            elif 'T_T' in samples[j]:
+                figT.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)  # figT
+                if uy[-1] > 1.01:
+                    figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')  # figT
+            #elif 'P_T' in samples[j]:
+            #    figT.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')  # figT
+            #    if uy[-1] > 1.01:
+            #        figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')  # figT
+            elif 'T_P' in samples[j]:
+                figP.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')  # here:
+                # changed dashed to solid and color i to 1
+                if uy[-1] > 1.01:
+                    figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
+            else:
+                print('\n . . . Invalid file!\n')
 figP.axis([0, 10.5, 0, 250])
-figT.axis([0, 10.5, 0, 250])
+figT.axis([0, 15.0, 0, 300])
 
 figP.legend()
 figP.set_xlabel('Displacement / mm')

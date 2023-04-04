@@ -117,13 +117,11 @@ def smooth(y_, box_pts):
 t1 = time.time()
 plt.close('all')
 mue = ['00', '01', '02', '03', '05', '07']
-#for i in len(mue):
-#friction = mue(i)
-# #    # # # INPUT # # # # #
+# # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '03_Pilot3'
-number = ['01']  # simulations
-friction = '00'
+specimen = '05_Pilot5'
+number = ['13', '43']  # simulations
+friction = '02'
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -157,13 +155,16 @@ for i in range(len(samples)):
             # figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
             figT.plot(-np.array(ArY), -AcFy_smooth, color=col[0], alpha=0.2, label='Experiment ' + l_s[i])
 
-
+style = ['solid', 'dashed']
 # # # # # Simulations # # # # #
 loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
 for i in range(len(number)):
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
     samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
                if filename.endswith('RFnode.txt') and '_' + friction + '_' in filename]
+    state = ['press-fit', 'no insertion damage']
+    lab1 = 'FE Icotec Osteoporosis 1, ' + state[i]
+    lab2 = 'FE Icotec Osteoporosis 2, ' + state[i]
     [uy, rfy] = 2 * [0]
     screw_force = np.zeros([5, 21])
     ang = np.zeros([5, 21])
@@ -182,7 +183,8 @@ for i in range(len(number)):
         # print('Force:')
         # print(rfy)
         if 'P_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec')
+            #figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec')
+            figP.plot(-uy, rfy, color=col[0], linestyle=style[i], label=lab1)
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         elif 'T_T' in samples[j]:
@@ -194,8 +196,8 @@ for i in range(len(number)):
             if rfy[-1] > 20:
                 figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
         elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec Osteoporosis')  # here:
-            # changed dashed to solid and color i to 1
+            #figP.plot(-uy, rfy, color=col[i], linestyle='solid', label='FE Icotec Osteoporosis')
+            figP.plot(-uy, rfy, color=col[1], linestyle=style[i], label=lab2)
             if rfy[-1] > 20:
                 figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
         else:
