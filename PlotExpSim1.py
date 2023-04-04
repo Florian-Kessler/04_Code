@@ -116,12 +116,14 @@ def smooth(y_, box_pts):
 
 t1 = time.time()
 plt.close('all')
-
-# # # # # INPUT # # # # #
+mue = ['00', '01', '02', '03', '05', '07']
+#for i in len(mue):
+#friction = mue(i)
+# #    # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '05_Pilot5'
-number = ['43']  # simulations
-friction = '02'
+specimen = '03_Pilot3'
+number = ['01']  # simulations
+friction = '00'
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
