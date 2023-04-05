@@ -141,7 +141,7 @@ sampleDPS = ([filename for filename in os.listdir(loc + folder)
 
 samples = sampleIco, sampleKwi, sampleDPS
 
-l_s = ['Icotec', 'Icotec2', 'DPS']
+l_s = ['Icotec1', 'Icotec2', 'DPS']
 for i in range(len(samples)):
     if samples[i]:
         [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(loc + folder + samples[i])
@@ -163,8 +163,8 @@ for i in range(len(number)):
     samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
                if filename.endswith('RFnode.txt') and '_' + friction + '_' in filename]
     state = ['press-fit', 'no insertion damage']
-    lab1 = 'FE Icotec Osteoporosis 1, ' + state[i]
-    lab2 = 'FE Icotec Osteoporosis 2, ' + state[i]
+    lab1 = 'FE Icotec1, ' + state[i]
+    lab2 = 'FE Icotec2, ' + state[i]
     [uy, rfy] = 2 * [0]
     screw_force = np.zeros([5, 21])
     ang = np.zeros([5, 21])
