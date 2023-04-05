@@ -357,7 +357,7 @@ def HFE_inp_creator(inp):
                 step = 2
 
             # Set material of implant
-            if '*Solid Section, elset=Set-Impl, material=PEEK' in lines:
+            if ', material=PEEK' in lines:
                 # replace material section
                 if SimMat[i] == 'T':
                     # outfile.truncate()
