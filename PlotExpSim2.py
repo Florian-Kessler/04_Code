@@ -121,7 +121,7 @@ mue = ['07', '05', '03', '02', '01', '00']
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 specimen = '05_Pilot5'
-number = ['15']  # simulations
+number = ['75']  # simulations
 
 
 fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
