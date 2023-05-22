@@ -116,7 +116,7 @@ def smooth(y_, box_pts):
 
 t1 = time.time()
 plt.close('all')
-mue = ['07', '05', '02', '01']
+mue = ['07', '05', '03', '02', '01', '00']
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
@@ -151,14 +151,14 @@ for i in range(len(samples)):
         AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
         peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
         valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
-        if i == 1:# or i == 1:
+        if i == 0 or i == 1:
             # figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
             figP.plot(-np.array(ArY), -AcFy_smooth,
                       color=col[i], alpha=0.2, linestyle=style[i], label='Experiment ' + l_s[i])
         elif i == 2:
             # figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
             figT.plot(-np.array(ArY), -AcFy_smooth,
-                      color=col[0], alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[i])
+                      color=col[i], alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[i])
 
 
 # # # # # Simulations # # # # #
@@ -188,7 +188,7 @@ for n in range(len(mue)):
             # print('Force:')
             # print(rfy)
 
-            if 'Px_P' in samples[j]:
+            if 'P_P' in samples[j]:
                 figP.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)
                 if uy[-1] > 1.01:
                     figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
