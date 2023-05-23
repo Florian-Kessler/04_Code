@@ -322,7 +322,7 @@ def load_BVTVdata(bone, filename):
     # Flip image 180° to get same COS origin
     # bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
 
-    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)
+    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)  # Segmentation of gray image
     print('Segmented.')
     return bone
 
