@@ -336,6 +336,7 @@ def HFE_inp_creator(inp):
     SimMat = ['T', 'P']  # simulated materials
     for i in range(len(SimMat)):
         step = 0
+        friction = 0
         f_inpDummy = open(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_model.inp')
         f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp')
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
@@ -355,6 +356,14 @@ def HFE_inp_creator(inp):
             # Define step 2
             if '*Step, name=Step-2,' in lines:
                 step = 2
+
+            # Friction value between screw and bone
+            if friction == 1:
+                lines = str(inp['Friction'])
+            friction = 0  # set friction again to 0
+            # Find friction line, set it to 1 to change value during next iteration
+            if '*Friction, slip' in lines:
+                friction = 1
 
             # Set material of implant
             if ', material=PEEK' in lines:
@@ -393,6 +402,9 @@ def HFE_inp_creator(inp):
                     outfile.write('Set-RP, 2, 2, ' + str(inp['d_dir']) + str(inp['d_max']) + '\n')
                 else:
                     outfile.write(lines)
+
+
+
 
             # Amplitude settings (number of cycles, peak and valley load)
             # here proceed with amplitude etc.
