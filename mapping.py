@@ -397,14 +397,12 @@ def HFE_inp_creator(inp):
             #     else:
             #         outfile.write(lines)
             # Set displacement amplitude and direction
+
             elif 'Set-RP, 2, 2, -' in lines:
                 if step == 2:
                     outfile.write('Set-RP, 2, 2, ' + str(inp['d_dir']) + str(inp['d_max']) + '\n')
                 else:
                     outfile.write(lines)
-
-
-
 
             # Amplitude settings (number of cycles, peak and valley load)
             # here proceed with amplitude etc.
