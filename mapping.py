@@ -359,7 +359,7 @@ def HFE_inp_creator(inp):
 
             # Friction value between screw and bone
             if friction == 1:
-                lines = str(inp['Friction'])
+                lines = str(inp['Friction']) + '\n'
             friction = 0  # set friction again to 0
             # Find friction line, set it to 1 to change value during next iteration
             if '*Friction, slip' in lines:
