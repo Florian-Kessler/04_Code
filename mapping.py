@@ -341,14 +341,14 @@ def HFE_inp_creator(inp):
         f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
         # Included in input file-name:
         # Model code (geometry), force maximum, friction, experiment screw material, simulation screw material
-        if inp['F_dir'] == '-':
-            outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' +
+        if inp['d_dir'] == '-':
+            outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_d' + str(inp['d_max']) + '_' +
                            str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
-        elif inp['F_dir'] == '+':
-            outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_Finv' + str(inp['F_max']) + '_' +
+        elif inp['d_dir'] == '+':
+            outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_dinv' + str(inp['d_max']) + '_' +
                            str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
         else:
-            print('Wrong F_dir input')
+            print('Wrong d_dir input')
             exit()
         for lines in f_inpDummy:
 
@@ -382,9 +382,15 @@ def HFE_inp_creator(inp):
                     outfile.write(lines_mat)
 
             # Set force amplitude and direction
-            elif 'Set-RP, 2xyz,' in lines:  # HERE xyz INSERTED TO BLOCK COMMAND
-                if step == 5:  # HERE EDITED FOR TESTING DISPLACEMENT CONTROLLED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
+            # elif 'Set-RP, 2,' in lines:
+            #     if step == 2:
+            #         outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
+            #     else:
+            #         outfile.write(lines)
+            # Set displacement amplitude and direction
+            elif 'Set-RP, 2, 2, -' in lines:
+                if step == 2:
+                    outfile.write('Set-RP, 2, 2, ' + str(inp['d_dir']) + str(inp['d_max']) + '\n')
                 else:
                     outfile.write(lines)
 
@@ -420,11 +426,11 @@ def write_submit(inp):
         inputfile = ''
         template = open(inp['Project_Folder'] + '02_FEA/97_Templates/abq_submit_template_' + inp['Submit'] + '.sh')
         abq_file = open(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 'w')
-        if inp['F_dir'] == '-':
-            inputfile = inp['Model_Code'] + '_F' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') \
+        if inp['d_dir'] == '-':
+            inputfile = inp['Model_Code'] + '_d' + str(inp['d_max']) + '_' + str(inp['Friction']).replace('.', '') \
                         + '_' + inp['Screw'] + '_' + SimMat[i]
-        elif inp['F_dir'] == '+':
-            inputfile = inp['Model_Code'] + '_Finv' + str(inp['F_max']) + '_' + str(inp['Friction']).replace('.', '') \
+        elif inp['d_dir'] == '+':
+            inputfile = inp['Model_Code'] + '_dinv' + str(inp['d_max']) + '_' + str(inp['Friction']).replace('.', '') \
                         + '_' + inp['Screw'] + '_' + SimMat[i]
         material_code = inp['Screw'] + SimMat[i]
         for lines in template:
