@@ -250,7 +250,7 @@ def axis3D(img, start, end, axis_):
     if axis_ == 'x':
         for i_ in range(start, end):
             # Find slices where screw appears
-            loc_ = np.array(np.where(img[i_, :, :] >= 1))
+            loc_ = np.array(np.where(img[i_, :, :] >= 2))
             if loc_.shape[1]:
                 # Find centre of gravity for slice i
                 cog = [np.mean(loc_[0]), np.mean(loc_[1])]
@@ -260,7 +260,7 @@ def axis3D(img, start, end, axis_):
     elif axis_ == 'y':
         for i_ in range(start, end):
             # Find slices where screw appears
-            loc_ = np.array(np.where(img[:, i_, :] >= 1))
+            loc_ = np.array(np.where(img[:, i_, :] >= 2))
             if loc_.shape[1]:
                 # Find centre of gravity for slice i
                 cog = [np.mean(loc_[0]), np.mean(loc_[1])]
@@ -270,7 +270,7 @@ def axis3D(img, start, end, axis_):
     elif axis_ == 'z':
         for i_ in range(start, end):
             # Find slices where screw appears
-            loc_ = np.array(np.where(img[:, :, i_] >= 1))
+            loc_ = np.array(np.where(img[:, :, i_] >= 2))
             if loc_.shape[1]:
                 # Find centre of gravity for slice i
                 cog = [np.mean(loc_[0]), np.mean(loc_[1])]
