@@ -263,17 +263,7 @@ def computeBVTV_FEel(cog, Spacing, FE_elsize_mm, imarray, maskarray):
     # return BVTVinMask
 
 
-def computeBVTV_twophase(
-    cog,
-    Spacing,
-    ROIsize_cort_mm,
-    ROIsize_trab_mm,
-    imarray,
-    cortmask,
-    trabmask,
-    phicort,
-    phitrab,
-):
+def computeBVTV_twophase(cog, Spacing, ROIsize_cort_mm, ROIsize_trab_mm, imarray, cortmask, trabmask, phicort, phitrab):
     """computes BVTV from a numpy array containing the BVTV values for a region of size 'ROIsize' centered in the
     center of gravity of the element"""
     # ROI size: If PHItrab = 0, ROI size = sphere with equal volume as FE element
@@ -1900,9 +1890,7 @@ def material_superposition(SSSSc, SSSSt, FFFFc, FFFFt, FFc, FFt, phic, phit):
     return SSSSct, CCCCct, FFFFct, FFct
 
 
-def material_superposition_old(
-    mat_param_cort, mat_param_trab, phic, phit, rhoc, rhot, mm1, mm2, mm3
-):
+def material_superposition_old(mat_param_cort, mat_param_trab, phic, phit, rhoc, rhot, mm1, mm2, mm3):
 
     import time
 
