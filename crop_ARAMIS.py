@@ -99,8 +99,8 @@ plt.close('all')
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '03_Pilot3'
-i = 2
+specimen = '06_Pilot6'
+i = 0
 
 '''fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('PEEK (YM = 15 GPa)')
@@ -133,23 +133,27 @@ print(samplesF[i])
 
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
 # # # # # INPUT # # # # #
-startBlue = 690
-cutBlue = 2524
+startBlue = 1485
+cutBlue = 504  # >0
+a = []
 # a = np.arange(21073, 21551)
-a = [94000]
+# a = [len(y)-1-startBlue-cutBlue]
+
 
 x = x.to_numpy().flatten()[startBlue:-cutBlue]
-x = np.delete(x, a)
 y = y.to_numpy().flatten()[startBlue:-cutBlue]
-y = np.delete(y, a)
 z = z.to_numpy().flatten()[startBlue:-cutBlue]
-z = np.delete(z, a)
 rX = rX.to_numpy().flatten()[startBlue:-cutBlue]
-rX = np.delete(rX, a)
 rY = rY.to_numpy().flatten()[startBlue:-cutBlue]
-rY = np.delete(rY, a)
 rZ = rZ.to_numpy().flatten()[startBlue:-cutBlue]
-rZ = np.delete(rZ, a)
+
+if a:
+    x = np.delete(x, a)
+    y = np.delete(y, a)
+    z = np.delete(z, a)
+    rX = np.delete(rX, a)
+    rY = np.delete(rY, a)
+    rZ = np.delete(rZ, a)
 plt.plot(y-2.5, color='b', label='ARAMIS')
 t = np.array(t).flatten()
 for j in range(len(t)):
@@ -163,17 +167,18 @@ for j in range(len(t)):
 
 [C, D, F, _, _, T] = read_acumen(loc + folder + samplesF[i])
 # # # # # INPUT # # # # #
-startRed = 123
-cutRed = 8
+startRed = 92
+cutRed = 1  # >0
+corr = 0  # correct amplitude for overlay
 
 
-Ds = resample(D, int(len(D)/128*30))[startRed:-cutRed]
+Ds = resample(D, int(len(D)/128*28.6))[startRed:-cutRed]
 Ds = Ds.reshape(len(Ds),)
-Fs = resample(F, int(len(F)/128*30))[startRed:-cutRed]
+Fs = resample(F, int(len(F)/128*28.6))[startRed:-cutRed]
 Fs = Fs.reshape(len(Fs),)
-Cs = resample(C, int(len(D)/128*30))[startRed:-cutRed]
+Cs = resample(C, int(len(D)/128*28.6))[startRed:-cutRed]
 Cs = Cs.reshape(len(Cs),)
-plt.plot(Ds, color='r', label='ACUMEN')
+plt.plot(Ds-corr, color='r', label='ACUMEN')
 plt.legend()
 
 if not len(y) - len(Ds):
@@ -190,5 +195,5 @@ if not len(y) - len(Ds):
     df.to_csv(loc + folder + samplesD[i].split('_a')[0] + '_resample.csv')
     print('resample.csv written.')
 else:
-    print(len(y))
-    print(len(Ds))
+    print('Length Aramis: ' + str(len(y)))
+    print('Length Acumen: ' + str(len(Ds)))

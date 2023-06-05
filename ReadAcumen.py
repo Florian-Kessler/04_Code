@@ -90,8 +90,8 @@ def find_first(array, value):
 t1 = time.time()
 plt.close('all')
 
-specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5']
-specimen = specimens[5]
+specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5', '06_Pilot6']
+specimen = specimens[6]
 
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Experimental results ' + specimen.split('_')[1])
@@ -113,6 +113,9 @@ elif '04' in specimen:
 elif '05' in specimen:
     PEEK = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
     TITAN = '05_Pilot5/ICOTEC_S130684_L4_kwire_accumen.csv'
+elif '06' in specimen:
+    PEEK = '06_Pilot6/ICOTEC_S130684_L2_left_icotec_acumen.csv'
+    TITAN = '06_Pilot6/ICOTEC_S130684_L2_right_dps_acumen.csv'
 
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 
@@ -183,7 +186,7 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 
 # number = ['00', '01', '02', '10', '11', '12']
 # number = ['80', '90']  # , '55']
-number = ['03', '13']
+number = ['75']
 for i in range(len(number)):
     loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
     folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
