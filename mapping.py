@@ -354,8 +354,8 @@ def HFE_inp_creator(inp):
         for lines in f_inpDummy:
 
             # Define step 2
-            if '*Step, name=Step-2,' in lines:
-                step = 2
+            #if '*Step, name=Step-2,' in lines:
+            #    step = 2
 
             # Friction value between screw and bone
             if friction == 1:

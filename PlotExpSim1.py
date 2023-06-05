@@ -117,6 +117,7 @@ def smooth(y_, box_pts):
 t1 = time.time()
 plt.close('all')
 mue = ['00', '01', '02', '03', '05', '07']
+
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
 specimen = '05_Pilot5'

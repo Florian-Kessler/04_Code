@@ -142,10 +142,9 @@ for i in range(0, len(file)):
                  color=col[i][1], label='Force')
         ax2.plot(exp['cycle' + labels[1]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
                  color=col[i][1], alpha=0.75, label='_nolegend_')
-    #else:
-    #    ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
-    #             color=col[i][1], label='_nolegend_')
-    #
+    # else:
+    #     ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
+    #              color=col[i][1], label='_nolegend_')
 
 
 ax2.spines.right.set_visible(True)
@@ -339,11 +338,10 @@ ax20.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
 '''
 
 #%%
-fileAramis = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_aramis.csv'
-fileAcumen = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
-# df = read_ARAMIS(fileAramis)
-[x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAramis)
-[C, D, F, P, V, T] = read_acumen(fileAcumen)
+fileAr = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/06_Pilot6/ICOTEC_S130684_L2_left_icotec_aramis.csv'
+fileAc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/06_Pilot6/ICOTEC_S130684_L2_left_icotec_acumen.csv'
+[x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAr)
+[C, D, F, P, V, T] = read_acumen(fileAc)
 
 '''plt.figure()
 plt.title('Displacement')
