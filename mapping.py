@@ -61,7 +61,8 @@ def HFE_mapping_trans(bone, inp):
         elems[elem].set_cog(cog_real)
 
         cog = bone['Transform'].TransformPoint(cog_real)
-
+        print('cog')
+        print(cog)
         PHIbone = 1
         #
         if PHIbone > 0.0:
