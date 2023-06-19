@@ -212,7 +212,7 @@ def list_txt_files(path):
     return files
 
 
-def boneMeshMask(bone, inp, controlplot=True, reshape=True, closing=True):
+def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     """
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
@@ -262,7 +262,7 @@ def boneMeshMask(bone, inp, controlplot=True, reshape=True, closing=True):
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
 
-    origin = [0, 0, 0]
+    origin = bone['Origin']
     spacing = np.array([1, 1, 1]) * inp['Resolution']
     mask_trans = mask.astype(np.short)
     itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
@@ -311,7 +311,6 @@ def load_BVTVdata(bone, filename):
     # Read the spacing along each dimension
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
     bone["Origin"] = bone["GreyImage"].GetOrigin()
-    print('Spacing.')
     # scaling factor/intercept from Schenk et al. 2022. Threshold of 320 was found in paper for trabecular (cort: 450)
     # BVTVscaled = rR.zeros_and_ones(bone_img, 320)
 
