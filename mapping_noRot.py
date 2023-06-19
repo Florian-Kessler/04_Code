@@ -262,15 +262,16 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
 
-    origin = bone['Origin']
+
     spacing = np.array([1, 1, 1]) * inp['Resolution']
     mask_trans = mask.astype(np.short)
+    origin = bone['Origin']
+    origin_mask = [-11.5 / 2, -17.5 / 2, -45]  # HERE hard coded
     itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
     itkmask.SetSpacing(spacing)
-    itkmask.SetOrigin(origin)
+    itkmask.SetOrigin(origin_mask)
 
     sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_mask.mhd')
-
     # set bone values
     bone['MASK_array'] = mask_trans.T
     # To move COS to right place in image
