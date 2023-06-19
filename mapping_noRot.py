@@ -23,7 +23,7 @@ def HFE_mapping_trans(bone, inp):
     print('... start material mapping with copying boundary layers as ghost layers')
 
     BVTVscaled = bone["BVTVscaled"]
-    MASK_array_T = bone["MASK_array_T"]  # COS vom CT gray-scale Bild
+    MASK_array = bone["MASK"]  # COS vom CT gray-scale Bild
     FEelSize = bone["FEelSize"]
     Spacing = bone["Spacing"]
     elems = bone["elems"]
@@ -60,9 +60,8 @@ def HFE_mapping_trans(bone, inp):
 
         elems[elem].set_cog(cog_real)
 
-        cog = bone['Transform'].TransformPoint(cog_real)
-        print('cog')
-        print(cog)
+        #cog = bone['Transform'].TransformPoint(cog_real) HERE
+        cog = cog_real
         PHIbone = 1
         #
         if PHIbone > 0.0:
@@ -71,10 +70,10 @@ def HFE_mapping_trans(bone, inp):
             elems[elem].set_elset('BONE')
 
             BVTVbone = utils.computeBVTV_onephase(
-                cog, Spacing, ROI_BVTV_size, BVTVscaled, MASK_array_T, PHIbone
+                cog, Spacing, ROI_BVTV_size, BVTVscaled, MASK_array, PHIbone
             )
             BVTVbone_FE = utils.computeBVTV_FEel(
-                cog, Spacing, FEelSize, BVTVscaled, MASK_array_T
+                cog, Spacing, FEelSize, BVTVscaled, MASK_array
             )
 
             RHOb[elem] = BVTVbone*0.651+0.05646  # Schenk et al. 2022
@@ -213,7 +212,7 @@ def list_txt_files(path):
     return files
 
 
-def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
+def boneMeshMask(bone, inp, controlplot=True, reshape=True, closing=True):
     """
     This function creates a mask form any stl file and returns a 3d array mask - and store the mask as mhd in the given
     path.
@@ -235,21 +234,17 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
         p.add_mesh(voxels, color=True, show_edges=True)
         p.add_mesh(mesh, color="red", opacity=0.5)
         p.show()
-
     x_min, x_max, y_min, y_max, z_min, z_max = mesh.bounds
     x = np.arange(x_min, x_max, inp['Resolution'])
     y = np.arange(y_min, y_max, inp['Resolution'])
     z = np.arange(z_min, z_max, inp['Resolution'])
     x, y, z = np.meshgrid(x, y, z)
-
     # Create unstructured grid from the structured grid
     grid = pv.StructuredGrid(x, y, z)
     ugrid = pv.UnstructuredGrid(grid)
-
     # get part of the mesh within the mesh's bounding surface.
     selection = ugrid.select_enclosed_points(mesh.extract_surface(), tolerance=0.0, check_surface=False)
     mask_ = selection.point_data['SelectedPoints'].view(np.bool_)
-
     if reshape:
         # sometimes the order of the matrix gets changed
         mask = mask_.reshape([z.shape[2], z.shape[1], z.shape[0]])
@@ -269,7 +264,6 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
 
     origin = [0, 0, 0]
     spacing = np.array([1, 1, 1]) * inp['Resolution']
-
     mask_trans = mask.astype(np.short)
     itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
     itkmask.SetSpacing(spacing)
@@ -316,6 +310,7 @@ def load_BVTVdata(bone, filename):
 
     # Read the spacing along each dimension
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
+    bone["Origin"] = bone["GreyImage"].GetOrigin()
     print('Spacing.')
     # scaling factor/intercept from Schenk et al. 2022. Threshold of 320 was found in paper for trabecular (cort: 450)
     # BVTVscaled = rR.zeros_and_ones(bone_img, 320)
