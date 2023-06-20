@@ -439,11 +439,11 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
         int(numpy.rint(Y[0])) : int(numpy.rint(Y[1])),
         int(numpy.rint(Z[0])) : int(numpy.rint(Z[1])),
     ]
-    print('\nROI, ROI_mask: \n')
+    print('\nX, Y, Z: \n')
     print(X)
     print(Y)
     print(Z)
-    print('\nmask')
+    print('\nmask\n')
     print(len(mask))
     print(len(mask[0]))
     print(len(mask[0][0]))
