@@ -23,7 +23,7 @@ def HFE_mapping_trans(bone, inp):
     print('... start material mapping with copying boundary layers as ghost layers')
 
     BVTVscaled = bone["BVTVscaled"]
-    MASK_array = bone["MASK"]  # COS vom CT gray-scale Bild
+    MASK_array = bone["MASK"]
     FEelSize = bone["FEelSize"]
     Spacing = bone["Spacing"]
     elems = bone["elems"]
@@ -54,16 +54,14 @@ def HFE_mapping_trans(bone, inp):
         # Find COG of element
         cog_real = np.mean(
             [np.asarray(nodes[node].get_coord() - offset2COS) for node in elems[elem].get_nodes()],
-            # [np.asarray(nodes[node].get_coord()) for node in elems[elem].get_nodes()],
             axis=0,
         )
 
         elems[elem].set_cog(cog_real)
 
-        #cog = bone['Transform'].TransformPoint(cog_real) HERE
         cog = cog_real
         PHIbone = 1
-        #
+
         if PHIbone > 0.0:
             # if elset_marker == "bone":
             elsets["BONE"].append(elem)
@@ -234,17 +232,21 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
         p.add_mesh(voxels, color=True, show_edges=True)
         p.add_mesh(mesh, color="red", opacity=0.5)
         p.show()
+
     x_min, x_max, y_min, y_max, z_min, z_max = mesh.bounds
     x = np.arange(x_min, x_max, inp['Resolution'])
     y = np.arange(y_min, y_max, inp['Resolution'])
     z = np.arange(z_min, z_max, inp['Resolution'])
     x, y, z = np.meshgrid(x, y, z)
+
     # Create unstructured grid from the structured grid
     grid = pv.StructuredGrid(x, y, z)
     ugrid = pv.UnstructuredGrid(grid)
+
     # get part of the mesh within the mesh's bounding surface.
     selection = ugrid.select_enclosed_points(mesh.extract_surface(), tolerance=0.0, check_surface=False)
     mask_ = selection.point_data['SelectedPoints'].view(np.bool_)
+
     if reshape:
         # sometimes the order of the matrix gets changed
         mask = mask_.reshape([z.shape[2], z.shape[1], z.shape[0]])
@@ -262,19 +264,20 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
 
-
+    origin_bone = bone['Origin']
+    origin_mask = [-11.5 / 2, -17.5 / 2, -45]  # HERE hard coded, dimensions of ROI
     spacing = np.array([1, 1, 1]) * inp['Resolution']
+
     mask_trans = mask.astype(np.short)
-    origin = bone['Origin']
-    origin_mask = [-11.5 / 2, -17.5 / 2, -45]  # HERE hard coded
     itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
     itkmask.SetSpacing(spacing)
     itkmask.SetOrigin(origin_mask)
 
     sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_mask.mhd')
+
     # set bone values
     bone['MASK_array'] = mask_trans.T
-    # To move COS to right place in image
+    # To move COS to right place in mask
     bone['MaskX'] = np.array([x_min, x_max])
     bone['MaskY'] = np.array([y_min, y_max])
     bone['MaskZ'] = np.array([z_min, z_max])
@@ -291,35 +294,17 @@ def load_BVTVdata(bone, filename):
     :return: segmented BVTV image in bone dictionary
     """
     bone["GreyImage"] = sitk.ReadImage(filename)
-    print('Image read.')
     # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
-    # print('Start Gauss filtering')
-    # tG = time.time()
-    # bone["GreyImage"] = scipy.ndimage.gaussian_filter(bone["GreyImage"], sigma=0.8, truncate=1.25)  # Schenk 2022
-    # print('Gauss filtering time: ' + str(int((time.time() - tG) / 60)) + ' min ' + str(
-    #    round(np.mod(time.time() - tG, 60), 1)) + ' sec.')
 
-    # Convert the image to a  numpy array first and then shuffle the dimensions to get axis in the order z,y,x
-    # Transform image from z,y,x to x,y,z
     bone_img = np.transpose(sitk.GetArrayFromImage(bone["GreyImage"]), [2, 1, 0])
-    print('Transpose.')
-    # Transform image from z,y,x to x,y,z
-    # bone_img = np.transpose(bone_img, [2, 1, 0])
 
-    # Read the origin of the ct_scan, will be used to convert the coordinates from world to voxel and vice versa
-    # origin = np.array(list(reversed(itkimage.GetOrigin())))
-
-    # Read the spacing along each dimension
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
     bone["Origin"] = bone["GreyImage"].GetOrigin()
-    # scaling factor/intercept from Schenk et al. 2022. Threshold of 320 was found in paper for trabecular (cort: 450)
-    # BVTVscaled = rR.zeros_and_ones(bone_img, 320)
 
     # Flip image 180° to get same COS origin
     # bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
 
     bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)  # Segmentation of gray image
-    print('Segmented.')
     return bone
 
 

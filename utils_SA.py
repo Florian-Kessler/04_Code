@@ -452,18 +452,21 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
         # Compute BVTV
         # ------------------------
         # create masking array with the shape of the sphere
-        # HERE
+
         print('\nnumpy.shape(ROI), ROIsize, xc, yc, zc\n')
+
         print(numpy.shape(ROI))
         print(ROIsize)
         print(xc)
         print(yc)
         print(zc)
+
         ROImask_sphere = sphere_array(numpy.shape(ROI), ROIsize / 2, [xc, yc, zc])
 
         # Overly the ROImask_sphere with the ROI_mask
         # All voxel containing a 2 are inside the sphere and will be used to calculate the BV/TV
         # take alle voxel entries inside the intersection between the two masks for BVTV calculation
+
         BVTVimg = ROI[ROImask_sphere + ROI_mask == 2]
 
         # The mean over whole sphere gives the BVTV
