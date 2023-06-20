@@ -31,11 +31,14 @@ def HFE_mapping_trans(bone, inp):
     elsets = bone["elsets"]
     evalue = np.array([1, 1, 1])  # bone["evalue"]
     evect = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # bone["evect"]
-    maskX = bone['MaskX']  # max and min coordinates of the FE mesh
-    maskY = bone['MaskY']
-    maskZ = bone['MaskZ']
+    # maskX = bone['MaskX']  # max and min coordinates of the FE mesh
+    # maskY = bone['MaskY']
+    # maskZ = bone['MaskZ']
+    maskX = 61  # HERE
+    maskY = 423
+    maskZ = 131
     offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
-
+    print(offset2COS)  # HERE
     elsets["BONE"] = []
     RHOb = {}
     RHOb_FE = {}
@@ -301,10 +304,10 @@ def load_BVTVdata(bone, filename):
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
     bone["Origin"] = bone["GreyImage"].GetOrigin()
 
-    # Flip image 180° to get same COS origin
-    # bone["BVTVscaled"] = BVTVscaled  # [:, :, ::-1]
-
     bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)  # Segmentation of gray image
+
+    # Flip image 180° to get same COS origin
+    bone["BVTVscaled"] = bone["BVTVscaled"][:, :, ::-1]
     return bone
 
 
@@ -386,7 +389,7 @@ def HFE_inp_creator(inp):
                     outfile.write(lines)
 
             # Amplitude settings (number of cycles, peak and valley load)
-            # here proceed with amplitude etc.
+            # proceed with amplitude etc.
 
             # lines.replace(old string, new string) could be used
 

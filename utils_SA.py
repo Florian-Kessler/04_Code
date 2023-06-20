@@ -421,24 +421,34 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
 
     # Number of elements representing the diameter of the sphere
     ROIsize = ROIsize_mm / Spacing[0]
-    ## Define the position of the element in the image
+    # Define the position of the element in the image
     X = [max(x - ROIsize / 2, 0), min(x + ROIsize / 2, imarray.shape[0])]
     Y = [max(y - ROIsize / 2, 0), min(y + ROIsize / 2, imarray.shape[1])]
     Z = [max(z - ROIsize / 2, 0), min(z + ROIsize / 2, imarray.shape[2])]
 
-    # Seperated region of interest form the bone image
+    # Separated region of interest form the bone image
     ROI = imarray[
         int(numpy.rint(X[0])) : int(numpy.rint(X[1])),
         int(numpy.rint(Y[0])) : int(numpy.rint(Y[1])),
         int(numpy.rint(Z[0])) : int(numpy.rint(Z[1])),
     ]
 
-    # Seperate the same region of interest from the mask
+    # Separate the same region of interest from the mask
     ROI_mask = mask[
         int(numpy.rint(X[0])) : int(numpy.rint(X[1])),
         int(numpy.rint(Y[0])) : int(numpy.rint(Y[1])),
         int(numpy.rint(Z[0])) : int(numpy.rint(Z[1])),
     ]
+    print('\nROI, ROI_mask: \n')
+    print(X)
+    print(Y)
+    print(Z)
+    print('\nmask')
+    print(len(mask))
+    print(len(mask[0]))
+    print(len(mask[0][0]))
+    print('\nimarray.shape')
+    print(imarray.shape)
 
     ROI_mask[ROI_mask > 0] = 1
     mean_BVTV = 0.01
@@ -447,19 +457,29 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
     xc = x - X[0]
     yc = y - Y[0]
     zc = z - Z[0]
+    print('\nx: ' + str(x))
+    print(', X: ' + str(X[0]))
+    print(', xc: ' + str(xc))
+    print('\ny: ' + str(y))
+    print(', Y: ' + str(Y[0]))
+    print(', yc: ' + str(yc))
+    print('\nz: ' + str(z))
+    print(', Z: ' + str(Z[0]))
+    print(', zc: ' + str(zc))
+
 
     if phi > 0.0:
         # Compute BVTV
         # ------------------------
         # create masking array with the shape of the sphere
 
-        print('\nnumpy.shape(ROI), ROIsize, xc, yc, zc\n')
+        #print('\nnumpy.shape(ROI), ROIsize, xc, yc, zc\n')
 
-        print(numpy.shape(ROI))
-        print(ROIsize)
-        print(xc)
-        print(yc)
-        print(zc)
+        #print(numpy.shape(ROI))
+        #print(ROIsize)
+        #print(xc)
+        #print(yc)
+        #print(zc)
 
         ROImask_sphere = sphere_array(numpy.shape(ROI), ROIsize / 2, [xc, yc, zc])
 
