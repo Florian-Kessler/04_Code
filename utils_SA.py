@@ -439,16 +439,6 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
         int(numpy.rint(Y[0])) : int(numpy.rint(Y[1])),
         int(numpy.rint(Z[0])) : int(numpy.rint(Z[1])),
     ]
-    print('\nX, Y, Z: \n')
-    print(X)
-    print(Y)
-    print(Z)
-    print('\nmask\n')
-    print(len(mask))
-    print(len(mask[0]))
-    print(len(mask[0][0]))
-    print('\nimarray.shape')
-    print(imarray.shape)
 
     ROI_mask[ROI_mask > 0] = 1
     mean_BVTV = 0.01
@@ -457,16 +447,6 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
     xc = x - X[0]
     yc = y - Y[0]
     zc = z - Z[0]
-    print('\nx: ' + str(x))
-    print(', X: ' + str(X[0]))
-    print(', xc: ' + str(xc))
-    print('\ny: ' + str(y))
-    print(', Y: ' + str(Y[0]))
-    print(', yc: ' + str(yc))
-    print('\nz: ' + str(z))
-    print(', Z: ' + str(Z[0]))
-    print(', zc: ' + str(zc))
-
 
     if phi > 0.0:
         # Compute BVTV

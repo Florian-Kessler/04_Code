@@ -31,14 +31,11 @@ def HFE_mapping_trans(bone, inp):
     elsets = bone["elsets"]
     evalue = np.array([1, 1, 1])  # bone["evalue"]
     evect = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # bone["evect"]
-    # maskX = bone['MaskX']  # max and min coordinates of the FE mesh
-    # maskY = bone['MaskY']
-    # maskZ = bone['MaskZ']
-    maskX = np.rint((188-95)*0.0606995)  # np.rint(94*0.0606995)  # HERE
-    maskY = np.rint((429-286)*0.060995)  # np.rint(285*0.0606995)
-    maskZ = np.rint((774-35)*0.0606995)  # np.rint(34*0.0606995)
-    offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
-    print('offset2COS')
+    maskX = bone['MaskX']  # max and min coordinates of the FE mesh
+    maskY = bone['MaskY']
+    maskZ = bone['MaskZ']
+    offset2COS = np.array([0, 0, 0])  # HERE; np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
+    print('\noffset2COS')
     print(offset2COS)  # HERE
     elsets["BONE"] = []
     RHOb = {}
@@ -60,8 +57,7 @@ def HFE_mapping_trans(bone, inp):
             [np.asarray(nodes[node].get_coord() - offset2COS) for node in elems[elem].get_nodes()],
             axis=0,
         )
-        print('cog_real')
-        print(cog_real)
+
         elems[elem].set_cog(cog_real)
 
         cog = cog_real
