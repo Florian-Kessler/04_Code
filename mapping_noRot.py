@@ -133,10 +133,10 @@ def HFE_mapping_trans(bone, inp):
     bone["CoarseFactor"] = bone["FEelSize"][0] / bone["Spacing"][0]
 
     # Write elements and material properties to input file
-    print("\n ... update ABAQUS files:\n" + inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp' +
-          "\nand\n" + inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
-    outfile1 = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp', 'w')
-    outfile2 = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp', 'w')
+    print("\n ... update ABAQUS files:\n" + inp['FEA_loc'] + inp['Model_Code'] + '_elsets.inp' +
+          "\nand\n" + inp['FEA_loc'] + inp['Model_Code'] + '_materials.inp')
+    outfile1 = open(inp['FEA_loc'] + inp['Model_Code'] + '_elsets.inp', 'w')
+    outfile2 = open(inp['FEA_loc'] + inp['Model_Code'] + '_materials.inp', 'w')
     outfile1.write("***********************************************************\n")
     outfile2.write("***********************************************************\n")
     outfile2.write("** MATERIALS\n")
@@ -271,7 +271,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     itkmask.SetSpacing(spacing)
     itkmask.SetOrigin(origin_mask)
 
-    sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_mask.mhd')
+    sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + '_mask.mhd')
 
     # set bone values
     bone['MASK_array'] = mask_trans
@@ -317,16 +317,16 @@ def HFE_inp_creator(inp):
         step = 0
         friction = 0
         f_inpDummy = open(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_model.inp')
-        f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_elsets.inp')
-        f_material = open(inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_materials.inp')
+        f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + '_elsets.inp')
+        f_material = open(inp['FEA_loc'] + inp['Model_Code'] + '_materials.inp')
         # Included in input file-name:
         # Model code (geometry), force maximum, friction, experiment screw material, simulation screw material
         if inp['d_dir'] == '-':
             outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_d' + str(inp['d_max']) + '_' +
-                           str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+                           str(inp['Friction']).replace('.', '') + '_' + SimMat[i] + '.inp', 'w')
         elif inp['d_dir'] == '+':
             outfile = open(inp['FEA_loc'] + inp['Model_Code'] + '_dinv' + str(inp['d_max']) + '_' +
-                           str(inp['Friction']).replace('.', '') + '_' + inp['Screw'] + '_' + SimMat[i] + '.inp', 'w')
+                           str(inp['Friction']).replace('.', '') + '_' + SimMat[i] + '.inp', 'w')
         else:
             print('Wrong d_dir input')
             exit()
@@ -414,14 +414,14 @@ def write_submit(inp):
     for i in range(len(SimMat)):
         inputfile = ''
         template = open(inp['Project_Folder'] + '02_FEA/97_Templates/abq_submit_template_' + inp['Submit'] + '.sh')
-        abq_file = open(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 'w')
+        abq_file = open(inp['FEA_loc'] + 'abq_submit_' + SimMat[i] + '.sh', 'w')
         if inp['d_dir'] == '-':
             inputfile = inp['Model_Code'] + '_d' + str(inp['d_max']) + '_' + str(inp['Friction']).replace('.', '') \
-                        + '_' + inp['Screw'] + '_' + SimMat[i]
+                        + '_' + SimMat[i]
         elif inp['d_dir'] == '+':
             inputfile = inp['Model_Code'] + '_dinv' + str(inp['d_max']) + '_' + str(inp['Friction']).replace('.', '') \
-                        + '_' + inp['Screw'] + '_' + SimMat[i]
-        material_code = inp['Screw'] + SimMat[i]
+                        + '_' + SimMat[i]
+        material_code = SimMat[i]
         for lines in template:
             if 'inpname' in lines:
                 new_line = lines.replace('inpname', inputfile)
@@ -432,7 +432,7 @@ def write_submit(inp):
             else:
                 abq_file.write(lines)
         abq_file.close()
-        os.chmod(inp['FEA_loc'] + 'abq_submit_' + inp['Screw'] + SimMat[i] + '.sh', 0o744)
+        os.chmod(inp['FEA_loc'] + 'abq_submit_' + SimMat[i] + '.sh', 0o744)
 
 
 def write_mesh(inp):
