@@ -9,8 +9,6 @@ import utils_SA as utils
 import sys
 import matplotlib.pyplot as plt
 import ReadRawMHD as rR
-# import time
-# import scipy
 
 
 def HFE_mapping_trans(bone, inp):
@@ -31,12 +29,11 @@ def HFE_mapping_trans(bone, inp):
     elsets = bone["elsets"]
     evalue = np.array([1, 1, 1])  # bone["evalue"]
     evect = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # bone["evect"]
-    maskX = bone['MaskX']  # max and min coordinates of the FE mesh
-    maskY = bone['MaskY']
-    maskZ = bone['MaskZ']
-    offset2COS = np.array([0, 0, 0])  # HERE; np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
-    print('\noffset2COS')
-    print(offset2COS)  # HERE
+    maskX = -bone['insBefore'][0]*inp['Resolution'] + bone['MaskX'][0]  # max and min coordinates of the FE mesh
+    maskY = -bone['insBefore'][1]*inp['Resolution'] + bone['MaskY'][0]
+    maskZ = -bone['insBefore'][2]*inp['Resolution'] + bone['MaskZ'][0]
+    offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
+    # print('\noffset2COS' + str(offset2COS))  # HERE
     elsets["BONE"] = []
     RHOb = {}
     RHOb_FE = {}
@@ -59,7 +56,7 @@ def HFE_mapping_trans(bone, inp):
         )
 
         elems[elem].set_cog(cog_real)
-
+        # print('\ncog_real: ' + str(cog_real))
         cog = cog_real
         PHIbone = 1
 
@@ -277,7 +274,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     sitk.WriteImage(itkmask, inp['FEA_loc'] + inp['Model_Code'] + inp['Screw'] + '_mask.mhd')
 
     # set bone values
-    bone['MASK_array'] = mask_trans.T
+    bone['MASK_array'] = mask_trans
     # To move COS to right place in mask
     bone['MaskX'] = np.array([x_min, x_max])
     bone['MaskY'] = np.array([y_min, y_max])

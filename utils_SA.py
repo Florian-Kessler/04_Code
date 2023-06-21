@@ -452,14 +452,10 @@ def computeBVTV_onephase(cog, Spacing, ROIsize_mm, imarray, mask, phi=1.0):
         # Compute BVTV
         # ------------------------
         # create masking array with the shape of the sphere
-
-        #print('\nnumpy.shape(ROI), ROIsize, xc, yc, zc\n')
-
-        #print(numpy.shape(ROI))
-        #print(ROIsize)
-        #print(xc)
-        #print(yc)
-        #print(zc)
+        # print('\nPoints:')
+        # print(x)
+        # print(y)
+        # print(z)
 
         ROImask_sphere = sphere_array(numpy.shape(ROI), ROIsize / 2, [xc, yc, zc])
 
