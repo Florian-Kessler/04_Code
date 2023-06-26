@@ -6,10 +6,9 @@ import SimpleITK as sitk
 import time
 import os
 
-t1 = time.time()
-
 
 def mapping(sample, mod):
+    t1 = time.time()
     # # # # # Input # # # # #
     # Input imaging data
     # FE version
