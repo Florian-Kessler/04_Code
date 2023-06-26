@@ -59,7 +59,7 @@ def read_ARAMIS(file_A):
 
 
 def read_acumen(file_a):
-    df_ = pd.read_csv(file_a, delimiter=';', skiprows=[0, 2])
+    df_ = pd.read_csv(file_a, delimiter='\t', skiprows=[0, 1, 2, 3, 5])
     t_ = pd.DataFrame(df_, columns=['Time ']).to_numpy()
     d_ = pd.DataFrame(df_, columns=['Axial Displacement ']).to_numpy()
     # d_ = d_ - d_[0]  # calibrate displacement to zero at beginning
@@ -67,19 +67,19 @@ def read_acumen(file_a):
     # f_set_ = pd.DataFrame(df_, columns=['Axial Force Command ']).to_numpy()
     cycle_ = pd.DataFrame(df_, columns=['Axial Count ']).to_numpy()
     # arr_ = 0
-    peak_ = np.zeros(int(np.max(cycle_)))
-    vall_ = np.zeros(int(np.max(cycle_)))
-    for j_ in range(2, int(np.max(cycle_))):
-        # del arr_
-        arr_ = np.where((cycle_ == j_) | (cycle_ == j_ + .5))[0]
-        peak_[j_] = arr_[int(np.argmin(f_[arr_]))]
-        vall_[j_] = arr_[int(np.argmax(f_[arr_]))]
+    # peak_ = np.zeros(int(np.max(cycle_)))
+    # vall_ = np.zeros(int(np.max(cycle_)))
+    # for j_ in range(2, int(np.max(cycle_))):
+    #     # del arr_
+    #     arr_ = np.where((cycle_ == j_) | (cycle_ == j_ + .5))[0]
+    #     peak_[j_] = arr_[int(np.argmin(f_[arr_]))]
+    #     vall_[j_] = arr_[int(np.argmax(f_[arr_]))]
     # print(len(d_))
-    peak_ = peak_.astype(int)
-    vall_ = vall_.astype(int)
+    # peak_ = peak_.astype(int)
+    # vall_ = vall_.astype(int)
 
-    return cycle_, d_, f_, peak_, vall_, t_
-
+    # return cycle_, d_, f_, peak_, vall_, t_
+    return cycle_, d_, f_, t_
 
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -98,18 +98,27 @@ t1 = time.time()
 plt.close('all')
 
 # # # # # INPUT # # # # #
-loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '06_Pilot6'
-i = 0
+loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
+specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+# # # # # INPUT # # # # #
+specimen = specimens[6]
 
-'''fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('PEEK (YM = 15 GPa)')
-fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('Ti (YM = 100 GPa)')
-col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']'''
+# for i in range(34):
+#     read_file = pd.read_csv(r'/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
+#     specimens[i] + '_acumen.txt')
+#     read_file.to_csv(r'/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
+#     specimens[i].split('_a')[0] + '_acumen.csv', index=None)
 
-no = specimen.split('_')[0]
-folder = [filename for filename in os.listdir(loc) if filename.startswith(no)][0] + '/'
+file_acumen = [filename for filename in os.listdir(loc) if filename.startswith(specimen)
+               and filename.endswith('acumen.csv')][0]
+file_aramis = [filename for filename in os.listdir(loc) if filename.startswith(specimen)
+               and filename.endswith('aramis.csv')][0]
+print('Aramis: ' + file_aramis)
+[x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + file_aramis)
+
+
+'''
+
 sampleIPD = ([filename for filename in os.listdir(loc + folder)
               if 'aramis' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
 sampleIPF = ([filename for filename in os.listdir(loc + folder)
@@ -132,13 +141,13 @@ print(samplesD[i])
 print(samplesF[i])
 
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
+'''
 # # # # # INPUT # # # # #
-startBlue = 1485
-cutBlue = 504  # >0
+startBlue = 222
+cutBlue = 64  # >0
 a = []
 # a = np.arange(21073, 21551)
 # a = [len(y)-1-startBlue-cutBlue]
-
 
 x = x.to_numpy().flatten()[startBlue:-cutBlue]
 y = y.to_numpy().flatten()[startBlue:-cutBlue]
@@ -164,19 +173,20 @@ for j in range(len(t)):
     fr = hhmmss.split(':')[2].split(',')[1]
     t[j] = int(hh) * 3600 + int(mm) * 60 + int(ss) + int(fr) / 1000
 
+[C, D, F, T] = read_acumen(loc + file_acumen)
 
-[C, D, F, _, _, T] = read_acumen(loc + folder + samplesF[i])
 # # # # # INPUT # # # # #
-startRed = 92
+startRed = 28
 cutRed = 1  # >0
-corr = 0  # correct amplitude for overlay
+corr = 2.5  # correct amplitude for overlay
 
+res = 10
 
-Ds = resample(D, int(len(D)/128*28.6))[startRed:-cutRed]
+Ds = resample(D, int(len(D)/128*res))[startRed:-cutRed]
 Ds = Ds.reshape(len(Ds),)
-Fs = resample(F, int(len(F)/128*28.6))[startRed:-cutRed]
+Fs = resample(F, int(len(F)/128*res))[startRed:-cutRed]
 Fs = Fs.reshape(len(Fs),)
-Cs = resample(C, int(len(D)/128*28.6))[startRed:-cutRed]
+Cs = resample(C, int(len(D)/128*res))[startRed:-cutRed]
 Cs = Cs.reshape(len(Cs),)
 plt.plot(Ds-corr, color='r', label='ACUMEN')
 plt.legend()
@@ -192,8 +202,8 @@ if not len(y) - len(Ds):
                        'Acumen Y': Ds,
                        'Acumen Fy': Fs,
                        'Acumen C': Cs})
-    df.to_csv(loc + folder + samplesD[i].split('_a')[0] + '_resample.csv')
+    df.to_csv(loc + file_aramis.split('_a')[0] + '_resample.csv')
     print('resample.csv written.')
 else:
-    print('Length Aramis: ' + str(len(y)))
-    print('Length Acumen: ' + str(len(Ds)))
+    print('Length Aramis (blue): ' + str(len(y)))
+    print('Length Acumen (red):  ' + str(len(Ds)))

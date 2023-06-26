@@ -90,34 +90,26 @@ def find_first(array, value):
 t1 = time.time()
 plt.close('all')
 
-specimens = ['', '', '', '03_Pilot3', '04_Pilot4', '05_Pilot5', '06_Pilot6']
-specimen = specimens[6]
+
+specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+specimen = specimens[2]
 
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
 plt.title('Experimental results ' + specimen.split('_')[1])
 ax2 = ax1.twinx()
 
 
-# PEEK1 = '01_Pilot1/S131840_L4_S1_PEEK.csv'
-# TITAN1 = '01_Pilot1/S191840_L4_S2_DPS.csv'
+
+
 PEEK = ''
 TITAN = ''
 q = 0
 if '03' in specimen:
     PEEK = '03_Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
     TITAN = '03_Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
-    q = float(2.0)  # Correction for displacement offset for Ti
-elif '04' in specimen:
-    PEEK = '04_Pilot4/ICOTEC_S130672_L4_icotec_accumen.csv'
-    TITAN = '04_Pilot4/ICOTEC_S130672_L4_icotec_kwire_accumen.csv'
-elif '05' in specimen:
-    PEEK = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
-    TITAN = '05_Pilot5/ICOTEC_S130684_L4_kwire_accumen.csv'
-elif '06' in specimen:
-    PEEK = '06_Pilot6/ICOTEC_S130684_L2_left_icotec_acumen.csv'
-    TITAN = '06_Pilot6/ICOTEC_S130684_L2_right_dps_acumen.csv'
 
-loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
+
+loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
 
 file = [loc + PEEK, loc + TITAN]
 exp = {}

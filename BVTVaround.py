@@ -8,6 +8,7 @@ import os
 import ReadRawMHD as rR
 
 
+t0 = time.time()
 def eval_bvtv(sample, radius):
     t1 = time.time()
     check = 0
@@ -71,16 +72,7 @@ def eval_bvtv(sample, radius):
     return bvtv
 
 
-sample_list = ['S130684_L2_left', 'S130684_L2_right',
-               'S131318_L1_left', 'S131318_L1_right', 'S131318_L2_left', 'S131318_L2_right',
-               'S131318_L3_left', 'S131318_L3_right', 'S131318_L4_left', 'S131318_L4_right',
-               'S131318_L5_left', 'S131318_L5_right',
-               'S131788_L1_left', 'S131788_L1_right', 'S131788_L2_left', 'S131788_L2_right',
-               'S131788_L3_left', 'S131788_L3_right', 'S131788_L4_left', 'S131788_L4_right',
-               'S131835_L1_left', 'S131835_L1_right', 'S131835_L2_left', 'S131835_L2_right',
-               'S131835_L3_left', 'S131835_L3_right', 'S131835_L4_left', 'S131835_L4_right',
-               'S131840_L1_left', 'S131840_L1_right', 'S131840_L2_left', 'S131840_L2_right',
-               'S131840_L3_left', 'S131840_L3_right']
+sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
 try:
     os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
@@ -105,3 +97,12 @@ for k in range(2):
                           's.txt', 'a') as f:
                     f.write(str(BVTV) + '\n')
                 f.close()
+
+tRunT = time.time() - t0
+if tRunT >= 3600:
+    print('Execution time (total): ' + str(int(tRunT / 3600)) + ' h ' + str(int(np.mod(tRunT, 3600) / 60)) + ' min ' +
+          str(round(np.mod(tRunT, 60), 1)) + ' sec.')
+elif tRunT >= 60:
+    print('Execution time (total): ' + str(int(tRunT / 60)) + ' min ' + str(round(np.mod(tRunT, 60), 1)) + ' sec.')
+else:
+    print('Execution time (total): ' + str(round(tRunT, 1)) + ' sec.')

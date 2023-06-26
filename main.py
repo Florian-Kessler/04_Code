@@ -145,16 +145,7 @@ def mapping(sample, mod):
             print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
 
 
-sample_list = ['S130684_L2_left', 'S130684_L2_right',
-               'S131318_L1_left', 'S131318_L1_right', 'S131318_L2_left', 'S131318_L2_right',
-               'S131318_L3_left', 'S131318_L3_right', 'S131318_L4_left', 'S131318_L4_right',
-               'S131318_L5_left', 'S131318_L5_right',
-               'S131788_L1_left', 'S131788_L1_right', 'S131788_L2_left', 'S131788_L2_right',
-               'S131788_L3_left', 'S131788_L3_right', 'S131788_L4_left', 'S131788_L4_right',
-               'S131835_L1_left', 'S131835_L1_right', 'S131835_L2_left', 'S131835_L2_right',
-               'S131835_L3_left', 'S131835_L3_right', 'S131835_L4_left', 'S131835_L4_right',
-               'S131840_L1_left', 'S131840_L1_right', 'S131840_L2_left', 'S131840_L2_right',
-               'S131840_L3_left', 'S131840_L3_right']
+sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
 for i in range(len(sample_list)):
     print(i)
