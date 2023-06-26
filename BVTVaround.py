@@ -1,7 +1,7 @@
-import mapping_noRot as mappNR
+# import mapping_noRot as mappNR
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+# import matplotlib.cm as cm
 import SimpleITK as sitk
 import time
 import os
