@@ -31,7 +31,7 @@ def mapping(sample, mod):
     # Specify file locations
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT data
-    path_fea = path_project + '02_FEA/98_Pilots/' + sample_code + '/' + model_code + '/'  # Folder of FEA files
+    path_fea = path_project + '02_FEA/01_MainStudy/' + sample_code + '/' + model_code + '/'  # Folder of FEA files
     file_bone = [filename for filename in os.listdir(path_ct + '/') if
                  filename.endswith('image.mhd') and str(sample_code) in filename][0]
     print(file_bone)
@@ -112,7 +112,7 @@ def mapping(sample, mod):
     plt.figure()
     plt.imshow(imSum[insBefore[0] + int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
     plt.show()
-    plt.savefig(Input['FEA_loc'] + '_mappingControlPlot.png')
+    plt.savefig(Input['FEA_loc'] + 'mappingControlPlot.png')
     plt.close()
 
     bone['MASK'] = imMask_np_corr
@@ -122,7 +122,7 @@ def mapping(sample, mod):
         img_seg.SetSpacing(bone['GreyImage'].GetSpacing())
         sitk.WriteImage(img_seg, path_fea + sample_code + '_seg.mhd')
         print('Segmented image saved.')
-    del img_seg
+        del img_seg
     # del bone['GreyImage']
 
     mappNR.HFE_mapping_trans(bone, Input)
@@ -158,4 +158,6 @@ sample_list = ['S130684_L2_left', 'S130684_L2_right',
                'S131840_L3_left', 'S131840_L3_right']
 
 for i in range(len(sample_list)):
+    print(i)
+    print(sample_list[i])
     mapping(sample_list[i], 20)
