@@ -87,307 +87,50 @@ def find_first(array, value):
     return idx
 
 
+def read_resample(file_r):
+    df_ = pd.read_csv(file_r, delimiter=',')
+    A_x_ = pd.DataFrame(df_, columns=['Aramis X']).to_numpy()
+    A_y_ = pd.DataFrame(df_, columns=['Aramis Y']).to_numpy()
+    A_z_ = pd.DataFrame(df_, columns=['Aramis Z']).to_numpy()
+    A_rx_ = pd.DataFrame(df_, columns=['Aramis rX']).to_numpy()
+    A_ry_ = pd.DataFrame(df_, columns=['Aramis rY']).to_numpy()
+    A_rz_ = pd.DataFrame(df_, columns=['Aramis rZ']).to_numpy()
+    a_y_ = pd.DataFrame(df_, columns=['Acumen Y']).to_numpy()
+    a_f_ = pd.DataFrame(df_, columns=['Acumen Fy']).to_numpy()
+    a_c_ = pd.DataFrame(df_, columns=['Acumen C']).to_numpy()
+
+    return A_x_, A_y_, A_z_, A_rx_, A_ry_, A_rz_, a_y_, a_f_, a_c_
+
+
 t1 = time.time()
 plt.close('all')
 
+# Locations
+specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
+loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location of experimental results
+loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
-specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
-specimen = specimens[2]
+# # # # # INPUT # # # # #
+specimen = specimens[5]  # 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, choose a specimen
+model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P), check experiment!
 
-fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('Experimental results ' + specimen.split('_')[1])
-ax2 = ax1.twinx()
+file = [loc_Exp + specimen + '_resample.csv',
+        loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
+        loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnodeFix.txt']  # here
 
+# Load data
+[A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c] = read_resample(file[0])  # load experimental result file (csv)
+[Uy, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
+[_, RFy] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
 
+# Figure
+fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
+plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
+ax1.plot(A_y, a_f - a_f[0], label='Experiment')  # plot experimental results
+ax1.plot(Uy, -RFy, label='FEA')  # plot fea results
 
-
-PEEK = ''
-TITAN = ''
-q = 0
-if '03' in specimen:
-    PEEK = '03_Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
-    TITAN = '03_Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
-
-
-loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
-
-file = [loc + PEEK, loc + TITAN]
-exp = {}
-col = [['#1f6a06', '#0a1eb2'],
-       ['#373737', '#b20a0a']]
-labels = ['PEEK', 'Ti']
-for i in range(0, len(file)):
-    [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
-     exp['vall' + labels[i]], exp['time' + labels[i]]] = read_acumen(str(file[i]))
-    if 'Ti' in labels[i]:
-        exp['dTi'] = exp['dTi'] + q
-    ax1.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
-             color=col[i][0], label='_nolegend_')
-    ax1.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
-             color=col[i][0], alpha=0.75, label='_nolegend_')
-    if 'Ti' in labels[i] and q > 0:
-        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(q) + ' mm')
-    else:
-        ax2.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
-    if i == 1:
-        ax2.plot(exp['cycle' + labels[1]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
-                 color=col[i][1], label='Force')
-        ax2.plot(exp['cycle' + labels[1]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
-                 color=col[i][1], alpha=0.75, label='_nolegend_')
-    # else:
-    #     ax2.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
-    #              color=col[i][1], label='_nolegend_')
-
-
-ax2.spines.right.set_visible(True)
-ax1.set_xlabel('Cycle Number')
-ax1.set_ylabel('Displacement / mm')
-ax2.set_ylabel('Force / N')
-ax1.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -12, 0])
-ax2.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
-# ax2.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
-ax2.legend()
-
-try:
-    cyc1T = find_first(exp['fTi'][exp['peakTi']], -75)
-    try:
-        cyc2T = find_first(exp['fTi'][exp['peakTi']], -150)
-    except StopIteration:
-        cyc2T = 0
-except StopIteration:
-    cyc1T = 0
-    cyc2T = 0
-
-try:
-    cyc1P = find_first(exp['fPEEK'][exp['peakPEEK']], -75)
-    try:
-        cyc2P = find_first(exp['fPEEK'][exp['peakPEEK']], -150)
-    except StopIteration:
-        cyc2P = 0
-except StopIteration:
-    cyc1P = 0
-    cyc2P = 0
-
-
-fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
-# plt.title(specimen.split('_')[1])
-# fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
-# plt.title('Ti screw')
-col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
-
-# number = ['00', '01', '02', '10', '11', '12']
-# number = ['80', '90']  # , '55']
-number = ['75']
-for i in range(len(number)):
-    loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
-    folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
-    samples = [filename for filename in os.listdir(loc + folder + '/') if filename.endswith('RFnode.txt')
-               and '_02_' in filename]
-    [uy, rfy] = 2*[0]
-    screw_force = np.zeros([5, 21])
-    ang = np.zeros([5, 21])
-    Screw_mat = ['P', 'T']
-    Sim_mat = ['P', 'T']
-    Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
-    for j in range(len(samples)):
-        # lab = 'Screw excess = ' + folder.split('_S')[-1][0] + '.' + folder.split('_S')[-1][1] + ' mm, ' + \
-        #       'diameter = ' + folder.split('_D')[-1][0] + '.' + folder.split('_D')[-1][1] + ' mm'
-        lab = 'Unidirectional'
-        if '55' in number[i]:
-            lab = 'Toggling'
-        file_path = loc + folder + samples[j]
-        [uy, rf_] = read_RFnodeFile(file_path)  # switch for inverse loading
-        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')  # switch for inverse loading
-        if 'P_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='solid', alpha=0.6, label='Icotec')
-            if rfy[-1] > 20:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
-        elif 'T_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='solid', label='DPS')  # figT
-            if rfy[-1] > 20:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
-        elif 'P_T' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', label='DPS (on PEEK side)')  # figT
-            if rfy[-1] > 20:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')  # figT
-        elif 'T_P' in samples[j]:
-            figP.plot(-uy, rfy, color=col[j], linestyle='dashdot', alpha=0.6, label='Icotec (on Ti side)')
-            if rfy[-1] > 20:
-                figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_nolegend_')
-        else:
-            print('\n . . . Invalid file!\n')
-
-# figP.plot(-1E5, -1E5, color='k', label='Tested side')
-# figP.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
-# figT.plot(-1E5, -1E5, color='k', label='Tested side')
-# figT.plot(-1E5, -1E5, color='k', linestyle='dashdot', label='Collateral side')
-
-if cyc2P:
-    figP.scatter(-exp['dPEEK'][exp['peakPEEK'][:cyc2P+1000]],
-                 -exp['fPEEK'][exp['peakPEEK'][:cyc2P+1000]], color=col[0], s=1, label='Experiment Icotec')
-else:
-    figP.scatter(-exp['dPEEK'][exp['peakPEEK']],
-                 -exp['fPEEK'][exp['peakPEEK']], color=col[0], s=1, label='Experiment Icotec')
-if cyc2T:
-    if q > 0:
-        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T+5000]],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi'][:cyc2T+5000]], color=col[1], s=1, label='Experiment DPS, corr.: ' + 
-                     str(q)+' mm')
-    else:
-        figP.scatter(-exp['dTi'][exp['peakTi'][:cyc2T + 5000]],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi'][:cyc2T + 5000]], color=col[1], s=1, label='Experiment DPS')
-else:
-    if q > 0:
-        figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment DPS, corr.: ' + str(q) + ' mm')
-    else:
-        figP.scatter(-exp['dTi'][exp['peakTi']],  # figT, 'k'
-                     -exp['fTi'][exp['peakTi']], color=col[1], s=1, label='Experiment DPS')
-
-figP.axis([0, 15, 0, 300])  # 30
-figP.set_xlabel('Displacement / mm')
-figP.set_ylabel('Force / N')
-figP.legend(loc='lower right')
-# figT.axis([0, 15, 0, 250])  # figT
-# figT.set_xlabel('Displacement / mm')  # figT
-# figT.set_ylabel('Force / N')  # figT
-# figT.legend(loc='lower right')  # figT
-
-'''
-# temp #
-# fig5, ax5 = plt.subplots(1, 1, figsize=(9, 6))
-# file = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/03_Pilot3/50_L50_S00_D30/E_PEEK.txt'
-# df = np.loadtxt(file, delimiter='\t')
-# timeX = np.array(df[:, 0])
-# strain = np.array(df[:, 1])
-# plt.plot(timeX[40:]-1, strain[40:])
-# plt.plot([0, 1], [0.01, 0.01], linestyle='dashed', c='k')
-# plt.xlabel('Step time')
-# plt.ylabel('Logarithmic strain')
-
-'''
-'''
-specimens = ['03_Pilot3', '04_Pilot4', '05_Pilot5']
-
-figC, ax10 = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('Experimental results')
-
-ax20 = ax10.twinx()
-
-for k in range(len(specimens)):
-    # PEEK1 = '01_Pilot1/S131840_L4_S1_PEEK.csv'
-    # TITAN1 = '01_Pilot1/S191840_L4_S2_DPS.csv'
-    PEEK = ''
-    TITAN = ''
-    q = 0
-    specimen = specimens[k]
-    if '03' in specimen:
-        PEEK = '03_Pilot3/ICOTEC_S130672_L5_icotec_accumen.csv'
-        TITAN = '03_Pilot3/ICOTEC_S130672_L5_DPS_accumen.csv'
-        q = float(2.0)  # Correction for displacement offset for Ti
-    elif '04' in specimen:
-        PEEK = '04_Pilot4/ICOTEC_S130672_L4_icotec_accumen.csv'
-        TITAN = '04_Pilot4/ICOTEC_S130672_L4_icotec_kwire_accumen.csv'
-    elif '05' in specimen:
-        PEEK = '05_Pilot5/ICOTEC_S130684_L4_accumen.csv'
-        TITAN = '05_Pilot5/ICOTEC_S130684_L4_kwire_accumen.csv'
-
-    loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-
-    file = [loc + PEEK, loc + TITAN]
-    exp = {}
-    col = [['#1f6a06', '#0a1eb2'],
-           ['#373737', '#b20a0a']]
-    labels = ['PEEK', 'Ti']
-    for i in range(0, len(file)):
-        [exp['cycle' + labels[i]], exp['d' + labels[i]], exp['f' + labels[i]], exp['peak' + labels[i]],
-         exp['vall' + labels[i]], exp['time' + labels[i]]] = read_acumen(str(file[i]))
-        if 'Ti' in labels[i]:
-            exp['dTi'] = exp['dTi'] + q
-        ax10.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['d' + labels[i]][exp['peak' + labels[i]]],
-                  color=col[i][0], label='_nolegend_')
-        # ax10.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['d' + labels[i]][exp['vall' + labels[i]]],
-        #           color=col[i][0], alpha=0.75, label='_nolegend_')
-        # ax20.plot(exp['cycle' + labels[i]][exp['peak' + labels[i]]], exp['f' + labels[i]][exp['peak' + labels[i]]],
-        #           color=col[i][1], label='Force ' + str(labels[i]))
-        # ax20.plot(exp['cycle' + labels[i]][exp['vall' + labels[i]]], exp['f' + labels[i]][exp['vall' + labels[i]]],
-        #           color=col[i][1], alpha=0.75, label='_nolegend_')
-        # if 'Ti' in labels[i] and q > 0:
-        #   ax20.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]) + ', corr.: ' + str(q) + ' mm')
-        # else:
-        ax20.plot([-.2, .2], color=col[i][0], label='Displacement ' + str(labels[i]))
-    if '03' in specimen:
-        ax20.plot(exp['cycle' + labels[1]][exp['peak' + labels[1]]], exp['f' + labels[1]][exp['peak' + labels[1]]],
-                  color='k', label='Force')
-
-ax20.spines.right.set_visible(True)
-ax10.set_xlabel('Cycle Number')
-ax10.set_ylabel('Displacement / mm')
-ax20.set_ylabel('Force / N')
-ax10.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000),  -10, 0])
-ax20.axis([0, int(np.ceil(np.max(exp['cycle' + labels[1]])/1000)*1000), -300, 0])
-ax20.legend(['PEEK Force', 'PEEK Displacement', 'Ti Force', 'Ti Displacement'])
-'''
-
-#%%
-fileAr = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/06_Pilot6/ICOTEC_S130684_L2_left_icotec_aramis.csv'
-fileAc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/06_Pilot6/ICOTEC_S130684_L2_left_icotec_acumen.csv'
-[x, y, z, rX, rY, rZ, t] = read_ARAMIS(fileAr)
-[C, D, F, P, V, T] = read_acumen(fileAc)
-
-'''plt.figure()
-plt.title('Displacement')
-plt.plot(x)
-plt.plot(y)
-plt.plot(z)
-plt.legend(['X', 'Y', 'Z'])
-
-plt.figure()
-plt.title('Angles')
-plt.plot(rX)
-plt.plot(rY)
-plt.plot(rZ)
-plt.legend(['rX', 'rY', 'rZ'])'''
-
-y = y.to_numpy().flatten()
-valls, _ = find_peaks(y, distance=30)
-peaks, _ = find_peaks(-y, distance=30)
-
-'''plt.figure()
-plt.plot(y[valls])
-plt.plot(y[peaks])'''
-
-t = np.array(t).flatten()
-for i in range(len(t)):
-    hhmmss = t[i].split(' ')[1]
-    hh = hhmmss.split(':')[0]
-    mm = hhmmss.split(':')[1]
-    ss = hhmmss.split(':')[2].split(',')[0]
-    fr = hhmmss.split(':')[2].split(',')[1]
-    t[i] = int(hh)*3600 + int(mm)*60 + int(ss) + int(fr)/1000
-
-plt.figure()
-peak = []
-vall = []
-for s in range(int(t[0]), int(np.max(t))):
-    arr = np.where(t.astype(int) == s)[0]
-    peak.append(arr[int(np.argmin(y[arr]))])
-    vall.append(arr[int(np.argmax(y[arr]))])
-
-peakAc = []
-vallAc = []
-for s in range(int(T[0]), int(np.max(T))):
-    arrAc = np.where(T.astype(int) == s)[0]
-    peakAc.append(arrAc[int(np.argmin(D[arrAc]))])
-    vallAc.append(arrAc[int(np.argmax(D[arrAc]))])
-
-plt.plot(y[peak[19:]], c='r', label='ARAMIS')
-plt.plot(y[vall[19:]], c='r')
-plt.plot(D[peakAc], c='b', label='ACUMEN')
-plt.plot(D[vallAc], c='b')
-plt.plot(F[peakAc], c='k', label='Force')
-plt.plot(F[vallAc], c='k')
-plt.legend()
-
+ax1.legend()
+ax1.set_xlabel('Displacement / mm')
+ax1.set_ylabel('Force / N')
 
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
