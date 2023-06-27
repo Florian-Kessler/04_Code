@@ -6,12 +6,13 @@ import SimpleITK as sitk
 import time
 import os
 import ReadRawMHD as rR
+import pandas as pd
 
 
 t0 = time.time()
 def eval_bvtv(sample, radius):
     t1 = time.time()
-    check = 0
+    check = 1
     sample_code = sample
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
@@ -74,18 +75,21 @@ def eval_bvtv(sample, radius):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-try:
-    os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
-    print('Existing file has been deleted. Creating new file')
-except:
-    print('Creating new file')
+# try:
+#     os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
+#     print('Existing file has been deleted. Creating new file')
+# except:
+#     print('Creating new file')
 
-radius_mm = [3, 4, 5, 6]
+# radius_mm = [3, 4, 5, 6]
+radius_mm = [5]
 
-for k in range(2):
+for k in range(1):
+    k = 3
     for j in range(len(radius_mm)):
-        for i in range(len(sample_list)):
+        for i in range(2, 3):#len(sample_list)):
             BVTV = eval_bvtv(sample_list[i], radius_mm[j])
+            print(BVTV)
             if k == 0:
                 with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
                           '.txt', 'a') as f:
@@ -106,3 +110,21 @@ elif tRunT >= 60:
     print('Execution time (total): ' + str(int(tRunT / 60)) + ' min ' + str(round(np.mod(tRunT, 60), 1)) + ' sec.')
 else:
     print('Execution time (total): ' + str(round(tRunT, 1)) + ' sec.')
+
+#%%
+# Plots to BVTV
+
+radius_mm = [3, 4, 5, 6]
+average = np.zeros((len(radius_mm), 1))
+n = np.zeros((len(radius_mm), 34))
+for i in range(len(radius_mm)):
+    f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_' + str(radius_mm[i])
+             + 's.txt', 'r').read().splitlines()
+    n[i, :] = np.array(f).astype(float)
+
+for i in range(len(radius_mm)):
+    average[i] = np.mean(n[:, i])
+    print('Radius: ' + str(radius_mm[i]) + ' mm: ' + str(average[i]))
+
+# plt.figure()
+# plt.bar(sample_list, n)

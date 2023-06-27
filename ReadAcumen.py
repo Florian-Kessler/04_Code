@@ -2,9 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
-from scipy.signal import find_peaks
-import os
-# from scipy.signal import argrelextrema
 
 
 def read_RFnodeFile(file_):
@@ -111,9 +108,10 @@ loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy
 loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
 # # # # # INPUT # # # # #
-number = 2  # 1-11, choose a specimen
+number = 11
+# 1-11, choose a specimen
 specimen = specimens[number]
-model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P), check experiment!
+model_code = '80_L50_S50_D45_d1_02_T'  # model code of simulation. material of simulated screw (T, P), check experiment!
 
 file = [loc_Exp + specimen + '_resample.csv',
         loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
