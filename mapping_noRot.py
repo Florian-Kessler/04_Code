@@ -353,6 +353,11 @@ def HFE_inp_creator(inp):
                 elif SimMat[i] == 'P':
                     outfile.write('*Solid Section, elset=Set-Impl, material=PEEK\n')
                     print('Section set to PEEK.')
+            # Change material properties of implant
+            elif '15000., 0.3' in lines:
+                outfile.write(inp['YM_peek'] + '., ' + inp['v_peek'] + '\n')
+            elif '100000., 0.3' in lines:
+                outfile.write(inp['YM_titan'] + '., ' + inp['v_titan'] + '\n')
 
             # Add bone element sets
             elif '*Solid Section, elset=Set-Bone, material=Bone' in lines:
@@ -376,11 +381,11 @@ def HFE_inp_creator(inp):
             #         outfile.write(lines)
             # Set displacement amplitude and direction
 
-            elif 'Set-RP, 2, 2, -' in lines:
-                if step == 2:
-                    outfile.write('Set-RP, 2, 2, ' + str(inp['d_dir']) + str(inp['d_max']) + '\n')
-                else:
-                    outfile.write(lines)
+            # elif 'Set-RP, 2, 2, -' in lines:
+            #     if step == 2:
+            #         outfile.write('Set-RP, 2, 2, ' + str(inp['d_dir']) + str(inp['d_max']) + '\n')
+            #     else:
+            #         outfile.write(lines)
 
             # Amplitude settings (number of cycles, peak and valley load)
             # proceed with amplitude etc.

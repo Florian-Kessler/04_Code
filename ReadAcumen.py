@@ -111,7 +111,8 @@ loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy
 loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
 # # # # # INPUT # # # # #
-specimen = specimens[5]  # 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, choose a specimen
+number = 2  # 1-11, choose a specimen
+specimen = specimens[number]
 model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P), check experiment!
 
 file = [loc_Exp + specimen + '_resample.csv',
@@ -126,7 +127,11 @@ file = [loc_Exp + specimen + '_resample.csv',
 # Figure
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
 plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
-ax1.plot(A_y, a_f - a_f[0], label='Experiment')  # plot experimental results
+if number in [0, 2]:
+    print('Using Acumen displacement.')
+    ax1.plot(a_y, a_f - a_f[0], label='Experiment')  # plot experimental results
+else:
+    ax1.plot(A_y, a_f - a_f[0], label='Experiment')  # plot experimental results
 ax1.plot(Uy, -RFy, label='FEA')  # plot fea results
 
 ax1.legend()

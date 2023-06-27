@@ -101,7 +101,7 @@ plt.close('all')
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
 specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 # # # # # INPUT # # # # #
-specimen = specimens[11]
+specimen = specimens[2]
 
 # for i in range(34):
 #     read_file = pd.read_csv(r'/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
@@ -143,8 +143,8 @@ print(samplesF[i])
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
 '''
 # # # # # INPUT # # # # #
-startBlue = 241
-cutBlue = 68  # >0
+startBlue = 446
+cutBlue = 83  # >0
 a = []
 # a = np.arange(21073, 21551)
 # a = [len(y)-1-startBlue-cutBlue]
