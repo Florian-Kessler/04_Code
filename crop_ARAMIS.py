@@ -101,7 +101,7 @@ plt.close('all')
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
 specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 # # # # # INPUT # # # # #
-specimen = specimens[6]
+specimen = specimens[11]
 
 # for i in range(34):
 #     read_file = pd.read_csv(r'/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
@@ -143,8 +143,8 @@ print(samplesF[i])
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
 '''
 # # # # # INPUT # # # # #
-startBlue = 222
-cutBlue = 64  # >0
+startBlue = 241
+cutBlue = 68  # >0
 a = []
 # a = np.arange(21073, 21551)
 # a = [len(y)-1-startBlue-cutBlue]
@@ -176,7 +176,7 @@ for j in range(len(t)):
 [C, D, F, T] = read_acumen(loc + file_acumen)
 
 # # # # # INPUT # # # # #
-startRed = 28
+startRed = 30
 cutRed = 1  # >0
 corr = 2.5  # correct amplitude for overlay
 

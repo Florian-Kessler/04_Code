@@ -331,7 +331,6 @@ def HFE_inp_creator(inp):
             print('Wrong d_dir input')
             exit()
         for lines in f_inpDummy:
-
             # Define step 2
             #if '*Step, name=Step-2,' in lines:
             #    step = 2
@@ -396,6 +395,8 @@ def HFE_inp_creator(inp):
                 # outfile.write('
             else:
                 outfile.write(lines)
+            if '*Heading' in lines:
+                outfile.write('** Sample name: ' + inp['FEA_loc'].split('/')[-3] + '\n')
 
         outfile.close()
         f_inpDummy.close()

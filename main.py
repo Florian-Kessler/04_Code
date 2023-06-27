@@ -147,7 +147,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(len(sample_list)):
+for i in range(1):#len(sample_list)):
     print(i)
     print(sample_list[i])
     mapping(sample_list[i], 20)
