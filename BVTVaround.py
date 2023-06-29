@@ -97,6 +97,7 @@ for j in range(len(radius_mm)):
 
     for i in range(len(sample_list)):
         BVTV = eval_bvtv(sample_list[i], radius_mm[j])
+        print('\n' + str(j) + '/' + str(len(sample_list)))
         print(BVTV)
         with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
                   '.txt', 'a') as f:
