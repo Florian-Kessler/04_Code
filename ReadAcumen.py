@@ -108,15 +108,15 @@ loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy
 loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
 # # # # # INPUT # # # # #
-number = 4
+number = 10
 # 1-11, choose a specimen
 specimen = specimens[number]
-#model_code = '80_L50_S50_D45_d1_02_T'  # model code of simulation. material of simulated screw (T, P), check experiment!
-model_code = '77_L50_S50_D45_d1_02_P'
+model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P), check experiment!
+#model_code = '77_L50_S50_D45_d1_02_P'
 
 file = [loc_Exp + specimen + '_resample.csv',
-        loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
-        loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnodeFix.txt']  # here
+        loc_FEA + specimen + '/' + model_code[:14] + '/noCorr/' + model_code + '_RFnode.txt',
+        loc_FEA + specimen + '/' + model_code[:14] + '/noCorr/' + model_code + '_RFnodeFix.txt']  # here
 
 # Load data
 [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c] = read_resample(file[0])  # load experimental result file (csv)

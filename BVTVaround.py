@@ -12,7 +12,7 @@ import pandas as pd
 t0 = time.time()
 def eval_bvtv(sample, radius):
     t1 = time.time()
-    check = 1
+    check = 0
     sample_code = sample
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
@@ -82,25 +82,31 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 #     print('Creating new file')
 
 # radius_mm = [3, 4, 5, 6]
+
 radius_mm = [5]
 
-for k in range(1):
-    k = 3
-    for j in range(len(radius_mm)):
-        for i in range(2, 3):#len(sample_list)):
-            BVTV = eval_bvtv(sample_list[i], radius_mm[j])
-            print(BVTV)
-            if k == 0:
-                with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
-                          '.txt', 'a') as f:
-                    f.write(sample_list[i] + '\n')
-                    f.write(str(BVTV) + '\n')
-                f.close()
-            elif k == 1:
-                with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
-                          's.txt', 'a') as f:
-                    f.write(str(BVTV) + '\n')
-                f.close()
+for j in range(len(radius_mm)):
+    try:
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
+                  '.txt')
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
+                  's.txt')
+        print('Existing file has been deleted. Creating new file')
+    except:
+        print('Creating new file')
+
+    for i in range(len(sample_list)):
+        BVTV = eval_bvtv(sample_list[i], radius_mm[j])
+        print(BVTV)
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
+                  '.txt', 'a') as f:
+            f.write(sample_list[i] + '\n')
+            f.write(str(BVTV) + '\n')
+        f.close()
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
+                  's.txt', 'a') as f:
+            f.write(str(BVTV) + '\n')
+        f.close()
 
 tRunT = time.time() - t0
 if tRunT >= 3600:
@@ -113,8 +119,8 @@ else:
 
 #%%
 # Plots to BVTV
-
-radius_mm = [3, 4, 5, 6]
+'''
+radius_mm = [5]
 average = np.zeros((len(radius_mm), 1))
 n = np.zeros((len(radius_mm), 34))
 for i in range(len(radius_mm)):
@@ -130,3 +136,4 @@ for i in range(len(radius_mm)):
 # plt.bar(sample_list, n)
 
 plt.plot(n[:12, 2], )
+'''

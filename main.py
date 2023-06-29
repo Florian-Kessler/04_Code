@@ -32,7 +32,7 @@ def mapping(sample, mod):
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT data
     path_fea = path_project + '02_FEA/01_MainStudy/' + sample_code + '/' + model_code + '/'  # Folder of FEA files
     file_bone = [filename for filename in os.listdir(path_ct + '/') if
-                 filename.endswith('image.mhd') and str(sample_code) in filename][0]
+                 filename.endswith('image_corr.mhd') and str(sample_code) in filename][0]  # HERE corr
     print(file_bone)
 
     # # # # # Input # # # # #
@@ -53,7 +53,7 @@ def mapping(sample, mod):
     Input['Friction'] = 0.2  # friction between screw and bone
     Input['Mapping_Diameter'] = 2  # diameter of sphere for mapping, in mm. should be larger than element size
 
-    Input['YM_peek'] = str(15000)  # young's modulus peek screw
+    Input['YM_peek'] = str(25000)  # young's modulus peek screw
     Input['v_peek'] = str(0.3)  # poisson ratio peek screw
     Input['YM_titan'] = str(100000)  # young's modulus titanium screw
     Input['v_titan'] = str(0.3)  # poisson ratio titanium screw
@@ -70,7 +70,7 @@ def mapping(sample, mod):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 0
+    write_output = 1
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -152,7 +152,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(4, 5):  # len(sample_list)):
+for i in range(5, 6):#len(sample_list)):
     print(i)
     print(sample_list[i])
-    mapping(sample_list[i], 19)
+    mapping(sample_list[i], 20)
