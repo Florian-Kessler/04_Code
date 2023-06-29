@@ -128,3 +128,5 @@ for i in range(len(radius_mm)):
 
 # plt.figure()
 # plt.bar(sample_list, n)
+
+plt.plot(n[:12, 2], )

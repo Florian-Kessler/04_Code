@@ -57,10 +57,6 @@ def mapping(sample, mod):
     Input['v_peek'] = str(0.3)  # poisson ratio peek screw
     Input['YM_titan'] = str(100000)  # young's modulus titanium screw
     Input['v_titan'] = str(0.3)  # poisson ratio titanium screw
-    print(Input['YM_peek'])
-    print(Input['v_peek'])
-    print(Input['YM_titan'])
-    print(Input['v_titan'])
 
     # Check if folder exists, otherwise create it
     isExist = os.path.exists(Input['FEA_loc'])
@@ -156,7 +152,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(1):  # len(sample_list)):
+for i in range(4, 5):  # len(sample_list)):
     print(i)
     print(sample_list[i])
-    mapping(sample_list[i], 20)
+    mapping(sample_list[i], 19)
