@@ -7,7 +7,7 @@ import time
 import os
 import ReadRawMHD as rR
 import pandas as pd
-from scipy.signal import butter, filtfilt, argrelextrema, find_peaks
+from scipy.signal import butter, filtfilt, find_peaks
 
 
 t0 = time.time()
@@ -102,19 +102,19 @@ def eval_bvtv(sample, radius):
 
 
 def find_peks(number_, co, plot_):
-    sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+    sample_list_ = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
     data = {}
     [data['A_x'], data['A_y'], data['A_z'], data['A_rx'], data['A_ry'],
      data['A_rz'], data['a_y'], data['a_f'], data['a_c']] = \
         read_resample('/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
-                      sample_list[number_] + '_resample.csv')
+                      sample_list_[number_] + '_resample.csv')
 
     cutoff = co
 
     data_filtered = {}
     data_filtered['A_y'] = butter_lowpass_filter(data['A_y'], cutoff)
     data_filtered['a_f'] = butter_lowpass_filter(data['a_f'], cutoff)
-    [extAy, _] = find_peaks(-data_filtered['A_y'], width=15)
+    [extAy, _] = find_peaks(-data_filtered['A_y'], width=20)
     n_peaks = len(extAy)
     if plot_:
         plt.close('all')
@@ -181,7 +181,7 @@ else:
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 for i in range(len(sample_list)):
     if i not in [0, 1, 2, 4, 14]:
-        n_p, _, _, _ = find_peks(i, 4.7, 0)
+        n_p, _, _, _ = find_peks(i, 4, 0)
         if n_p != 7:
             print(sample_list[i] + ': ' + str(n_p) + '/7 peaks detected.')
         elif n_p == 7:
