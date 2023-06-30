@@ -7,16 +7,44 @@ import time
 import os
 import ReadRawMHD as rR
 import pandas as pd
+from scipy.signal import butter, filtfilt, argrelextrema, find_peaks
 
 
 t0 = time.time()
+
+
+def butter_lowpass_filter(data_, cutoff_, order=9):
+    fs = 10  # sample rate, Hz
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff_ / nyq
+    # Get the filter coefficients
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    y = filtfilt(b, a, data_)
+    return y
+
+
+def read_resample(file_r):
+    df_ = pd.read_csv(file_r, delimiter=',')
+    A_x_ = pd.DataFrame(df_, columns=['Aramis X']).to_numpy().ravel()
+    A_y_ = pd.DataFrame(df_, columns=['Aramis Y']).to_numpy().ravel()
+    A_z_ = pd.DataFrame(df_, columns=['Aramis Z']).to_numpy().ravel()
+    A_rx_ = pd.DataFrame(df_, columns=['Aramis rX']).to_numpy().ravel()
+    A_ry_ = pd.DataFrame(df_, columns=['Aramis rY']).to_numpy().ravel()
+    A_rz_ = pd.DataFrame(df_, columns=['Aramis rZ']).to_numpy().ravel()
+    a_y_ = pd.DataFrame(df_, columns=['Acumen Y']).to_numpy().ravel()
+    a_f_ = pd.DataFrame(df_, columns=['Acumen Fy']).to_numpy().ravel()
+    a_c_ = pd.DataFrame(df_, columns=['Acumen C']).to_numpy().ravel()
+
+    return A_x_, A_y_, A_z_, A_rx_, A_ry_, A_rz_, a_y_, a_f_, a_c_
+
+
 def eval_bvtv(sample, radius):
     t1 = time.time()
     check = 0
     sample_code = sample
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
-    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image.mhd')
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image_corr.mhd')
                  and str(sample_code) in filename][0]
     file = path_ct + file_bone
 
@@ -73,6 +101,35 @@ def eval_bvtv(sample, radius):
     return bvtv
 
 
+def find_peks(number_, co, plot_):
+    sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+    data = {}
+    [data['A_x'], data['A_y'], data['A_z'], data['A_rx'], data['A_ry'],
+     data['A_rz'], data['a_y'], data['a_f'], data['a_c']] = \
+        read_resample('/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
+                      sample_list[number_] + '_resample.csv')
+
+    cutoff = co
+
+    data_filtered = {}
+    data_filtered['A_y'] = butter_lowpass_filter(data['A_y'], cutoff)
+    data_filtered['a_f'] = butter_lowpass_filter(data['a_f'], cutoff)
+    [extAy, _] = find_peaks(-data_filtered['A_y'], width=15)
+    n_peaks = len(extAy)
+    if plot_:
+        plt.close('all')
+        plt.figure()
+        plt.plot(data_filtered['A_y'], data_filtered['a_f'])
+        plt.plot(data_filtered['a_y'], data_filtered['a_f'])
+
+        plt.figure()
+        plt.plot(data_filtered['a_f'], label='force')
+        plt.plot(data_filtered['A_y'], label='disp')
+        plt.scatter(extAy, data_filtered['A_y'][extAy], label='disp_ext_peaks')
+        plt.legend()
+    return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy]
+
+
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
 # try:
@@ -97,7 +154,7 @@ for j in range(len(radius_mm)):
 
     for i in range(len(sample_list)):
         BVTV = eval_bvtv(sample_list[i], radius_mm[j])
-        print('\n' + str(j) + '/' + str(len(sample_list)))
+        print('\n' + str(i) + '/' + str(len(sample_list)))
         print(BVTV)
         with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
                   '.txt', 'a') as f:
@@ -118,23 +175,30 @@ elif tRunT >= 60:
 else:
     print('Execution time (total): ' + str(round(tRunT, 1)) + ' sec.')
 
+
+#%%
+# Peaks Experiment
+sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+for i in range(len(sample_list)):
+    if i not in [0, 1, 2, 4, 14]:
+        n_p, _, _, _ = find_peks(i, 4.7, 0)
+        if n_p != 7:
+            print(sample_list[i] + ': ' + str(n_p) + '/7 peaks detected.')
+        elif n_p == 7:
+            print(sample_list[i] + ': OK.')
+
 #%%
 # Plots to BVTV
-'''
+
 radius_mm = [5]
-average = np.zeros((len(radius_mm), 1))
 n = np.zeros((len(radius_mm), 34))
 for i in range(len(radius_mm)):
-    f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_' + str(radius_mm[i])
-             + 's.txt', 'r').read().splitlines()
+    f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans//BVTV_' + str(radius_mm[i])
+             + 's_corr.txt', 'r').read().splitlines()
     n[i, :] = np.array(f).astype(float)
 
-for i in range(len(radius_mm)):
-    average[i] = np.mean(n[:, i])
-    print('Radius: ' + str(radius_mm[i]) + ' mm: ' + str(average[i]))
 
 # plt.figure()
 # plt.bar(sample_list, n)
 
 plt.plot(n[:12, 2], )
-'''

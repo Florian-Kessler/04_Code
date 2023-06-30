@@ -101,7 +101,7 @@ plt.close('all')
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
 specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 # # # # # INPUT # # # # #
-specimen = specimens[2]
+specimen = specimens[12]
 
 # for i in range(34):
 #     read_file = pd.read_csv(r'/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
@@ -143,8 +143,8 @@ print(samplesF[i])
 [x, y, z, rX, rY, rZ, t] = read_ARAMIS(loc + folder + samplesD[i])
 '''
 # # # # # INPUT # # # # #
-startBlue = 446
-cutBlue = 83  # >0
+startBlue = 0
+cutBlue = 1  # >0
 a = []
 # a = np.arange(21073, 21551)
 # a = [len(y)-1-startBlue-cutBlue]
@@ -163,7 +163,7 @@ if a:
     rX = np.delete(rX, a)
     rY = np.delete(rY, a)
     rZ = np.delete(rZ, a)
-plt.plot(y-2.5, color='b', label='ARAMIS')
+plt.plot(y, color='b', label='ARAMIS')
 t = np.array(t).flatten()
 for j in range(len(t)):
     hhmmss = t[j].split(' ')[1]
@@ -178,7 +178,7 @@ for j in range(len(t)):
 # # # # # INPUT # # # # #
 startRed = 30
 cutRed = 1  # >0
-corr = 2.5  # correct amplitude for overlay
+corr = 0  # correct amplitude for overlay
 
 res = 10
 
@@ -188,6 +188,7 @@ Fs = resample(F, int(len(F)/128*res))[startRed:-cutRed]
 Fs = Fs.reshape(len(Fs),)
 Cs = resample(C, int(len(D)/128*res))[startRed:-cutRed]
 Cs = Cs.reshape(len(Cs),)
+print(Ds)
 plt.plot(Ds-corr, color='r', label='ACUMEN')
 plt.legend()
 
@@ -207,3 +208,4 @@ if not len(y) - len(Ds):
 else:
     print('Length Aramis (blue): ' + str(len(y)))
     print('Length Acumen (red):  ' + str(len(Ds)))
+    print('Cut blue: ' + str(cutBlue + len(y)-len(Ds)))
