@@ -226,13 +226,10 @@ fF = pd.read_csv('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/p
 F2 = np.array(fF)
 
 
-peak = 4# 0...6
+peak = 2  # 0...6
 plt.close('all')
 plt.figure()
 for i in range(34):
     if i not in [0, 1, 2, 4, 14]:
-        print(i)
-        print(n[i])
-        print(F2[i, peak])
-        plt.scatter(n[i], F2[i, peak])
+        plt.scatter(n[i], F2[i, peak], color='k')
 
