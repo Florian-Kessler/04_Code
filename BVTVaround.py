@@ -218,15 +218,21 @@ n = np.zeros((1, 34))
 f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_5s_corr.txt', 'r').read().splitlines()
 n = np.array(f).astype(float)
 
-fA = open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Ax.txt', 'r').read().splitlines()
-A2 = np.array(fA)#.astype(float)
 
-fF = open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Fx.txt', 'r').read().splitlines()
-F2 = np.array(fF)#.astype(float)
+fA = pd.read_csv('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Ax.txt', sep=' ')
+A2 = np.array(fA)
 
-peak = 2  # 0...6
-#plt.figure()
-#for i in range(34):
-#    if i not in [0, 0, 2, 4, 14, 30]:
-#        plt.scatter(n[i], )
+fF = pd.read_csv('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Fx.txt', sep=' ')
+F2 = np.array(fF)
+
+
+peak = 4# 0...6
+plt.close('all')
+plt.figure()
+for i in range(34):
+    if i not in [0, 1, 2, 4, 14]:
+        print(i)
+        print(n[i])
+        print(F2[i, peak])
+        plt.scatter(n[i], F2[i, peak])
 
