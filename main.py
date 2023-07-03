@@ -155,4 +155,4 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 for i in range(len(sample_list)):
     print(i)
     print(sample_list[i])
-    mapping(sample_list[i], 20)
+    mapping(sample_list[i], 19)

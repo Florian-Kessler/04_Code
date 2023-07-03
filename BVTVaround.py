@@ -101,7 +101,7 @@ def eval_bvtv(sample, radius):
     return bvtv
 
 
-def find_peks(number_, co, plot_):
+def findPeaks(number_, co, plot_):
     sample_list_ = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
     data = {}
     [data['A_x'], data['A_y'], data['A_z'], data['A_rx'], data['A_ry'],
@@ -113,21 +113,25 @@ def find_peks(number_, co, plot_):
 
     data_filtered = {}
     data_filtered['A_y'] = butter_lowpass_filter(data['A_y'], cutoff)
+    data_filtered['a_y'] = butter_lowpass_filter(data['a_y'], cutoff)
     data_filtered['a_f'] = butter_lowpass_filter(data['a_f'], cutoff)
-    [extAy, _] = find_peaks(-data_filtered['A_y'], width=20)
+    peakdata = data_filtered['A_y']
+    peakdata = data_filtered['a_y']
+    peakf = data_filtered['a_f']
+    [extAy, _] = find_peaks(-peakdata, width=20)
     n_peaks = len(extAy)
     if plot_:
         plt.close('all')
         plt.figure()
-        plt.plot(data_filtered['A_y'], data_filtered['a_f'])
-        plt.plot(data_filtered['a_y'], data_filtered['a_f'])
-
+        plt.plot(peakdata, data_filtered['a_f'])
+        #plt.plot(data_filtered['a_y'], data_filtered['a_f'])
         plt.figure()
         plt.plot(data_filtered['a_f'], label='force')
         plt.plot(data_filtered['A_y'], label='disp')
         plt.scatter(extAy, data_filtered['A_y'][extAy], label='disp_ext_peaks')
+        plt.scatter(extAy, data_filtered['a_f'][extAy], label='f_peaks')
         plt.legend()
-    return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy]
+    return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy]-data['a_f'][0]
 
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
@@ -179,26 +183,50 @@ else:
 #%%
 # Peaks Experiment
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+peaks_A = np.zeros((34, 7))
+peaks_F = np.zeros((34, 7))
+
 for i in range(len(sample_list)):
     if i not in [0, 1, 2, 4, 14]:
-        n_p, _, _, _ = find_peks(i, 4, 0)
+        n_p, _, A, F = findPeaks(i, 4, 0)
         if n_p != 7:
             print(sample_list[i] + ': ' + str(n_p) + '/7 peaks detected.')
+            A = [0, 0, 0, 0, 0, 0, 0]
+            F = [0, 0, 0, 0, 0, 0, 0]
         elif n_p == 7:
             print(sample_list[i] + ': OK.')
+            peaks_A[i, :] = A
+            peaks_F[i, :] = F
+    else:
+        A = [0, 0, 0, 0, 0, 0, 0]
+        F = [0, 0, 0, 0, 0, 0, 0]
+    A_str = ' '.join(map(str, A))
+    F_str = ' '.join(map(str, F))
+    with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Ax.txt', 'a') as f:
+        f.write(A_str + '\n')
+    f.close()
+    with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Fx.txt', 'a') as f:
+        f.write(F_str + '\n')
+    f.close()
 
 #%%
 # Plots to BVTV
 
-radius_mm = [5]
-n = np.zeros((len(radius_mm), 34))
-for i in range(len(radius_mm)):
-    f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans//BVTV_' + str(radius_mm[i])
-             + 's_corr.txt', 'r').read().splitlines()
-    n[i, :] = np.array(f).astype(float)
+sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+n = np.zeros((1, 34))
 
+f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_5s_corr.txt', 'r').read().splitlines()
+n = np.array(f).astype(float)
 
-# plt.figure()
-# plt.bar(sample_list, n)
+fA = open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Ax.txt', 'r').read().splitlines()
+A2 = np.array(fA)#.astype(float)
 
-plt.plot(n[:12, 2], )
+fF = open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Fx.txt', 'r').read().splitlines()
+F2 = np.array(fF)#.astype(float)
+
+peak = 2  # 0...6
+#plt.figure()
+#for i in range(34):
+#    if i not in [0, 0, 2, 4, 14, 30]:
+#        plt.scatter(n[i], )
+
