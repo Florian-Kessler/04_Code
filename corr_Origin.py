@@ -7,7 +7,7 @@ import imageio.v3 as iio
 plt.close('all')
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-sample_code = sample_list[34]  # 12 "done"
+sample_code = sample_list[23]
 # Drill weird: 8
 
 path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder

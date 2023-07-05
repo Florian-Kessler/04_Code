@@ -32,7 +32,7 @@ def mapping(sample, mod):
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT data
     path_fea = path_project + '02_FEA/01_MainStudy/' + sample_code + '/' + model_code + '/'  # Folder of FEA files
     file_bone = [filename for filename in os.listdir(path_ct + '/') if
-                 filename.endswith('image_corr.mhd') and str(sample_code) in filename][0]  # HERE corr
+                 filename.endswith('image.mhd') and str(sample_code) in filename][0]  # HERE corr
     print(file_bone)
 
     # # # # # Input # # # # #
@@ -152,7 +152,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(len(sample_list)):
+for i in range(2, 12):  # len(sample_list)):
     print(i)
     print(sample_list[i])
     mapping(sample_list[i], 21)

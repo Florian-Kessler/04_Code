@@ -108,7 +108,7 @@ loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy
 loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
 # # # # # INPUT # # # # #
-number = 29
+number = 32
 # 1-11, choose a specimen
 specimen = specimens[number]
 # model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P) see experiment!
@@ -143,3 +143,4 @@ ax1.set_xlabel('Displacement / mm')
 ax1.set_ylabel('Force / N')
 
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
+

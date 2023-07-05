@@ -238,7 +238,7 @@ for i in range(34):
 plt.figure()
 for i in range(34):
     if not np.mod(i, 2):  # uneven
-        diff = (n[i] - n[i+1])/n[i]
+        diff = (n[i] - n[i+1])*2/(n[i]+n[i+1])
         if i in [0, 1]:
             plt.scatter(i, diff, color='#1f77b4', label='S130684')
         elif i in [2]:
@@ -257,9 +257,11 @@ for i in range(34):
             plt.scatter(i, diff, color='#9467bd', label='S131840')
         elif i in [29, 30, 31, 32, 33]:
             plt.scatter(i, diff, color='#9467bd', label='_nolegend_')
-plt.xticks([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32], ['L2', 'L1', 'L2', 'L3', 'L4', 'L5', 'L1', 'L2', 'L3', 'L4', 'L1', 'L2', 'L3', 'L4', 'L1', 'L2', 'L3'])
+plt.xticks([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
+           ['L2', 'L1', 'L2', 'L3', 'L4', 'L5', 'L1', 'L2', 'L3', 'L4', 'L1', 'L2', 'L3', 'L4', 'L1', 'L2', 'L3'])
 plt.ylim((-0.3, 0.3))
 plt.title('Left/right comparison')
 plt.ylabel('Difference in %')
-plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3], ['+30% right', '+20% right', '+10% right', '0%', '+10% left', '+20% left', '+30% left', ])
+plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3],
+           ['+30% right', '+20% right', '+10% right', '0%', '+10% left', '+20% left', '+30% left', ])
 plt.legend()
