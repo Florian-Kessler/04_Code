@@ -101,7 +101,7 @@ plt.close('all')
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
 specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 # # # # # INPUT # # # # #
-specimen = specimens[12]
+specimen = specimens[0]
 
 # for i in range(34):
 #     read_file = pd.read_csv(r'/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +

@@ -50,7 +50,7 @@ def mapping(sample, mod):
     Input['d_dir'] = '-'  # displ direction (negative corresponds to experiment, positive = inverse). Input: '-' or '+'
     Input['d_max'] = 1  # peak displ
 
-    Input['Friction'] = 0.2  # friction between screw and bone
+    Input['Friction'] = 0.5  # friction between screw and bone
     Input['Mapping_Diameter'] = 2  # diameter of sphere for mapping, in mm. should be larger than element size
 
     Input['YM_peek'] = str(25000)  # young's modulus peek screw
@@ -70,7 +70,7 @@ def mapping(sample, mod):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 1
+    write_output = 0
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -152,7 +152,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(18, len(sample_list)):
+for i in range(len(sample_list)):
     print(i)
     print(sample_list[i])
     mapping(sample_list[i], 21)

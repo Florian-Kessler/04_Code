@@ -226,10 +226,40 @@ fF = pd.read_csv('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/p
 F2 = np.array(fF)
 
 
-peak = 2  # 0...6
+peak = 5  # 0...6
 plt.close('all')
 plt.figure()
 for i in range(34):
-    if i not in [0, 1, 2, 4, 14]:
-        plt.scatter(n[i], F2[i, peak], color='k')
+    if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
+        plt.scatter(n[i], F2[i, peak], color='#1f77b4')
+    elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+        plt.scatter(n[i], F2[i, peak], color='#ff7f0e')
 
+plt.figure()
+for i in range(34):
+    if not np.mod(i, 2):  # uneven
+        diff = (n[i] - n[i+1])/n[i]
+        if i in [0, 1]:
+            plt.scatter(i, diff, color='#1f77b4', label='S130684')
+        elif i in [2]:
+            plt.scatter(i, diff, color='#ff7f0e', label='S131318')
+        elif i in [3, 4, 5, 6, 7, 8, 9, 10, 11]:
+            plt.scatter(i, diff, color='#ff7f0e', label='_nolegend_')
+        elif i in [12]:
+            plt.scatter(i, diff, color='#2ca02c', label='S131788')
+        elif i in [13, 14, 15, 16, 17, 18, 19]:
+            plt.scatter(i, diff, color='#2ca02c', label='_nolegend_')
+        elif i in [20]:
+            plt.scatter(i, diff, color='#d62728', label='S131835')
+        elif i in [21, 22, 23, 24, 25, 26, 27]:
+            plt.scatter(i, diff, color='#d62728', label='_nolegend_')
+        elif i in [28]:
+            plt.scatter(i, diff, color='#9467bd', label='S131840')
+        elif i in [29, 30, 31, 32, 33]:
+            plt.scatter(i, diff, color='#9467bd', label='_nolegend_')
+plt.xticks([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32], ['L2', 'L1', 'L2', 'L3', 'L4', 'L5', 'L1', 'L2', 'L3', 'L4', 'L1', 'L2', 'L3', 'L4', 'L1', 'L2', 'L3'])
+plt.ylim((-0.3, 0.3))
+plt.title('Left/right comparison')
+plt.ylabel('Difference in %')
+plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3], ['+30% right', '+20% right', '+10% right', '0%', '+10% left', '+20% left', '+30% left', ])
+plt.legend()
