@@ -108,7 +108,7 @@ loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy
 loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
 # # # # # INPUT # # # # #
-number = 31  # 2, 3, 4, 5, 31
+number = 29
 # 1-11, choose a specimen
 specimen = specimens[number]
 # model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P) see experiment!
@@ -128,9 +128,9 @@ file = [loc_Exp + specimen + '_resample.csv',
 fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
 plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
 if model_code.split('_')[-1] == 'P':
-    ax1.plot(Uy, -RFy, label='FEA (YM PEEK = 25 GPa)', color='#1f77b4')  # plot fea results
+    ax1.plot(Uy, -RFy+RFy[0], label='FEA (YM PEEK = 25 GPa)', color='#1f77b4')  # plot fea results
 else:
-    ax1.plot(Uy, -RFy, label='FEA (YM Ti = 100 GPa)', color='#1f77b4')  # plot fea results
+    ax1.plot(Uy, -RFy+RFy[0], label='FEA (YM Ti = 100 GPa)', color='#1f77b4')  # plot fea results
 if number in [0, 1, 2, 10, 14, 17]:
     print('Using Acumen displacement.')
     ax1.plot(a_y, a_f - a_f[0], '--', label='Experiment', color='#ff7f0e')  # plot experimental results
