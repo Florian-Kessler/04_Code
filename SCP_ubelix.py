@@ -10,20 +10,20 @@ def copy(spec, mod, doc, dir):
     remote = '/storage/workspaces/artorg_msb/hpc_main/Florian_Simulation/01_Icotec/01_MainStudy/' \
              + specimens[spec] + '/' + mod + '/'
     local = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + specimens[spec] + '/' + mod + '/'
-    pw = open('/home/biomech/Desktop/P_fk.txt', 'r').read()
+    pw = open('/home/biomech/Documents/99_General/P_fk.txt', 'r').read()
     if dir == 0:
         os.system('sshpass -p ' + pw + ' scp ' + local + doc + ' ' + user + '@' + server + remote)
-        print(doc + ' successfully copied from ' + local + ' \nto \n' + remote + '.')
+        print(doc + ' successfully copied from ' + local + ' \nto \n' + user + '@' + server + remote + '.')
     elif dir == 1:
         os.system('sshpass -p ' + pw + ' scp ' + user + '@' + server + remote + doc + ' ' + local)
-        print(doc + ' successfully copied from ' + remote + ' \nto \n' + local + '.')
+        print(doc + ' successfully copied from ' + user + '@' + server + remote + ' \nto \n' + local + '.')
     else:
         print('Invalid direction.')
 
 
-specimen = np.arange(12, 20)
+specimen = np.arange(28, 34)
 document = '82*05*.inp'
-direction = 0  # to remote, from remote
+direction = 0  # 0 = to remote, 1 = from remote
 model = '82_L50_S50_D45'
 for i in range(len(specimen)):
     copy(specimen[i], model, document, direction)

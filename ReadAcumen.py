@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+import pickle
+#%%
 
 
 def read_RFnodeFile(file_):
@@ -100,47 +102,61 @@ def read_resample(file_r):
 
 
 t1 = time.time()
-#plt.close('all')
+# plt.close('all')
 
-# Locations
-specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
-loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location of experimental results
-loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
 
-# # # # # INPUT # # # # #
-number = 32
-# 1-11, choose a specimen
-specimen = specimens[number]
-# model_code = '80_L50_S50_D45_d1_02_P'  # model code of simulation. material of simulated screw (T, P) see experiment!
-# model_code = '77_L50_S50_D45_d1_02_P'
-model_code = '82_L50_S50_D45_d1_05_P'
+def read_FE(number, model_code, plot):
+    # Locations
+    specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
+    loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
+    loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
+    if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
+        model_code = model_code[:21] + 'P'
+    elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+        model_code = model_code[:21] + 'T'
+    else:
+        print('Invalid model code!')
+    specimen = specimens[number]
 
-file = [loc_Exp + specimen + '_resample.csv',
-        loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
-        loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnodeFix.txt']  # here
+    file = [loc_Exp + specimen + '_resample.csv',
+            loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
+            loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnodeFix.txt']  # here
 
-# Load data
-[A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c] = read_resample(file[0])  # load experimental result file (csv)
-[Uy, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
-[_, RFy] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
+    # Load data
+    [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c] = read_resample(file[0])  # load experimental result file (csv)
+    [Uy, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
+    [_, RFy] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
+    if plot:
+        D_F_plot(specimen, number, model_code, Uy, RFy, A_y, a_y, a_f)
 
-# Figure
-fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
-plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
-if model_code.split('_')[-1] == 'P':
-    ax1.plot(Uy, -RFy+RFy[0], label='FEA (YM PEEK = 25 GPa)', color='#1f77b4')  # plot fea results
-else:
-    ax1.plot(Uy, -RFy+RFy[0], label='FEA (YM Ti = 100 GPa)', color='#1f77b4')  # plot fea results
-if number in [0, 1, 2, 10, 14, 17]:
-    print('Using Acumen displacement.')
-    ax1.plot(a_y, a_f - a_f[0], '--', label='Experiment', color='#ff7f0e')  # plot experimental results
-else:
-    ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
-    # ax1.plot(a_y, a_f - a_f[0], '--', label='_nolegend_', color='#ff7f0e')  # plot y data from acumen
 
-ax1.legend()
-ax1.set_xlabel('Displacement / mm')
-ax1.set_ylabel('Force / N')
+def D_F_plot(specimen, number, model_code, Uy, RFy, A_y, a_y, a_f):
+    # Figure
+    fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
+    plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
+    if model_code.split('_')[-1] == 'P':
+        ax1.plot(Uy, -RFy+RFy[0], label='FEA (YM PEEK = 25 GPa)', color='#1f77b4')  # plot fea results
+    else:
+        ax1.plot(Uy, -RFy+RFy[0], label='FEA (YM Ti = 100 GPa)', color='#1f77b4')  # plot fea results
+    if number in [0, 1, 2, 10, 14, 17]:
+        print('Using Acumen displacement.')
+        ax1.plot(a_y, a_f - a_f[0], '--', label='Experiment', color='#ff7f0e')  # plot experimental results
+    else:
+        ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
+        # ax1.plot(a_y, a_f - a_f[0], '--', label='_nolegend_', color='#ff7f0e')  # plot y data from acumen
+
+    ax1.legend()
+    ax1.set_xlabel('Displacement / mm')
+    ax1.set_ylabel('Force / N')
+
 
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
 
+model = '82_L50_S50_D45_d1_05_T'
+read_FE(11, model, 1)
+
+#%%
+
+
+with open('/home/biomech/Downloads/mergedDf.pkl', 'rb') as f:
+    data = pickle.load(f)
