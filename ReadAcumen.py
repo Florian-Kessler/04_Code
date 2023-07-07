@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import pandas as pd
 import pickle
+import statsmodels.api as sm
 #%%
 
 
@@ -161,40 +162,87 @@ def Peak_exp(number, ampl):
     d = read_exp_peaks()
     level = 2 ** (ampl - 2)
     peakF = d['MaxForce'][(number - 2) * 7 + ampl]
-    print(d['DisplacementLevel'][(number - 2) * 7 + ampl])
-    print(d['Specimen'][(number - 2) * 7 + ampl])
-    print(peakF)
+    # print(d['DisplacementLevel'][(number - 2) * 7 + ampl])
+    # print(d['Specimen'][(number - 2) * 7 + ampl])
+    # print(peakF)
     return peakF
+
+
+def lin_reg(X, Y):
+    X = X.flatten().ravel()
+    Y = Y.flatten()
+    X = X[X != 0]
+    Y = Y[Y != 0]
+    X = sm.add_constant(X)  # Add a constant term to the independent variable array
+    mod = sm.OLS(Y, X)  # y, X
+    reg = mod.fit()
+    return reg, X, Y
 
 
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
 
 
-
 #%%
 
-
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
+x0 = 0
+x1 = 7  # max 7
+F_range = np.array([0, 285])
 model = '82_L50_S50_D45_d1_05_T'
 
 # peak_FE
+RFy_FE = np.zeros((x1, 34))
+RFy_exp = np.zeros((x1, 34))
 
 fig, axs = plt.subplots(1, 1)
-for x in range(2, 6):
+for x in range(x0, x1):
+    print(x)
     for i in range(34):
         try:
-            [_, RFy_FE, _, _, _] = read_FE_exp(i, model, 0)
+            [_, RFy_, _, _, _] = read_FE_exp(i, model, 0)
         except:
             continue
         try:
-            RFy_FE = RFy_FE[x*21+10]
+            # RFy_FE[x, i] = RFy_[x*21+20]
+            RFy_FE[x, i] = RFy_[x*21+10]
         except:
             continue
-        RFy_exp = Peak_exp(i, x)
-        plt.scatter(RFy_exp, RFy_FE, color='k')
-        del RFy_FE
-plt.plot([0, 285], [0, 285], 'k--')
-axs.set_xlabel('Experiment')
-axs.set_ylabel('FE')
-# axs.set_title('Peaks at ' + str(2**(x-2)))
+        RFy_exp[x, i] = Peak_exp(i, x)
+        plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color='k')
+        del RFy_
+axs.plot(F_range, F_range, 'k:', label='1:1')
+axs.set_xlabel('Experiment / N')
+axs.set_ylabel('FE / N')
+axs.set_title('Peak Forces at ' + str(2**(x0-2)) + ' mm - ' + str(2**(x1-3)) + ' mm amplitudes')
 axs.set_aspect('equal')
+
+regression, xx, yy = lin_reg(RFy_exp, RFy_FE)
+axs.plot(F_range, F_range*regression.params[1]+regression.params[0], color='k',
+         label='R$^2$ = {:0.2f}'.format(np.round(regression.rsquared, 2)))
+if regression.pvalues[1] >= 0.05:
+    lab_pvalue = 'p = ' + str(np.round(regression.pvalues[1], 2))
+else:
+    lab_pvalue = 'p < 0.05'
+axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue)
+plt.legend()
+'''
+# LiN_reg
+RFy_exp_flat = RFy_exp.flatten().ravel()
+RFy_FE_flat = RFy_FE.flatten()
+RFy_exp_flat_0 = RFy_exp_flat[RFy_exp_flat != 0]
+RFy_FE_flat_0 = RFy_FE_flat[RFy_FE_flat != 0]
+RFy_exp_flat_0 = sm.add_constant(RFy_exp_flat_0)  # Add a constant term to the independent variable array
+model = sm.OLS(RFy_FE_flat_0, RFy_exp_flat_0)  # y, X
+reg = model.fit()
+
+
+def lin_reg(X, Y):
+    X = X.flatten().ravel()
+    Y = Y.flatten()
+    X = X[X != 0]
+    Y = Y[Y != 0]
+    X = sm.add_constant(X)  # Add a constant term to the independent variable array
+    model = sm.OLS(Y, X)  # y, X
+    reg = model.fit()
+    return reg
+'''
