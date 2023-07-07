@@ -13,19 +13,17 @@ def copy(spec, mod, doc, dir):
     pw = open('/home/biomech/Desktop/P_fk.txt', 'r').read()
     if dir == 0:
         os.system('sshpass -p ' + pw + ' scp ' + local + doc + ' ' + user + '@' + server + remote)
-        print(doc + ' successfully copied from ' + local + ' to ' + remote + '.')
+        print(doc + ' successfully copied from ' + local + ' \nto \n' + remote + '.')
     elif dir == 1:
         os.system('sshpass -p ' + pw + ' scp ' + user + '@' + server + remote + doc + ' ' + local)
-        print(doc + ' successfully copied from ' + remote + ' to ' + local + '.')
+        print(doc + ' successfully copied from ' + remote + ' \nto \n' + local + '.')
     else:
         print('Invalid direction.')
 
 
-specimen = np.arange(10, 11)
-document = '82*05*.txt'
-document = '77*P.odb'
-direction = 1  # to remote, from remote
+specimen = np.arange(12, 20)
+document = '82*05*.inp'
+direction = 0  # to remote, from remote
 model = '82_L50_S50_D45'
-model = '77_L50_S50_D45'
 for i in range(len(specimen)):
     copy(specimen[i], model, document, direction)
