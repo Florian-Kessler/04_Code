@@ -101,11 +101,17 @@ def read_resample(file_r):
     return A_x_, A_y_, A_z_, A_rx_, A_ry_, A_rz_, a_y_, a_f_, a_c_
 
 
+def read_exp_peaks():
+    with open('/home/biomech/Downloads/mergedDf.pkl', 'rb') as f:
+        data = pickle.load(f)
+    return data
+
+
 t1 = time.time()
 # plt.close('all')
 
 
-def read_FE(number, model_code, plot):
+def read_FE_exp(number, model_code, plot):
     # Locations
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
     loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
@@ -128,6 +134,7 @@ def read_FE(number, model_code, plot):
     [_, RFy] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
     if plot:
         D_F_plot(specimen, number, model_code, Uy, RFy, A_y, a_y, a_f)
+    return Uy, RFy, A_y, a_y, a_f
 
 
 def D_F_plot(specimen, number, model_code, Uy, RFy, A_y, a_y, a_f):
@@ -150,13 +157,44 @@ def D_F_plot(specimen, number, model_code, Uy, RFy, A_y, a_y, a_f):
     ax1.set_ylabel('Force / N')
 
 
+def Peak_exp(number, ampl):
+    d = read_exp_peaks()
+    level = 2 ** (ampl - 2)
+    peakF = d['MaxForce'][(number - 2) * 7 + ampl]
+    print(d['DisplacementLevel'][(number - 2) * 7 + ampl])
+    print(d['Specimen'][(number - 2) * 7 + ampl])
+    print(peakF)
+    return peakF
+
+
 print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
 
-model = '82_L50_S50_D45_d1_05_T'
-read_FE(11, model, 1)
+
 
 #%%
 
 
-with open('/home/biomech/Downloads/mergedDf.pkl', 'rb') as f:
-    data = pickle.load(f)
+x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
+model = '82_L50_S50_D45_d1_05_T'
+
+# peak_FE
+
+fig, axs = plt.subplots(1, 1)
+for x in range(2, 6):
+    for i in range(34):
+        try:
+            [_, RFy_FE, _, _, _] = read_FE_exp(i, model, 0)
+        except:
+            continue
+        try:
+            RFy_FE = RFy_FE[x*21+10]
+        except:
+            continue
+        RFy_exp = Peak_exp(i, x)
+        plt.scatter(RFy_exp, RFy_FE, color='k')
+        del RFy_FE
+plt.plot([0, 285], [0, 285], 'k--')
+axs.set_xlabel('Experiment')
+axs.set_ylabel('FE')
+# axs.set_title('Peaks at ' + str(2**(x-2)))
+axs.set_aspect('equal')

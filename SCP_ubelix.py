@@ -21,9 +21,9 @@ def copy(spec, mod, doc, dir):
         print('Invalid direction.')
 
 
-specimen = np.arange(28, 34)
-document = '82*05*.inp'
-direction = 0  # 0 = to remote, 1 = from remote
+specimen = np.arange(20, 29)
+document = '82*05*.txt'
+direction = 1  # 0 = to remote, 1 = from remote
 model = '82_L50_S50_D45'
 for i in range(len(specimen)):
     copy(specimen[i], model, document, direction)
