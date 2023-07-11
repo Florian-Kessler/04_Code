@@ -103,8 +103,8 @@ def read_resample(file_r):
 
 
 def read_exp_peaks():
-    with open('/home/biomech/Downloads/mergedDf.pkl', 'rb') as f:
-        data = pickle.load(f)
+    with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f_:
+        data = pickle.load(f_)
     return data
 
 
@@ -112,7 +112,7 @@ t1 = time.time()
 # plt.close('all')
 
 
-def read_FE_exp(number, model_code, plot):
+def read_FE_(number, model_code, plot):
     # Locations
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
     loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
@@ -156,19 +156,14 @@ def read_FE_exp(number, model_code, plot):
     return Uy, RFy, A_y, a_y, a_f
 
 
-
-    # Figure
-
-
-
-def Peak_exp(ampl, number):
-    d = read_exp_peaks()
+def Peak_exp(ampl_, number_):
+    d_ = read_exp_peaks()
     # level = 2 ** (ampl - 2)
-    peakF = d['MaxForce'][(number - 2) * 7 + ampl]
+    peakF_ = d_['MaxForce'][(number_ - 2) * 7 + ampl_]
     # print(d['DisplacementLevel'][(number - 2) * 7 + ampl])
     # print(d['Specimen'][(number - 2) * 7 + ampl])
     # print(peakF)
-    return peakF
+    return peakF_
 
 
 def lin_reg(X, Y):
@@ -190,6 +185,7 @@ print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.
 plt.close('all')
 
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
+lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 F_range = np.array([0, 400])
@@ -199,17 +195,13 @@ model = '82_L50_S50_D45_d1_05_T'
 RFy_FE = np.zeros((x1, 34))
 RFy_exp = np.zeros((x1, 34))
 col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
-# ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
 fig, axs = plt.subplots(1, 1)
 for x in range(x0, x1):
     pl = 1
-    for i in range(34):  # [2, 3, 4, 5, 10, 11]:  # range(34):
+    for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
         try:
-            if pl == 1:
-                [_, RFy_, _, _, _] = read_FE_exp(i, model, 0)
-                pl = 0
-            else:
-                [_, RFy_, _, _, _] = read_FE_exp(i, model, 0)
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0)
         except:
             continue
         try:
@@ -218,7 +210,10 @@ for x in range(x0, x1):
         except:
             continue
         RFy_exp[x, i] = Peak_exp(x, i)
-        plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x])
+        if i == 8:
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label=lab[x])
+        else:
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_')
         del RFy_
 axs.plot(F_range, F_range, 'k:', label='1:1')
 axs.set_xlabel('Experiment / N')
@@ -238,5 +233,31 @@ else:
 axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue)
 plt.legend()
 
+#%%
 fig5, axs5 = plt.subplots(1, 1)
-for x in range
+
+for x in range(x0, x1):
+    for i in range(2, 34):
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
+            merged = pickle.load(f)
+        peakF = merged['MaxForce'][(i-2)*7 + x]
+        if i == 2 and x == 0:
+            axs5.scatter(x-0.1, peakF, color='r', label='Experiment')
+        else:
+            axs5.scatter(x-0.1, peakF, color='r', label='_nolegend_')
+        try:
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0)
+        except:
+            continue
+        try:
+            RFy_FE = RFy_[x*21+10]
+        except:
+            continue
+        if i == 2 and x == 0:
+            axs5.scatter(x + 0.1, RFy_FE, color='b', label='FE')
+        else:
+            axs5.scatter(x + 0.1, RFy_FE, color='b', label='_nolegend_')
+plt.legend()
+plt.xlabel('Amplitude')
+plt.ylabel('Max. Force / N')
+plt.xticks(np.arange(0, 7), lab)
