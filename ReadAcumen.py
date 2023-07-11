@@ -211,9 +211,12 @@ for x in range(x0, x1):
             continue
         RFy_exp[x, i] = Peak_exp(x, i)
         if i == 8:
-            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label=lab[x])
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label=lab[x], marker='v')
         else:
-            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_')
+            if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
+                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v')
+            elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s')
         del RFy_
 axs.plot(F_range, F_range, 'k:', label='1:1')
 axs.set_xlabel('Experiment / N')
@@ -241,10 +244,15 @@ for x in range(x0, x1):
         with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
             merged = pickle.load(f)
         peakF = merged['MaxForce'][(i-2)*7 + x]
-        if i == 2 and x == 0:
-            axs5.scatter(x-0.1, peakF, color='r', label='Experiment')
+        if i == 8 and x == 0:
+            axs5.scatter(x-0.3, peakF, color='r', marker='v', label='Experiment PEEK')
+        elif i == 9 and x == 0:
+            axs5.scatter(x - 0.1, peakF, color='r', marker='s', label='Experiment Ti')
         else:
-            axs5.scatter(x-0.1, peakF, color='r', label='_nolegend_')
+            if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
+                axs5.scatter(x-0.3, peakF, color='r', marker='v', label='_nolegend_')
+            elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+                axs5.scatter(x - 0.1, peakF, color='r', marker='s', label='_nolegend_')
         try:
             [_, RFy_, _, _, _] = read_FE_(i, model, 0)
         except:
@@ -253,10 +261,22 @@ for x in range(x0, x1):
             RFy_FE = RFy_[x*21+10]
         except:
             continue
-        if i == 2 and x == 0:
-            axs5.scatter(x + 0.1, RFy_FE, color='b', label='FE')
+        if i == 8 and x == 0:
+            axs5.scatter(x + 0.1, RFy_FE, color='b', marker='v', label='FE PEEK')
+        elif i == 9 and x == 0:
+            axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='FE Ti')
         else:
-            axs5.scatter(x + 0.1, RFy_FE, color='b', label='_nolegend_')
+            if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
+                axs5.scatter(x + 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
+            elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+                axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
+    plt.plot([-0.5, -0.5], [0, 400], 'k--')
+    plt.plot([x+0.5, x+0.5], [0, 400], 'k--')
+
+# if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
+# elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+
+
 plt.legend()
 plt.xlabel('Amplitude')
 plt.ylabel('Max. Force / N')
