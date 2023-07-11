@@ -19,7 +19,7 @@ def mapping(sample, mod):
               '50_L50_S00_D30', '55_L50_S00_D30',  # 13, 14
               '63_L50_S50_D45', '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',
               # 15, 16, 17, 18, 19
-              '80_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45']  # 20, 21, 22
+              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45']  # 20, 21, 22, 23
 
     model_code = models[mod]  # FEA model name
     print('Model: ' + str(model_code))
@@ -50,7 +50,7 @@ def mapping(sample, mod):
     Input['d_dir'] = '-'  # displ direction (negative corresponds to experiment, positive = inverse). Input: '-' or '+'
     Input['d_max'] = 1  # peak displ
 
-    Input['Friction'] = 0.2  # friction between screw and bone
+    Input['Friction'] = 0.5  # friction between screw and bone
     Input['Mapping_Diameter'] = 2  # diameter of sphere for mapping, in mm. should be larger than element size
 
     Input['YM_peek'] = str(25000)  # young's modulus peek screw
@@ -152,7 +152,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(8, 9):  # len(sample_list)):
+for i in range(6, 8):  # len(sample_list)):
     print(i)
     print(sample_list[i])
-    mapping(sample_list[i], 19)
+    mapping(sample_list[i], 21)

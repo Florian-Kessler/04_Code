@@ -4,7 +4,9 @@ import time
 import pandas as pd
 import pickle
 import statsmodels.api as sm
-#%%
+
+
+# %%
 
 
 def read_RFnodeFile(file_):
@@ -108,10 +110,6 @@ def read_exp_peaks():
     return data
 
 
-t1 = time.time()
-# plt.close('all')
-
-
 def read_FE_(number, model_code, plot):
     # Locations
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
@@ -177,12 +175,16 @@ def lin_reg(X, Y):
     return reg, X, Y
 
 
-print('Execution time: ' + str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1)) + ' sec.')
+# t1 = time.time()
+# print('Execution time: '+str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1))+' sec.')
 
 
-#%%
+#%% Linear regression
 
 plt.close('all')
+
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # PEEK, without 0 (diff ampl), 24 (weird)
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # Titanium, without 1 (diff ampl), 25 (weird)
 
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
@@ -197,6 +199,10 @@ RFy_exp = np.zeros((x1, 34))
 col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
 col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
 fig, axs = plt.subplots(1, 1)
+RFy_FE_P = []
+RFy_FE_T = []
+RFy_exp_P = []
+RFy_exp_T = []
 for x in range(x0, x1):
     pl = 1
     for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
@@ -206,59 +212,77 @@ for x in range(x0, x1):
             continue
         try:
             # RFy_FE[x, i] = RFy_[x*21+20]
-            RFy_FE[x, i] = RFy_[x*21+10]
+            RFy_FE[x, i] = RFy_[x * 21 + 10]
         except:
             continue
         RFy_exp[x, i] = Peak_exp(x, i)
         if i == 8:
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label=lab[x], marker='v')
-        else:
-            if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
-                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v')
-            elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s')
+        if i in peek_samples:  # P
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v')
+            RFy_FE_P.append(RFy_FE[x, i])
+            RFy_exp_P.append(RFy_exp[x, i])
+        elif i in ti_samples:
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s')
+            RFy_FE_T.append(RFy_FE[x, i])
+            RFy_exp_T.append(RFy_exp[x, i])
         del RFy_
-axs.plot(F_range, F_range, 'k:', label='1:1')
+axs.plot(F_range, F_range, 'k', label='1:1')
 axs.set_xlabel('Experiment / N')
 axs.set_ylabel('FE / N')
-axs.set_title('Peak Forces at ' + str(2**(x0-2)) + ' mm - ' + str(2**(x1-3)) + ' mm amplitudes')
+axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
 axs.set_aspect('equal')
 axs.set_xlim(F_range)
 axs.set_ylim(F_range)
 
-regression, xx, yy = lin_reg(RFy_exp, RFy_FE)
-axs.plot(F_range, F_range*regression.params[1]+regression.params[0], color='k',
-         label='R$^2$ = {:0.2f}'.format(np.round(regression.rsquared, 2)))
-if regression.pvalues[1] >= 0.05:
-    lab_pvalue = 'p = ' + str(np.round(regression.pvalues[1], 2))
+regression_P, xx_P, yy_P = lin_reg(np.array(RFy_exp_P), np.array(RFy_FE_P))
+axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label='PEEK:')
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
 else:
-    lab_pvalue = 'p < 0.05'
-axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue)
+    lab_pvalue_P = 'p < 0.05'
+axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashdot',
+         label='R$_P^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)))
+axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P + '\n')
+
+regression_T, xx_T, yy_T = lin_reg(np.array(RFy_exp_T), np.array(RFy_FE_T))
+axs.plot(F_range, F_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+         label='Titanium:')
+if regression_T.pvalues[1] >= 0.05:
+    lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
+else:
+    lab_pvalue_T = 'p < 0.05'
+axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashed',
+         label='R$_T^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+
 plt.legend()
 
-#%%
+#%% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
+
+with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
+    merged = pickle.load(f)
 
 for x in range(x0, x1):
     for i in range(2, 34):
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
-            merged = pickle.load(f)
-        peakF = merged['MaxForce'][(i-2)*7 + x]
+        peakF = merged['MaxForce'][(i - 2) * 7 + x]
         if i == 8 and x == 0:
-            axs5.scatter(x-0.3, peakF, color='r', marker='v', label='Experiment PEEK')
+            axs5.scatter(x - 0.3, peakF, color='r', marker='v', label='Experiment PEEK')
         elif i == 9 and x == 0:
             axs5.scatter(x - 0.1, peakF, color='r', marker='s', label='Experiment Ti')
         else:
-            if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
-                axs5.scatter(x-0.3, peakF, color='r', marker='v', label='_nolegend_')
-            elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+            if i in peek_samples:  # P (missing 0)
+                axs5.scatter(x - 0.3, peakF, color='r', marker='v', label='_nolegend_')
+            elif i in ti_samples:  # T (missing 1)
                 axs5.scatter(x - 0.1, peakF, color='r', marker='s', label='_nolegend_')
         try:
             [_, RFy_, _, _, _] = read_FE_(i, model, 0)
         except:
             continue
         try:
-            RFy_FE = RFy_[x*21+10]
+            RFy_FE = RFy_[x * 21 + 10]
         except:
             continue
         if i == 8 and x == 0:
@@ -266,15 +290,12 @@ for x in range(x0, x1):
         elif i == 9 and x == 0:
             axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='FE Ti')
         else:
-            if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
+            if i in peek_samples:  # P
                 axs5.scatter(x + 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
-            elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+            elif i in ti_samples:
                 axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
     plt.plot([-0.5, -0.5], [0, 400], 'k--')
-    plt.plot([x+0.5, x+0.5], [0, 400], 'k--')
-
-# if i in [5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 32]:  # P
-# elif i in [3, 6, 9, 11, 12, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
+    plt.plot([x + 0.5, x + 0.5], [0, 400], 'k--')
 
 
 plt.legend()
