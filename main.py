@@ -17,7 +17,7 @@ def mapping(sample, mod):
               '15_L50_S00_D44',
               '31_L50_S50_D35', '43_L50_S00_D45',  # 11, 12
               '50_L50_S00_D30', '55_L50_S00_D30',  # 13, 14
-              '63_L50_S50_D45', '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45',
+              '63_L50_S50_D45', '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',
               # 15, 16, 17, 18, 19
               '80_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45']  # 20, 21, 22
 
@@ -50,7 +50,7 @@ def mapping(sample, mod):
     Input['d_dir'] = '-'  # displ direction (negative corresponds to experiment, positive = inverse). Input: '-' or '+'
     Input['d_max'] = 1  # peak displ
 
-    Input['Friction'] = 0.5  # friction between screw and bone
+    Input['Friction'] = 0.2  # friction between screw and bone
     Input['Mapping_Diameter'] = 2  # diameter of sphere for mapping, in mm. should be larger than element size
 
     Input['YM_peek'] = str(25000)  # young's modulus peek screw
