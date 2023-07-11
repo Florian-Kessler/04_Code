@@ -190,7 +190,7 @@ x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
-F_range = np.array([0, 400])
+F_range = np.array([-10, 450])
 model = '82_L50_S50_D45_d1_05_T'
 
 # peak_FE
@@ -211,7 +211,6 @@ for x in range(x0, x1):
         except:
             continue
         try:
-            # RFy_FE[x, i] = RFy_[x*21+20]
             RFy_FE[x, i] = RFy_[x * 21 + 10]
         except:
             continue
@@ -226,6 +225,10 @@ for x in range(x0, x1):
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s')
             RFy_FE_T.append(RFy_FE[x, i])
             RFy_exp_T.append(RFy_exp[x, i])
+        elif i == 24:
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v', alpha=0.3)
+        elif i == 25:
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=0.3)
         del RFy_
 axs.plot(F_range, F_range, 'k', label='1:1')
 axs.set_xlabel('Experiment / N')
@@ -257,7 +260,7 @@ axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashed',
          label='R$_T^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
 axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
 
-plt.legend()
+plt.legend(framealpha=1)
 
 #%% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
@@ -271,12 +274,14 @@ for x in range(x0, x1):
         if i == 8 and x == 0:
             axs5.scatter(x - 0.3, peakF, color='r', marker='v', label='Experiment PEEK')
         elif i == 9 and x == 0:
-            axs5.scatter(x - 0.1, peakF, color='r', marker='s', label='Experiment Ti')
+            axs5.scatter(x + 0.1, peakF, color='r', marker='s', label='Experiment Ti')
+        elif i == 24:
+            axs5.scatter(x - 0.3, peakF, color='r', marker='v', alpha=0.3, label='_nolegend_')
         else:
             if i in peek_samples:  # P (missing 0)
                 axs5.scatter(x - 0.3, peakF, color='r', marker='v', label='_nolegend_')
             elif i in ti_samples:  # T (missing 1)
-                axs5.scatter(x - 0.1, peakF, color='r', marker='s', label='_nolegend_')
+                axs5.scatter(x + 0.1, peakF, color='r', marker='s', label='_nolegend_')
         try:
             [_, RFy_, _, _, _] = read_FE_(i, model, 0)
         except:
@@ -286,19 +291,22 @@ for x in range(x0, x1):
         except:
             continue
         if i == 8 and x == 0:
-            axs5.scatter(x + 0.1, RFy_FE, color='b', marker='v', label='FE PEEK')
+            axs5.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='FE PEEK')
         elif i == 9 and x == 0:
             axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='FE Ti')
+        elif i == 25:
+            axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', alpha=0.3, label='_nolegend_')
         else:
             if i in peek_samples:  # P
-                axs5.scatter(x + 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
+                axs5.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
             elif i in ti_samples:
                 axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
     plt.plot([-0.5, -0.5], [0, 400], 'k--')
     plt.plot([x + 0.5, x + 0.5], [0, 400], 'k--')
 
 
-plt.legend()
+plt.legend(framealpha=1)
 plt.xlabel('Amplitude')
 plt.ylabel('Max. Force / N')
 plt.xticks(np.arange(0, 7), lab)
+plt.title('Peak Forces')

@@ -21,7 +21,7 @@ def copy(spec, mod, doc, dir):
         print('Invalid direction.')
 
 
-specimen = np.arange(2, 6)
+specimen = np.arange(6, 8)
 document = '*T.inp'
 direction = 0  # 0 = from local to remote, 1 = from remote to local
 model = '81_L50_S50_D45'
