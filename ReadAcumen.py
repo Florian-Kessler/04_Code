@@ -122,13 +122,13 @@ def read_FE_(number, model_code, plot):
     else:
         print('Invalid model code!')
     specimen = specimens[number]
-    friction02 = 0
     file = [loc_Exp + specimen + '_resample.csv',
             loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
             loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnodeFix.txt']
 
     # Load data
-    [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c] = read_resample(file[0])  # load experimental result file (csv)
+    # [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c]
+    [_, A_y, _, _, _, _, a_y, a_f, _] = read_resample(file[0])  # load experimental result file (csv)
     [Uy, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
     [_, RFy] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
     if plot:
@@ -178,7 +178,6 @@ def lin_reg(X, Y):
 # t1 = time.time()
 # print('Execution time: '+str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1))+' sec.')
 
-
 #%% Linear regression
 
 plt.close('all')
@@ -196,7 +195,7 @@ model = '82_L50_S50_D45_d1_05_P'  # automatically switches to titanium for respe
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
 RFy_exp = np.zeros((x1, 34))
-col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
+# col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
 col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
 fig, axs = plt.subplots(1, 1)
 RFy_FE_P = []
@@ -208,11 +207,11 @@ for x in range(x0, x1):
     for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
         try:
             [_, RFy_, _, _, _] = read_FE_(i, model, 0)
-        except:
+        except FileNotFoundError:
             continue
         try:
             RFy_FE[x, i] = RFy_[x * 21 + 10]
-        except:
+        except IndexError:
             continue
         RFy_exp[x, i] = Peak_exp(x, i)
         if i == 8:
@@ -284,11 +283,11 @@ for x in range(x0, x1):
                 axs5.scatter(x + 0.1, peakF, color='r', marker='s', label='_nolegend_')
         try:
             [_, RFy_, _, _, _] = read_FE_(i, model, 0)
-        except:
+        except FileNotFoundError:
             continue
         try:
             RFy_FE = RFy_[x * 21 + 10]
-        except:
+        except IndexError:
             continue
         if i == 8 and x == 0:
             axs5.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='FE PEEK')
@@ -303,7 +302,6 @@ for x in range(x0, x1):
                 axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
     plt.plot([-0.5, -0.5], [0, 400], 'k--')
     plt.plot([x + 0.5, x + 0.5], [0, 400], 'k--')
-
 
 plt.legend(framealpha=1)
 plt.xlabel('Amplitude')
