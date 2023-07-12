@@ -110,15 +110,15 @@ def read_exp_peaks():
     return data
 
 
-def read_FE_(number, model_code, plot):
+def read_FE_(number, model_code, plot, fric_):
     # Locations
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
     loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
     loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
-        model_code = model_code[:21] + 'P'
+        model_code = model_code[:19] + fric_.split('.')[-1] + '_P'
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-        model_code = '82' + model_code[2:21] + 'T'
+        model_code = '82' + model_code[2:19] + fric_.split('.')[-1] + '_T'
     else:
         print('Invalid model code!')
     specimen = specimens[number]
@@ -181,9 +181,10 @@ def lin_reg(X, Y):
 #%% Linear regression
 
 plt.close('all')
-
-peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # PEEK, without 0 (diff ampl), 24 (weird)
-ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # Titanium, without 1 (diff ampl), 25 (weird)
+# PEEK, without 0 (diff ampl), 24 (Exp. weird)
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]
+# Titanium, without 1 (diff ampl), 25 (FE weird)
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]
 
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
@@ -206,7 +207,7 @@ for x in range(x0, x1):
     pl = 1
     for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
         try:
-            [_, RFy_, _, _, _] = read_FE_(i, model, 0)
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0, '0.5')
         except FileNotFoundError:
             continue
         try:
@@ -282,7 +283,7 @@ for x in range(x0, x1):
             elif i in ti_samples:  # T (missing 1)
                 axs5.scatter(x + 0.1, peakF, color='r', marker='s', label='_nolegend_')
         try:
-            [_, RFy_, _, _, _] = read_FE_(i, model, 0)
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0, '0.5')
         except FileNotFoundError:
             continue
         try:
@@ -300,6 +301,67 @@ for x in range(x0, x1):
                 axs5.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
             elif i in ti_samples:
                 axs5.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
+    plt.plot([-0.5, -0.5], [0, 400], 'k--')
+    plt.plot([x + 0.5, x + 0.5], [0, 400], 'k--')
+
+plt.legend(framealpha=1)
+plt.xlabel('Amplitude')
+plt.ylabel('Max. Force / N')
+plt.xticks(np.arange(0, 7), lab)
+plt.title('Peak Forces')
+
+#%% Friction comparison
+fig7, axs7 = plt.subplots(1, 1)
+
+with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
+    merged = pickle.load(f)
+
+for x in range(x0, x1):
+    for i in range(2, 34):
+        peakF = merged['MaxForce'][(i - 2) * 7 + x]
+        if i == 8 and x == 0:
+            axs7.scatter(x - 0.3, peakF, color='r', marker='v', label='Experiment PEEK')
+        elif i == 9 and x == 0:
+            axs7.scatter(x + 0.1, peakF, color='r', marker='s', label='Experiment Ti')
+        elif i == 24:
+            axs7.scatter(x - 0.3, peakF, color='r', marker='v', alpha=0.3, label='_nolegend_')
+        else:
+            if i in peek_samples:  # P (missing 0)
+                axs7.scatter(x - 0.3, peakF, color='r', marker='v', label='_nolegend_')
+            elif i in ti_samples:  # T (missing 1)
+                axs7.scatter(x + 0.1, peakF, color='r', marker='s', label='_nolegend_')
+        try:
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0, '0.5')
+        except FileNotFoundError:
+            continue
+        try:
+            [_, RFy_2, _, _, _] = read_FE_(i, model, 0, '0.2')
+        except FileNotFoundError:
+            continue
+        try:
+            RFy_FE = RFy_[x * 21 + 10]
+        except IndexError:
+            continue
+        try:
+            RFy_FE2 = RFy_2[x * 21 + 10]
+        except IndexError:
+            continue
+        if i == 8 and x == 0:
+            axs7.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='FE PEEK 0.5')
+            axs7.scatter(x - 0.05, RFy_FE2, color='k', marker='v', label='FE PEEK 0.2')
+        elif i == 9 and x == 0:
+            axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='FE Ti 0.5')
+            axs7.scatter(x + 0.35, RFy_FE2, color='k', marker='s', label='FE Ti 0.2')
+        elif i == 25:
+            axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', alpha=0.3, label='_nolegend_')
+            axs7.scatter(x + 0.35, RFy_FE2, color='k', marker='s', alpha=0.3, label='_nolegend_')
+        else:
+            if i in peek_samples:  # P
+                axs7.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
+                axs7.scatter(x - 0.05, RFy_FE2, color='k', marker='v', label='_nolegend_')
+            elif i in ti_samples:
+                axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
+                axs7.scatter(x + 0.35, RFy_FE2, color='k', marker='s', label='_nolegend_')
     plt.plot([-0.5, -0.5], [0, 400], 'k--')
     plt.plot([x + 0.5, x + 0.5], [0, 400], 'k--')
 
