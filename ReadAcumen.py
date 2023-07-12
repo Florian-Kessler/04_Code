@@ -118,7 +118,7 @@ def read_FE_(number, model_code, plot):
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
         model_code = model_code[:21] + 'P'
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-        model_code = model_code[:21] + 'T'
+        model_code = '82' + model_code[2:21] + 'T'
     else:
         print('Invalid model code!')
     specimen = specimens[number]
@@ -191,7 +191,7 @@ lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 F_range = np.array([-10, 450])
-model = '82_L50_S50_D45_d1_05_T'
+model = '82_L50_S50_D45_d1_05_P'  # automatically switches to titanium for respective samples
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))

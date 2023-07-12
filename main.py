@@ -156,4 +156,3 @@ for i in [20, 22, 25, 27, 28, 30, 33]:  # range(12, 20):  # len(sample_list)):
     print(i)
     print(sample_list[i])
     mapping(sample_list[i], 21)
-# ready, ctrl + enter
