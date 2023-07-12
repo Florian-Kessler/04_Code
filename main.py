@@ -70,7 +70,7 @@ def mapping(sample, mod):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 1
+    write_output = 0
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -143,16 +143,17 @@ def mapping(sample, mod):
         tRun = time.time() - t1
         if tRun >= 3600:
             print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
-                  str(round(np.mod(tRun, 60), 1)) + ' sec.')
+                  str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
         elif tRun >= 60:
-            print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
+            print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
         else:
-            print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
+            print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
 
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(8, len(sample_list)):
+for i in [20, 22, 25, 27, 28, 30, 33]:  # range(12, 20):  # len(sample_list)):
     print(i)
     print(sample_list[i])
     mapping(sample_list[i], 21)
+# ready, ctrl + enter
