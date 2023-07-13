@@ -7,10 +7,9 @@ import time
 import os
 
 
-def mapping(sample, mod):
+def mapping(sample, mod, fric_):
     t1 = time.time()
     # # # # # Input # # # # #
-    # Input imaging data
     # FE version
     models = ['00_L50_S50_D30', '01_L50_S50_D35', '02_L50_S50_D40', '03_L50_S50_D45', '04_L50_S50_D27',  # 0, 1, 2, 3, 4
               '10_L50_S00_D30', '11_L50_S00_D35', '12_L50_S00_D40', '13_L50_S00_D45', '14_L50_S00_D27',
@@ -19,20 +18,19 @@ def mapping(sample, mod):
               '50_L50_S00_D30', '55_L50_S00_D30',  # 13, 14
               '63_L50_S50_D45', '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',
               # 15, 16, 17, 18, 19
-              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45']  # 20, 21, 22, 23
+              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 20, 21, 22, 23
+              '94_OSTP']  # 24
 
     model_code = models[mod]  # FEA model name
     print('Model: ' + str(model_code))
     sample_code = sample  # Experimental sample. contains number and sample name
-    # ExpScrew no use anymore.
-    # ExpScrew = 'P'  # T or P, site from experiment. Two input files (SimScrew Ti and PEEK) will always be generated
 
     # Specify file locations
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT data
     path_fea = path_project + '02_FEA/01_MainStudy/' + sample_code + '/' + model_code + '/'  # Folder of FEA files
     file_bone = [filename for filename in os.listdir(path_ct + '/') if
-                 filename.endswith('image.mhd') and str(sample_code) in filename][0]  # HERE corr
+                 filename.endswith('image.mhd') and str(sample_code) in filename][0]
     print(file_bone)
 
     # # # # # Input # # # # #
@@ -41,16 +39,12 @@ def mapping(sample, mod):
     Input['Project_Folder'] = path_project
     Input['FEA_loc'] = path_fea  # path to FEA files
     Input['Model_Code'] = model_code  # model code (FEA model name)
-    # Input['Screw'] = ExpScrew  # which site of scan will be processed
     Input['Resolution'] = 0.0606995  # scan resolution, should be 0.0606995 for HR-pQCT II
-
-    Input['Load_mode'] = 'd'  # no effect 'd' or 'f', displacement or force controlled
-    # ********* EXCLUDED (line 357 in mapping.py)
 
     Input['d_dir'] = '-'  # displ direction (negative corresponds to experiment, positive = inverse). Input: '-' or '+'
     Input['d_max'] = 1  # peak displ
 
-    Input['Friction'] = 0.5  # friction between screw and bone
+    Input['Friction'] = fric_  # friction between screw and bone
     Input['Mapping_Diameter'] = 2  # diameter of sphere for mapping, in mm. should be larger than element size
 
     Input['YM_peek'] = str(25000)  # young's modulus peek screw
@@ -70,7 +64,7 @@ def mapping(sample, mod):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 0
+    write_output = 1
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -82,13 +76,15 @@ def mapping(sample, mod):
 
     # Read mask
     imMask = sitk.ReadImage(Input['FEA_loc'] + Input['Model_Code'] + '_mask.mhd')
-    imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])
+    imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0]).T[:, ::-1, :]
+    # imMask_np = np.array([imMask_np[2], imMask_np[1], imMask_np[0]])  # HERE HERE entire line inserted
     orM = np.array(imMask.GetOrigin())
     orB = np.array(bone['GreyImage'].GetOrigin())
     insBefore = np.rint(abs(orB - orM) / Input['Resolution']).astype(int)
     bone['insBefore'] = insBefore
     print('insBefore: ' + str(insBefore))
-    dimMask = np.array(imMask.GetSize())
+    # dimMask = np.array(imMask.GetSize())
+    dimMask = np.array(imMask_np.shape)
     dimBone = np.array(bone['GreyImage'].GetSize())
     insAfter = (dimBone - dimMask - insBefore).astype(int)
     bone['insAfter'] = insAfter
@@ -96,16 +92,13 @@ def mapping(sample, mod):
     print('mask dimension: ' + str(dimMask))
     print('bone dimension: ' + str(dimBone))
     imMask_np_corr = imMask_np
-    # print(np.zeros((insBefore[0], dimMask[1], dimMask[2])))
     imMask_np_corr = np.append(np.insert(imMask_np_corr, 0, np.zeros((insBefore[0], imMask_np_corr.shape[1],
                                                                       imMask_np_corr.shape[2])), 0),
                                np.zeros((insAfter[0], imMask_np_corr.shape[1], imMask_np_corr.shape[2])), 0)
-    # print('current mask dimension: ' + str(np.array(imMask_np_corr.shape)))
 
     imMask_np_corr = np.append(
         np.insert(imMask_np_corr, 0, np.zeros((insBefore[1], imMask_np_corr.shape[0], imMask_np_corr.shape[2])), 1),
         np.zeros((imMask_np_corr.shape[0], insAfter[1], imMask_np_corr.shape[2])), 1)
-    # print('current mask dimension: ' + str(np.array(imMask_np_corr.shape)))
 
     imMask_np_corr = np.append(
         np.insert(imMask_np_corr, 0, np.zeros((insBefore[2], imMask_np_corr.shape[0], imMask_np_corr.shape[1])), 2),
@@ -121,13 +114,17 @@ def mapping(sample, mod):
 
     bone['MASK'] = imMask_np_corr
     if write_output:
+        img_screw = sitk.GetImageFromArray(np.transpose(bone['MASK'], [2, 1, 0]))
+        img_screw.SetOrigin(bone['GreyImage'].GetOrigin())
+        img_screw.SetSpacing(bone['GreyImage'].GetSpacing())
+        sitk.WriteImage(img_screw, path_fea + sample_code + '_screw.mhd')
+        print('Screw saved.')
         img_seg = sitk.GetImageFromArray(np.transpose(bone['BVTVscaled'], [2, 1, 0]))
         img_seg.SetOrigin(bone['GreyImage'].GetOrigin())
         img_seg.SetSpacing(bone['GreyImage'].GetSpacing())
         sitk.WriteImage(img_seg, path_fea + sample_code + '_seg.mhd')
         print('Segmented image saved.')
         del img_seg
-    # del bone['GreyImage']
 
     mappNR.HFE_mapping_trans(bone, Input)
 
@@ -152,7 +149,7 @@ def mapping(sample, mod):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in [20, 22, 25, 27, 28, 30, 33]:  # range(12, 20):  # len(sample_list)):
-    print(i)
+for i in [8]:  # range(12, 20):  # len(sample_list)):
+
     print(sample_list[i])
-    mapping(sample_list[i], 21)
+    mapping(sample_list[i], 24, 0.5)

@@ -33,7 +33,6 @@ def HFE_mapping_trans(bone, inp):
     maskY = -bone['insBefore'][1]*inp['Resolution'] + bone['MaskY'][0]
     maskZ = -bone['insBefore'][2]*inp['Resolution'] + bone['MaskZ'][0]
     offset2COS = np.array([np.min(maskX), np.min(maskY), np.min(maskZ)])
-    # print('\noffset2COS' + str(offset2COS))  # HERE
     elsets["BONE"] = []
     RHOb = {}
     RHOb_FE = {}
@@ -56,7 +55,6 @@ def HFE_mapping_trans(bone, inp):
         )
 
         elems[elem].set_cog(cog_real)
-        # print('\ncog_real: ' + str(cog_real))
         cog = cog_real
         PHIbone = 1
 
@@ -261,9 +259,12 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
             mask[i, :, :] = morph.closing(mask[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
-
-    origin_bone = bone['Origin']
+    print('x_min: ' + str(x_min))
+    print('y_min: ' + str(y_min))
+    print('z_min: ' + str(z_min))
+    print('z_min: ' + str(z_max))
     origin_mask = [-11.5 / 2, -17.5 / 2, -45]  # HERE hard coded, dimensions of ROI
+
     spacing = np.array([1, 1, 1]) * inp['Resolution']
 
     mask_trans = mask.astype(np.short)
@@ -314,7 +315,6 @@ def HFE_inp_creator(inp):
     """
     SimMat = ['T', 'P']  # simulated materials
     for i in range(len(SimMat)):
-        step = 0
         friction = 0
         f_inpDummy = open(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_model.inp')
         f_eleSets = open(inp['FEA_loc'] + inp['Model_Code'] + '_elsets.inp')
@@ -331,9 +331,6 @@ def HFE_inp_creator(inp):
             print('Wrong d_dir input')
             exit()
         for lines in f_inpDummy:
-            # Define step 2
-            #if '*Step, name=Step-2,' in lines:
-            #    step = 2
 
             # Friction value between screw and bone
             if friction == 1:
@@ -373,31 +370,6 @@ def HFE_inp_creator(inp):
                 for lines_mat in f_material:
                     outfile.write(lines_mat)
 
-            # Set force amplitude and direction
-            # elif 'Set-RP, 2,' in lines:
-            #     if step == 2:
-            #         outfile.write('Set-RP, 2, ' + str(inp['F_dir']) + str(inp['F_max']) + '\n')
-            #     else:
-            #         outfile.write(lines)
-            # Set displacement amplitude and direction
-
-            # elif 'Set-RP, 2, 2, -' in lines:
-            #     if step == 2:
-            #         outfile.write('Set-RP, 2, 2, ' + str(inp['d_dir']) + str(inp['d_max']) + '\n')
-            #     else:
-            #         outfile.write(lines)
-
-            # Amplitude settings (number of cycles, peak and valley load)
-            # proceed with amplitude etc.
-
-            # lines.replace(old string, new string) could be used
-
-            # elif '*Amplitude, name=Amp-1' in lines:
-                # outfile.write('0., 0.,\n')
-                # for j in range(inp['Cycles']):
-                #    amp = (j+1)/inp['Cycles']
-
-                # outfile.write('
             else:
                 outfile.write(lines)
             if '*Heading' in lines:
