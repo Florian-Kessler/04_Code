@@ -119,7 +119,7 @@ def read_FE_(number, model_code, plot, fric_):
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
         model_code = model_code[:19] + fric_.split('.')[-1] + '_P'
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-        model_code = '82' + model_code[2:19] + fric_.split('.')[-1] + '_T'
+        model_code = '81' + model_code[2:19] + fric_.split('.')[-1] + '_T'
     else:
         print('Invalid model code!')
     specimen = specimens[number]
@@ -186,8 +186,8 @@ def lin_reg(X, Y):
 plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]
-# Titanium, without 1 (diff ampl), 25 (FE weird)
-ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]
+# Titanium, without 1 (diff ampl)
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
 
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
@@ -201,14 +201,16 @@ RFy_exp = np.zeros((x1, 34))
 # col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
 col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
 fig, axs = plt.subplots(1, 1)
+fig.set_figheight(7)
+fig.set_figwidth(7)
 RFy_FE_P = []
 RFy_FE_T = []
 RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 1
-alp = 0.0
+loglog = 0
+alp = 0.3
 if loglog:
     F_range = np.array([0, 2.6])
 else:
@@ -254,8 +256,8 @@ for x in range(x0, x1):
             RFy_exp_T.append(RFy_exp[x, i])
         elif i == 24:  # HERE exclude sample
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v', alpha=alp)
-        elif i == 25:  # HERE exclude sample
-            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
+        # elif i == 25:  # HERE exclude sample
+        #     plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
         del RFy_
 # axs.plot(F_range, F_range, 'k', label='1:1')
 if loglog:
@@ -302,7 +304,8 @@ plt.legend(framealpha=1)
 
 # %% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
-
+fig5.set_figheight(7)
+fig5.set_figwidth(7)
 with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
     merged = pickle.load(f)
 

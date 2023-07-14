@@ -22,10 +22,10 @@ def copy(spec, mod, doc, dir):
 
 
 specimen = np.arange(0, 34)
-document = '*05*T.odb'
-direction = 1  # 0 = from local to remote, 1 = from remote to local
-model = '82_L50_S50_D45'
+document = '*02*T.inp'
+direction = 0  # 0 = from local to remote, 1 = from remote to local
+model = '81_L50_S50_D45'
 
 # [20, 22, 25, 27, 28, 30, 33]:  # range(12, 19):  # range(len(specimen)):
-for i in [19]:
+for i in [12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
     copy(specimen[i], model, document, direction)

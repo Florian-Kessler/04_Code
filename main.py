@@ -76,8 +76,7 @@ def mapping(sample, mod, fric_):
 
     # Read mask
     imMask = sitk.ReadImage(Input['FEA_loc'] + Input['Model_Code'] + '_mask.mhd')
-    imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0]).T[:, ::-1, :]
-    # imMask_np = np.array([imMask_np[2], imMask_np[1], imMask_np[0]])  # HERE HERE entire line inserted
+    imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])  # .T[:, ::-1, :]
     orM = np.array(imMask.GetOrigin())
     orB = np.array(bone['GreyImage'].GetOrigin())
     insBefore = np.rint(abs(orB - orM) / Input['Resolution']).astype(int)
@@ -149,7 +148,7 @@ def mapping(sample, mod, fric_):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in [8]:  # range(12, 20):  # len(sample_list)):
+for i in [12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 24, 0.5)
+    mapping(sample_list[i], 21, 0.2)  # samples, model, friction
