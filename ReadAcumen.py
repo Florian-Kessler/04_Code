@@ -418,8 +418,21 @@ fig8.set_figheight(7)
 fig8.set_figwidth(7)
 with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
     merged = pickle.load(f)
-for x in range(x0, x1):
-    for i in range(2, 34):
-        print('x: ' + str(x) + ', i: ' + str(i))
-        resExp = merged(['ResidualDisplacement'])[(i - 2) * 7 + x]
-        resFE = read_FE_(i, model, 0, '0.5')
+for x in range(x0, 1):  # x1):
+    for i in [7]:
+        # print('x: ' + str(x) + ', i: ' + str(i))
+        # resExp = merged['ResidualDisplacement'][(i - 2) * 7 + x]
+        try:
+            [Uy, Fy, _, _, _] = read_FE_(i, model, 0, '0.5')
+        except FileNotFoundError:
+            # print('no File')
+            continue
+        # try:
+            # Uy_res = Uy[x * 21 + 19]
+        # except IndexError:
+            # print('no Datapoints')
+            # continue
+        axs8.plot(Uy, Fy)
+        axs8.plot([-20, 2], [0, 0], 'k--')
+        # axs8.scatter(resExp, resFE)
+        # print(resFE)
