@@ -351,7 +351,6 @@ plt.xlabel('Amplitude')
 plt.ylabel('Max. Force / N')
 plt.xticks(np.arange(0, 7), lab)
 plt.title('Peak Forces')
-
 # %% Friction comparison
 fig7, axs7 = plt.subplots(1, 1)
 
@@ -412,3 +411,15 @@ plt.xlabel('Amplitude')
 plt.ylabel('Max. Force / N')
 plt.xticks(np.arange(0, 7), lab)
 plt.title('Peak Forces')
+
+# %% Residual Displacement
+fig8, axs8 = plt.subplots(1, 1)
+fig8.set_figheight(7)
+fig8.set_figwidth(7)
+with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
+    merged = pickle.load(f)
+for x in range(x0, x1):
+    for i in range(2, 34):
+        print('x: ' + str(x) + ', i: ' + str(i))
+        resExp = merged(['ResidualDisplacement'])[(i - 2) * 7 + x]
+        resFE = read_FE_(i, model, 0, '0.5')
