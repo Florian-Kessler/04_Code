@@ -151,4 +151,4 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 for i in [8]:  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 21, 0.5)  # samples, model, friction
+    mapping(sample_list[i], 24, 0.5)  # samples, model, friction

@@ -26,14 +26,14 @@ def main(ODBn):
         return input
 
     ODBname = ODBn + '.odb'
-    OUTname = ODBn + '_RFnode.txt'
+    OUTname = ODBn + '_RFnode3.txt'
     OUTname2 = ODBn
     OUTname3 = ODBn + '_BDI.txt'
     try:
         os.remove(OUTname)
         print('Old file deleted.')
     except:
-        print('Create new file.')
+        print('Creating new file.')
     odb = openOdb(ODBname)
     a = odb.rootAssembly
     nsetName2 = ['SET-RP1', 'SET-RP11', 'SET-RP12', 'SET-RP13',
