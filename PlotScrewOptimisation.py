@@ -12,7 +12,7 @@ def read_RFnodeFile(file_):
 
 # labels = ['Original', 'Original filled', 'Simple filled', 'Simple cannulated']
 labels = ['1.5 mm', '0.5 mm', '0.2 mm', '0.2 mm, opt']
-c = ['r', 'g', 'b']
+c = ['r', 'g', 'b', 'k']
 plt.figure()
 for i in [0, 1, 2, 3]:
     uy = read_RFnodeFile('/home/biomech/Documents/01_Icotec/02_FEA/00_Model/94_screw_Osteoporosis_new_RFnode'
