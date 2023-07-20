@@ -26,7 +26,7 @@ def main(ODBn):
         return input
 
     ODBname = ODBn + '.odb'
-    OUTname = ODBn + '_RFnode3.txt'
+    OUTname = ODBn + '_RFnode4.txt'
     OUTname2 = ODBn
     OUTname3 = ODBn + '_BDI.txt'
     try:
@@ -97,6 +97,6 @@ def main(ODBn):
 
     odb.close()
     opFileU.close()
-    print('done')
+    print('Done.')
 if __name__ == '__main__':
     main('94_screw_Osteoporosis_new')
