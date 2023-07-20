@@ -73,7 +73,7 @@ def mapping(sample, mod, fric_):
     bone = mappNR.readInpBoneDummy(bone, Input)  # Read bone mesh from abaqus. Read elements, nodes
     bone = mappNR.load_BVTVdata(bone, path_ct + file_bone)
     bone = mappNR.boneMeshMask(bone, Input)  # Create mask from abaqus bone mesh
-
+'''
     # Read mask
     imMask = sitk.ReadImage(Input['FEA_loc'] + Input['Model_Code'] + '_mask.mhd')
     imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])  # .T[:, ::-1, :]
@@ -106,7 +106,7 @@ def mapping(sample, mod, fric_):
 
     imSum = imMask_np_corr + bone['BVTVscaled']
     plt.figure()
-    plt.imshow(imSum[insBefore[0] + int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
+    plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
     plt.show()
     plt.savefig(Input['FEA_loc'] + 'mappingControlPlot.png')
     plt.close()
@@ -144,7 +144,7 @@ def mapping(sample, mod, fric_):
             print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
         else:
             print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-
+'''
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
