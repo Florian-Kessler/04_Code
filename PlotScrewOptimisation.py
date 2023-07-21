@@ -16,7 +16,7 @@ labels = ['Original', 'Original filled', 'Simple filled', 'Simple cannulated']
 c = ['r', 'g', 'b', 'k']
 fig1, ax1 = plt.subplots()
 fig2, ax2 = plt.subplots()
-for i in [3, 6, 7]:
+for i in [3, 7]:
     uy = read_RFnodeFile('/home/biomech/Documents/01_Icotec/02_FEA/00_Model/94_screw_Osteoporosis_new_RFnode'
                          + str(i) + '.txt')
 
@@ -56,3 +56,4 @@ ax2.set_xlabel('RP')
 plt.xticks([0, 1, 2, 3, 4])
 ax2.set_ylabel('Difference / %')
 ax2.legend()
+ax2.set_ylim([-5, 5])
