@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import time
-import pandas as pd
 import pickle
 import statsmodels.api as sm
 import pandas as pd
@@ -119,7 +117,7 @@ def read_FE_(number, model_code, plot, fric_):
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
         model_code = model_code[:19] + fric_.split('.')[-1] + '_P'
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-        model_code = '82' + model_code[2:19] + fric_.split('.')[-1] + '_T'
+        model_code = '81' + model_code[2:19] + fric_.split('.')[-1] + '_T'
     else:
         print('Invalid model code!')
     specimen = specimens[number]
@@ -423,16 +421,16 @@ for x in range(x0, 1):  # x1):
         # print('x: ' + str(x) + ', i: ' + str(i))
         # resExp = merged['ResidualDisplacement'][(i - 2) * 7 + x]
         try:
-            [Uy, Fy, _, _, _] = read_FE_(i, model, 0, '0.5')
+            [UY, Fy, _, _, _] = read_FE_(i, model, 0, '0.5')
         except FileNotFoundError:
             # print('no File')
             continue
         # try:
-            # Uy_res = Uy[x * 21 + 19]
+            # Uy_res = UY[x * 21 + 19]
         # except IndexError:
             # print('no Datapoints')
             # continue
-        axs8.plot(Uy, Fy)
+        axs8.plot(UY, Fy)
         axs8.plot([-20, 2], [0, 0], 'k--')
         # axs8.scatter(resExp, resFE)
         # print(resFE)
