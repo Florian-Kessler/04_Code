@@ -19,7 +19,8 @@ def mapping(sample, mod, fric_):
               '63_L50_S50_D45', '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',
               # 15, 16, 17, 18, 19
               '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 20, 21, 22, 23
-              '94_OSTP']  # 24
+              '87_L50_S50_D45', '88_L50_S50_D45',  # 24, 25
+              '94_OSTP']  # 26
 
     model_code = models[mod]  # FEA model name
     print('Model: ' + str(model_code))
@@ -73,7 +74,7 @@ def mapping(sample, mod, fric_):
     bone = mappNR.readInpBoneDummy(bone, Input)  # Read bone mesh from abaqus. Read elements, nodes
     bone = mappNR.load_BVTVdata(bone, path_ct + file_bone)
     bone = mappNR.boneMeshMask(bone, Input)  # Create mask from abaqus bone mesh
-'''
+
     # Read mask
     imMask = sitk.ReadImage(Input['FEA_loc'] + Input['Model_Code'] + '_mask.mhd')
     imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])  # .T[:, ::-1, :]
@@ -144,11 +145,11 @@ def mapping(sample, mod, fric_):
             print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
         else:
             print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-'''
+
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in [8]:  # range(12, 20):  # len(sample_list)):
+for i in range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 24, 0.5)  # samples, model, friction
+    mapping(sample_list[i], 25, 0.5)  # samples, model, friction
