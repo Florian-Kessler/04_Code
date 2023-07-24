@@ -26,6 +26,10 @@ for lines in template:
                 print('*HEADING removed.')
             elif 'CP3: CUBE' in line:
                 print('CP3: CUBE removed.')
+            elif '*NSET, NSET=ALL_NODE_T' in line:
+                outfile.write('*Nset, nset=ALL_NODE_TB\n')
+            elif '*NSET, NSET=ALL_NODE_B' in line:
+                print('Combining node sets.')
             else:
                 outfile.write(line)
         outfile.write('\n**\n')
