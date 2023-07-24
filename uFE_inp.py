@@ -9,12 +9,14 @@ inp_template = 'inp_temp.inp'
 bone_mesh = open(path + inp_bone, 'r')
 screw_mesh = open(path + inp_screw, 'r')
 template = open(path + inp_template, 'r')
+input_file = 'test_0.inp'
+
 try:
-    os.remove(path + 'test_0.inp')
+    os.remove(path + input_file)
 except FileNotFoundError:
     print('New file.')
 
-outfile = open(path + 'test_0.inp', 'w')
+outfile = open(path + input_file, 'w')
 
 for lines in template:
     if '** Import Bone' in lines:

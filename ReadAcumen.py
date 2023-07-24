@@ -257,7 +257,7 @@ for x in range(x0, x1):
         # elif i == 25:  # HERE exclude sample
         #     plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
         del RFy_
-# axs.plot(F_range, F_range, 'k', label='1:1')
+axs.plot(F_range, F_range, 'k', label='1:1')
 if loglog:
     axs.set_xlabel('log$_{10}$(Experiment / N)')
     axs.set_ylabel('log$_{10}$(FE / N)')
