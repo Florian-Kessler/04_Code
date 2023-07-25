@@ -181,7 +181,7 @@ def lin_reg(X, Y):
 
 # %% Linear regression
 
-plt.close('all')
+# plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]
 # Titanium, without 1 (diff ampl)
@@ -207,7 +207,7 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 0
+loglog = 1
 alp = 0.3
 if loglog:
     F_range = np.array([0, 2.6])
@@ -215,12 +215,13 @@ else:
     F_range = np.array([-10, 450])
 plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
+friction = '0.5'
 for x in range(x0, x1):
     for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))
         RFy_exp_all[x, i] = Peak_exp(x, i)
         try:
-            [_, RFy_, _, _, _] = read_FE_(i, model, 0, '0.5')
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0, friction)
         except FileNotFoundError:
             continue
         try:
@@ -233,8 +234,6 @@ for x in range(x0, x1):
                 RFy_FE[x, i] = RFy_[x * 21 + 10]
         except IndexError:
             continue
-        # print('Specimen: ' + str(i) + ', amplitude: ' + str(x) + ', Force FE: ' + str(RFy_FE))
-
         if loglog:
             if Peak_exp(x, i) < 1:
                 RFy_exp[x, i] = 1
@@ -264,7 +263,8 @@ if loglog:
 else:
     axs.set_xlabel('Experiment / N')
     axs.set_ylabel('FE / N')
-axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
+axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes, $\mu$ = ' +
+              friction)
 axs.set_aspect('equal')
 axs.set_xlim(F_range)
 axs.set_ylim(F_range)
@@ -426,11 +426,140 @@ for x in range(x0, 1):  # x1):
             # print('no File')
             continue
         # try:
-            # Uy_res = UY[x * 21 + 19]
+        # Uy_res = UY[x * 21 + 19]
         # except IndexError:
-            # print('no Datapoints')
-            # continue
+        # print('no Datapoints')
+        # continue
         axs8.plot(UY, Fy)
         axs8.plot([-20, 2], [0, 0], 'k--')
         # axs8.scatter(resExp, resFE)
         # print(resFE)
+
+# %% Linear regression incl friction
+
+# plt.close('all')
+# PEEK, without 0 (diff ampl), 24 (Exp. weird)
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]
+# Titanium, without 1 (diff ampl)
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
+
+x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
+lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
+x0 = 0
+x1 = 7  # max 7
+model = '82_L50_S50_D45_d1_05_P'  # automatically switches to titanium for respective samples
+
+# peak_FE
+RFy_FE = np.zeros((x1, 34))
+RFy_exp = np.zeros((x1, 34))
+# col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
+col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+fig, axs = plt.subplots(1, 1)
+fig.set_figheight(7)
+fig.set_figwidth(7)
+RFy_FE_P = []
+RFy_FE_T = []
+RFy_exp_P = []
+RFy_exp_T = []
+
+RFy_exp_all = np.zeros((x1, 34))
+loglog = 0
+alp = 0.3
+if loglog:
+    F_range = np.array([0, 2.6])
+else:
+    F_range = np.array([-10, 450])
+plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK, $\mu$ = 0.2')
+plt.scatter(-1e9, -1e9, color='k', marker='^', label='PEEK, $\mu$ = 0.5')
+plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium, $\mu$ = 0.2')
+plt.scatter(-1e9, -1e9, color='k', marker='o', label='Titanium, $\mu$ = 0.5')
+mark = ['v', 's', '^', 'o']
+friction = ['0.2', '0.5']
+# friction = ['0.5']
+for fric in range(len(friction)):
+    for x in range(x0, x1):
+        for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
+            # print('x: ' + str(x) + ' , i: ' + str(i))
+            RFy_exp_all[x, i] = Peak_exp(x, i)
+            try:
+                [_, RFy_, _, _, _] = read_FE_(i, model, 0, friction[fric])
+            except FileNotFoundError:
+                continue
+            try:
+                if loglog:
+                    if RFy_[x * 21 + 10] < 1:
+                        RFy_FE[x, i] = 1
+                    else:
+                        RFy_FE[x, i] = np.log10(RFy_[x * 21 + 10])
+                else:
+                    RFy_FE[x, i] = RFy_[x * 21 + 10]
+            except IndexError:
+                continue
+            # print('Specimen: ' + str(i) + ', amplitude: ' + str(x) + ', Force FE: ' + str(RFy_FE))
+            print(mark[2 * fric])
+            print(mark[2 * fric + 1])
+            if loglog:
+                if Peak_exp(x, i) < 1:
+                    RFy_exp[x, i] = 1
+                else:
+                    RFy_exp[x, i] = np.log10(Peak_exp(x, i))
+            else:
+                RFy_exp[x, i] = Peak_exp(x, i)
+            if i == 8:
+                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label=lab[x], marker=mark[2 * fric])
+            if i in peek_samples:  # P
+                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker=mark[2 * fric])
+                RFy_FE_P.append(RFy_FE[x, i])
+                RFy_exp_P.append(RFy_exp[x, i])
+            elif i in ti_samples:
+                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker=mark[2 * fric + 1])
+                RFy_FE_T.append(RFy_FE[x, i])
+                RFy_exp_T.append(RFy_exp[x, i])
+            elif i == 24:  # HERE exclude sample
+                plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker=mark[2 * fric],
+                            alpha=alp)
+            # elif i == 25:  # HERE exclude sample
+            #     plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
+            del RFy_
+axs.plot(F_range, F_range, 'k', label='1:1')
+if loglog:
+    axs.set_xlabel('log$_{10}$(Experiment / N)')
+    axs.set_ylabel('log$_{10}$(FE / N)')
+else:
+    axs.set_xlabel('Experiment / N')
+    axs.set_ylabel('FE / N')
+axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
+axs.set_aspect('equal')
+axs.set_xlim(F_range)
+axs.set_ylim(F_range)
+
+specimen_names = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
+pd.DataFrame(RFy_FE).to_csv('/home/biomech/Downloads/corr.csv', index_label='Amplitude',
+                            header=specimen_names)
+# ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm', ])
+pd.DataFrame(RFy_exp_all).to_csv('/home/biomech/Downloads/corr2.csv', index_label='Amplitude',
+                                 header=specimen_names)
+print('done1')
+regression_P, xx_P, yy_P = lin_reg(np.array(RFy_exp_P), np.array(RFy_FE_P))
+axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label='PEEK:')
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashdot',
+         label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)))
+axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P + '\n')
+
+regression_T, xx_T, yy_T = lin_reg(np.array(RFy_exp_T), np.array(RFy_FE_T))
+axs.plot(F_range, F_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+         label='Titanium:')
+if regression_T.pvalues[1] >= 0.05:
+    lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
+else:
+    lab_pvalue_T = 'p < 0.05'
+axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashed',
+         label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+
+plt.legend(framealpha=1)
