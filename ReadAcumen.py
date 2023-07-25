@@ -386,21 +386,21 @@ for x in range(x0, x1):
         except IndexError:
             continue
         if i == 8 and x == 0:
-            axs7.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='FE PEEK 0.5')
-            axs7.scatter(x - 0.05, RFy_FE2, color='k', marker='v', label='FE PEEK 0.2')
+            axs7.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='FE PEEK $\mu$ = 0.5')
+            axs7.scatter(x - 0.0, RFy_FE2, color='k', marker='v', label='FE PEEK $\mu$ = 0.2')
         elif i == 9 and x == 0:
-            axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='FE Ti 0.5')
-            axs7.scatter(x + 0.35, RFy_FE2, color='k', marker='s', label='FE Ti 0.2')
+            axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='FE Ti $\mu$ = 0.5')
+            axs7.scatter(x + 0.4, RFy_FE2, color='k', marker='s', label='FE Ti $\mu$ = 0.2')
         elif i == 25:
             axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', alpha=alp, label='_nolegend_')
-            axs7.scatter(x + 0.35, RFy_FE2, color='k', marker='s', alpha=alp, label='_nolegend_')
+            axs7.scatter(x + 0.4, RFy_FE2, color='k', marker='s', alpha=alp, label='_nolegend_')
         else:
             if i in peek_samples:  # P
                 axs7.scatter(x - 0.1, RFy_FE, color='b', marker='v', label='_nolegend_')
-                axs7.scatter(x - 0.05, RFy_FE2, color='k', marker='v', label='_nolegend_')
+                axs7.scatter(x - 0.0, RFy_FE2, color='k', marker='v', label='_nolegend_')
             elif i in ti_samples:
                 axs7.scatter(x + 0.3, RFy_FE, color='b', marker='s', label='_nolegend_')
-                axs7.scatter(x + 0.35, RFy_FE2, color='k', marker='s', label='_nolegend_')
+                axs7.scatter(x + 0.4, RFy_FE2, color='k', marker='s', label='_nolegend_')
     plt.plot([-0.5, -0.5], [0, 400], 'k--')
     plt.plot([x + 0.5, x + 0.5], [0, 400], 'k--')
 
