@@ -119,28 +119,30 @@ plt.close('all')
 mue = ['07', '05', '03', '02', '01', '00']
 
 # # # # # INPUT # # # # #
-loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/'
-specimen = '05_Pilot5'
+loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
+specimen = 'S131318_L1_left'
 number = ['75']  # simulations
 
 
-fig1, figP = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('PEEK (YM = 15 GPa)')
-fig2, figT = plt.subplots(1, 1, figsize=(9, 6))
-plt.title('Ti (YM = 100 GPa)')
+fig1, axs1 = plt.subplots(1, 1, figsize=(9, 6))
+plt.title(specimen)
+
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 
 # # # # # Experiments # # # # #
-no = specimen.split('_')[0]
-folder = [filename for filename in os.listdir(loc) if filename.startswith(no)][0] + '/'
-sampleIco = ([filename for filename in os.listdir(loc + folder)
-              if 'resample' in filename and 'icotec' in filename and 'kwire' not in filename] or [None])[0]
-sampleKwi = ([filename for filename in os.listdir(loc + folder)
-              if 'resample' in filename and 'icotec' in filename and 'kwire' in filename] or [None])[0]
-sampleDPS = ([filename for filename in os.listdir(loc + folder)
-              if 'resample' in filename and 'DPS' in filename] or [None])[0]
 
-samples = sampleIco, sampleKwi, sampleDPS
+sample = loc + specimen + '_resample.csv'
+[ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
+AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
+peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
+valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
+axs1.plot(-np.array(ArY), -AcFy_smooth,
+          color=col[0])#, alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[0])
+
+
+
+#%%
+
 
 style = ['solid', 'dashed', 'dashed']
 
