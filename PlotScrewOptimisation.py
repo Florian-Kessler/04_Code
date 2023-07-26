@@ -16,11 +16,11 @@ labels = ['Original', 'Original filled', 'Simple filled', 'Simple cannulated']
 c = ['r', 'g', 'b', 'k']
 fig1, ax1 = plt.subplots()
 fig2, ax2 = plt.subplots()
-for i in [3, 7]:
-    uy = read_RFnodeFile('/home/biomech/Documents/01_Icotec/02_FEA/00_Model/94_screw_Osteoporosis_new_RFnode'
-                         + str(i) + '.txt')
-    if i == 3:
-        sam = [0, 2]
+for i in [10]:
+    uy = read_RFnodeFile('/home/biomech/Documents/01_Icotec/02_FEA/00_Model/95_screw_DPS_RFnode'
+                         + str(i) + '.txt')/4
+    if i == 10:
+        sam = [0, 2, 3]
     else:
         sam = [3]
     for samples in sam:
@@ -47,6 +47,11 @@ for i in [3, 7]:
                      np.append(uy[samples * 4:samples * 4 + 4], 1) / -np.append(uy[0:4], 1) * 100 + 100,
                      label='_nolegend_', ls='dashdot', marker='o', color=c[samples])
         elif i == 7:
+            ax1.plot([4, 3, 2, 1, 0], np.append(uy[samples * 4:samples * 4 + 4], 0),
+                     label=labels[samples], ls='--', marker='o', color=c[samples])
+            ax2.plot([4, 3, 2, 1, 0], np.append(uy[samples * 4:samples * 4 + 4], 1) / -np.append(uy[0:4], 1)*100+100,
+                     label=labels[samples], ls='--', marker='o', color=c[samples])
+        elif i == 10:
             ax1.plot([4, 3, 2, 1, 0], np.append(uy[samples * 4:samples * 4 + 4], 0),
                      label=labels[samples], ls='--', marker='o', color=c[samples])
             ax2.plot([4, 3, 2, 1, 0], np.append(uy[samples * 4:samples * 4 + 4], 1) / -np.append(uy[0:4], 1)*100+100,

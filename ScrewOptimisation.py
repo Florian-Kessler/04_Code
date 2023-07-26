@@ -26,7 +26,7 @@ def main(ODBn):
         return input
 
     ODBname = ODBn + '.odb'
-    OUTname = ODBn + '_RFnode7.txt'
+    OUTname = ODBn + '_RFnode0.txt'
     OUTname2 = ODBn
     OUTname3 = ODBn + '_BDI.txt'
     try:
@@ -40,6 +40,9 @@ def main(ODBn):
                  'SET-RP2', 'SET-RP21', 'SET-RP22', 'SET-RP23',
                  'SET-RP3', 'SET-RP31', 'SET-RP32', 'SET-RP33',
                  'SET-RP4', 'SET-RP41', 'SET-RP42', 'SET-RP43']
+    nsetName2 = ['M_SET-1', 'M_SET-11', 'M_SET-12', 'M_SET-13', 'M_SET-14',
+                 'M_SET-2', 'M_SET-21', 'M_SET-22', 'M_SET-23', 'M_SET-24',
+                 'M_SET-3', 'M_SET-31', 'M_SET-32', 'M_SET-33', 'M_SET-34']
     opFile = OUTname
 
     if os.path.isfile(opFile):  # Append to file if it already exists
@@ -99,4 +102,4 @@ def main(ODBn):
     opFileU.close()
     print('Done.')
 if __name__ == '__main__':
-    main('94_screw_Osteoporosis_new')
+    main('95_screw_DPS')
