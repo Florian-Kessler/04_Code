@@ -65,7 +65,7 @@ def mapping(sample, mod, fric_):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 1
+    write_output = 0
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -155,4 +155,4 @@ for i in range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
     mapping(sample_list[i], 24, 0.5)  # samples, model, friction
 
 # 88 0.5 done
-# 87 0.5 done
+# 87* 0.5 done (only first 3 steps = first 2 amplitudes i.e. 0.25, 0.5 mm)
