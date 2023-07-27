@@ -137,7 +137,7 @@ AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
 peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
 valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
 axs1.plot(-np.array(ArY), -AcFy_smooth,
-          color=col[0])#, alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[0])
+          color=col[0])  # , alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[0])
 
 
 
