@@ -116,11 +116,11 @@ def smooth(y_, box_pts):
 
 t1 = time.time()
 plt.close('all')
-mue = ['07', '05', '03', '02', '01', '00']
+# mue = ['07', '05', '03', '02', '01', '00']
 
 # # # # # INPUT # # # # #
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
-specimen = 'S131318_L1_left'
+specimen = 'S131318_L4_right'
 number = ['75']  # simulations
 
 
@@ -133,13 +133,23 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 
 sample = loc + specimen + '_resample.csv'
 [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
-AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
-peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
-valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
-axs1.plot(-np.array(ArY), -AcFy_smooth,
-          color=col[0])  # , alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[0])
-
-
+AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 2)
+ArY_smooth = smooth(np.array(ArY).reshape(len(ArY),), 2)
+AcY_smooth = smooth(np.array(AcY).reshape(len(AcY),), 1)
+peaks = np.array(scipy.signal.argrelextrema(AcY_smooth, np.less))[0]
+valls = np.array(scipy.signal.argrelextrema(AcY_smooth, np.greater))[0]
+#axs1.plot(np.array(ArY_smooth), AcFy_smooth, color=col[0])  # , alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[0])
+#axs1.scatter(np.array(ArY_smooth)[valls], np.array(AcFy_smooth)[valls], color='r')
+#axs1.scatter(np.array(ArY_smooth)[peaks], np.array(AcFy_smooth)[peaks], color='r')
+#axs1.plot(ArY_smooth, color=col[0])
+#axs1.plot(AcY, color=col[1])
+axs1.plot(AcY[:valls[1]], AcFy_smooth[:valls[1]], color=col[0])
+axs1.scatter(AcY_smooth[valls[:2]], AcFy_smooth[valls[:2]], color=col[1])
+axs1.scatter(AcY_smooth[peaks[:2]], AcFy_smooth[peaks[:2]], color=col[2])
+#axs1.scatter(AcY_smooth[peaks[1]], AcFy_smooth[peaks[1]], color=col[2])
+s = [peaks[1], int((valls[1]+peaks[1])/2)]
+axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
+axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
 
 #%%
 
