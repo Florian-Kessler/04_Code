@@ -155,4 +155,4 @@ for i in range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
     mapping(sample_list[i], 24, 0.2)  # samples, model, friction
 
 # 88 0.5 done
-# 87* 0.5 done (only first 3 steps = first 2 amplitudes i.e. 0.25, 0.5 mm)
+# 87* 0.2/0.5 done (only first 3 steps = first 2 amplitudes i.e. 0.25, 0.5 mm)

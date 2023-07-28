@@ -22,7 +22,7 @@ def copy(spec, mod, doc, dir):
 
 
 specimen = np.arange(0, 34)
-document = '*T.sh'
+document = '*T.inp'
 direction = 'to'  # from local TO REMOTE or FROM REMOTE to local
 model = '87_L50_S50_D45'
 
