@@ -22,8 +22,8 @@ def copy(spec, mod, doc, dir):
 
 
 specimen = np.arange(0, 34)
-document = '*T*.txt'
-direction = 'from'  # from local TO REMOTE or FROM REMOTE to local
+document = '*.sh'
+direction = 'to'  # from local TO REMOTE or FROM REMOTE to local
 model = '87_L50_S50_D45'
 
 # peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]

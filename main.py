@@ -63,7 +63,7 @@ def mapping(sample, mod, fric_):
     # -> Other parameters as e-mail, runtime, memory etc. can be changed in the template file
     Input['Submit'] = 'ubelix'
     mappNR.write_submit(Input)
-
+    '''
     # Write output images? segmented image and mask, for visual check
     write_output = 0
 
@@ -145,7 +145,7 @@ def mapping(sample, mod, fric_):
             print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
         else:
             print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-
+    '''
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
