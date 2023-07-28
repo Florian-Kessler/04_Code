@@ -127,12 +127,11 @@ number = ['75']  # simulations
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
 slope = np.zeros(34)
-cycle = 3
+cycle = 1
+plots = 1
 
 for i in [4]:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
-    fig1, axs1 = plt.subplots(1, 1, figsize=(9, 6))
-    plt.title(specimen)
 
     # # # # # Experiments # # # # #
 
@@ -145,19 +144,21 @@ for i in [4]:  # range(2, 34):
     AcY_smooth = smooth(np.array(AcY).reshape(len(AcY),), 4)
     peaks = np.array(scipy.signal.argrelextrema(AcY_smooth, np.less))[0]
     valls = np.array(scipy.signal.argrelextrema(AcY_smooth, np.greater))[0]
-    # axs1.plot(np.array(ArY_smooth), AcFy_smooth, color=col[0])
-    # axs1.scatter(np.array(ArY_smooth)[valls], np.array(AcFy_smooth)[valls], color='r')
-    # axs1.scatter(np.array(ArY_smooth)[peaks], np.array(AcFy_smooth)[peaks], color='r')
-    # axs1.plot(ArY_smooth, color=col[0])
-    # axs1.plot(AcY, color=col[1])
-    axs1.plot(AcY[:valls[2]], AcFy_smooth[:valls[2]], color=col[0])
-    axs1.scatter(AcY_smooth[valls[:3]], AcFy_smooth[valls[:3]], color=col[1])
-    axs1.scatter(AcY_smooth[peaks[:3]], AcFy_smooth[peaks[:3]], color=col[2])
-    #axs1.scatter(AcY_smooth[peaks[cycle-1]], AcFy_smooth[peaks[cycle-1]], color=col[2])
-    s = [peaks[cycle-1], int((valls[cycle-1]+peaks[cycle-1])/2)]
-
-    axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
-    axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
+    s = [peaks[cycle - 1], int((valls[cycle - 1] + peaks[cycle - 1]) / 2)]
+    if plots:
+        # axs1.plot(np.array(ArY_smooth), AcFy_smooth, color=col[0])
+        # axs1.scatter(np.array(ArY_smooth)[valls], np.array(AcFy_smooth)[valls], color='r')
+        # axs1.scatter(np.array(ArY_smooth)[peaks], np.array(AcFy_smooth)[peaks], color='r')
+        # axs1.plot(ArY_smooth, color=col[0])
+        # axs1.plot(AcY, color=col[1])
+        fig1, axs1 = plt.subplots(1, 1, figsize=(9, 6))
+        plt.title(specimen)
+        axs1.plot(AcY[:valls[2]], AcFy_smooth[:valls[2]], color=col[0])
+        axs1.scatter(AcY_smooth[valls[:3]], AcFy_smooth[valls[:3]], color=col[1])
+        axs1.scatter(AcY_smooth[peaks[:3]], AcFy_smooth[peaks[:3]], color=col[2])
+        #axs1.scatter(AcY_smooth[peaks[cycle-1]], AcFy_smooth[peaks[cycle-1]], color=col[2])
+        axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
+        axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
     print(str(slope[i]) + ' N/mm')
 #plt.figure()
