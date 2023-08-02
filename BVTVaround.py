@@ -10,10 +10,12 @@ from ConcaveHull import ConcaveHull
 from PIL import Image, ImageDraw
 from skimage import morphology
 
-def BoneEnvelope(img, tolerance=3, plot=False, path='', name=''):
+
+def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
     '''
     Creates the concave mask from the envelope of a porouse structure. The input image needs to be binray
     :param img: 2d numpy array binary (segmented)
+    :param res_: resolution of image in mm
     :param tolerance: tolernce for creating the concave envelope
                     (see also: https://gist.github.com/AndreLester/589ea1eddd3a28d00f3d7e47bd9f28fb)
     :param plot: Ture --> generates controle plots of the generated mask
@@ -23,7 +25,7 @@ def BoneEnvelope(img, tolerance=3, plot=False, path='', name=''):
     '''
 
     # get the ponits of segmented area
-    coordinates = np.array(np.where(img == 1)).T * 0.0245
+    coordinates = np.array(np.where(img == 1)).T * res_
 
     # concave hull with ConcaveHull.py
     ch = ConcaveHull()
@@ -36,14 +38,13 @@ def BoneEnvelope(img, tolerance=3, plot=False, path='', name=''):
     # plt.show()
 
     # transforming the points back into the 2d array
-    positionX = boundary_points[:,1] / 0.0245
-    positionY = boundary_points[:,0] / 0.0245
+    positionX = boundary_points[:, 1] / res_
+    positionY = boundary_points[:, 0] / res_
     # # Control plot of selected points of the concave hull for the mask
     # plt.imshow(img)
     # plt.plot(positionX, positionY, '-r')
     # plt.imshow(img)
     # plt.show()
-
 
     # create mask form selected points forming a concave object
     polygon_coords = [(x, y) for x, y in zip(positionX, positionY)]
@@ -54,7 +55,7 @@ def BoneEnvelope(img, tolerance=3, plot=False, path='', name=''):
     ImageDraw.Draw(img_).polygon(polygon_coords, outline=1, fill=1)
     mask = np.array(img_, dtype=float)
     # crate control plot of the masked region
-    if plot==True:
+    if plot == True:
         plt.imshow(mask + img)
         # plt.show()
         plt.savefig(path + name + 'ROIimpPosition.png', bbox_inches='tight')
@@ -62,13 +63,14 @@ def BoneEnvelope(img, tolerance=3, plot=False, path='', name=''):
 
     return mask
 
-def BoneMask(array_3dC, tolerance, islandSize=80):
-    '''
+
+def BoneMask(array_3dC, reso, tolerance, islandSize=80):
+    """
     Generates a 3d array with by sampling trough ech slice and creates an envelope of the bone. The result is a 3D mask
     the bone's outer surface as boundary.
     :param array_3dC: segmented 3d array
     :return: 3d array with bone mask
-    '''
+    """
     # create bone mask
     # create empty 3d array for the bone mask
     mask_3d = np.zeros_like(array_3dC)
@@ -80,7 +82,7 @@ def BoneMask(array_3dC, tolerance, islandSize=80):
         slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
         slice_ = slice_ * 1
         if np.sum(slice_) >= 10:
-            mask_3d[:, i, :] = BoneEnvelope(slice_, tolerance)
+            mask_3d[:, i, :] = BoneEnvelope(slice_, reso, tolerance)
             # plt.imshow(mask_3d[:, i, :] + slice_)
             # plt.show()
     return mask_3d
@@ -129,29 +131,30 @@ def eval_bvtv(sample, radius):
     bone_bvtv = rR.zeros_and_ones(bone_img, 320)
     check_image = rR.zeros_and_ones(bone_img, 320)
     res = max(np.array(bone_grey.GetSpacing()))
-    ori = abs((np.array(bone_grey.GetOrigin())/res).astype(int))
+    ori = abs((np.array(bone_grey.GetOrigin()) / res).astype(int))
 
     # Area to evaluate
     r_mm = radius  # radius in mm
     r = int(np.rint(r_mm / res))
     length = np.rint(np.array([-45, 0]) / res).astype(int)
-    drill = int(1.4/res)  # radius drill
+    drill = int(1.4 / res)  # radius drill
 
     b = 0
     o = 0
     for z in range(min(length), max(length)):
         for y in range(-r, r):
             for x in range(-r, r):
-                if r**2 >= x**2 + y**2 > drill**2:
-                    check_image[x+ori[0], y+ori[1], z+ori[2]] = check_image[x+ori[0], y+ori[1], z+ori[2]] + 2
-                    if bone_bvtv[x+ori[0], y+ori[1], z+ori[2]] == 1:
-                        b = b+1
-                    elif bone_bvtv[x+ori[0], y+ori[1], z+ori[2]] == 0:
-                        o = o+1
+                if r ** 2 >= x ** 2 + y ** 2 > drill ** 2:
+                    check_image[x + ori[0], y + ori[1], z + ori[2]] = check_image[
+                                                                          x + ori[0], y + ori[1], z + ori[2]] + 2
+                    if bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 1:
+                        b = b + 1
+                    elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 0:
+                        o = o + 1
                     else:
                         print('**ERROR**')
 
-    bvtv = round(b/(b+o), 3)
+    bvtv = round(b / (b + o), 3)
     if check:
         print('BV/BV: ' + str(bvtv))
         plt.figure()
@@ -200,18 +203,33 @@ def findPeaks(number_, co, plot_):
         plt.close('all')
         plt.figure()
         plt.plot(peakdata, data_filtered['a_f'])
-        #plt.plot(data_filtered['a_y'], data_filtered['a_f'])
+        # plt.plot(data_filtered['a_y'], data_filtered['a_f'])
         plt.figure()
         plt.plot(data_filtered['a_f'], label='force')
         plt.plot(data_filtered['A_y'], label='disp')
         plt.scatter(extAy, data_filtered['A_y'][extAy], label='disp_ext_peaks')
         plt.scatter(extAy, data_filtered['a_f'][extAy], label='f_peaks')
         plt.legend()
-    return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy]-data['a_f'][0]
+    return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy] - data['a_f'][0]
 
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
+for i in [5]:
+    sample_code_ = sample_list[i]
+    path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
+    path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
+    file_bone_ = [filename for filename in os.listdir(path_ct_ + '/') if filename.endswith('image_corr.mhd')
+                  and str(sample_code_) in filename][0]
+    file_ = path_ct_ + file_bone_
+
+    bone_grey_ = sitk.ReadImage(file_)
+    resolution = bone_grey_.GetSpacing()[1]
+    bone_img_ = np.transpose(sitk.GetArrayFromImage(bone_grey_), [2, 1, 0])
+    bone_bvtv_ = rR.zeros_and_ones(bone_img_, 320)
+    mask = BoneMask(bone_bvtv_, resolution, 2)
+
+# %%
 # try:
 #     os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
 #     print('Existing file has been deleted. Creating new file')
@@ -255,8 +273,7 @@ elif tRunT >= 60:
 else:
     print('Execution time (total): ' + str(round(tRunT, 1)) + ' sec.')
 
-
-#%%
+# %%
 # Peaks Experiment
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 peaks_A = np.zeros((34, 7))
@@ -285,7 +302,7 @@ for i in range(len(sample_list)):
         f.write(F_str + '\n')
     f.close()
 
-#%%
+# %%
 # Plots to BVTV
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
@@ -294,13 +311,11 @@ n = np.zeros((1, 34))
 f = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_5s_corr.txt', 'r').read().splitlines()
 n = np.array(f).astype(float)
 
-
 fA = pd.read_csv('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Ax.txt', sep=' ')
 A2 = np.array(fA)
 
 fF = pd.read_csv('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_Fx.txt', sep=' ')
 F2 = np.array(fF)
-
 
 peak = 5  # 0...6
 plt.close('all')
@@ -314,7 +329,7 @@ for i in range(34):
 plt.figure()
 for i in range(34):
     if not np.mod(i, 2):  # uneven
-        diff = (n[i] - n[i+1])*2/(n[i]+n[i+1])
+        diff = (n[i] - n[i + 1]) * 2 / (n[i] + n[i + 1])
         if i in [0, 1]:
             plt.scatter(i, diff, color='#1f77b4', label='S130684')
         elif i in [2]:
