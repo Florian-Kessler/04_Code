@@ -64,7 +64,7 @@ def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
     return mask
 
 
-def BoneMask(array_3dC, reso, tolerance, islandSize=80):
+def BoneMask(array_3dC, reso, axis, tolerance, islandSize=2):
     """
     Generates a 3d array with by sampling trough ech slice and creates an envelope of the bone. The result is a 3D mask
     the bone's outer surface as boundary.
@@ -77,14 +77,15 @@ def BoneMask(array_3dC, reso, tolerance, islandSize=80):
 
     for i in range(array_3dC.shape[1]):
         # get a slice of with bone
-        slice_ = array_3dC[:, i, :]
-        # clean image form noise --> delete islands smaller then 10 pixels
-        slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
-        slice_ = slice_ * 1
-        if np.sum(slice_) >= 10:
-            mask_3d[:, i, :] = BoneEnvelope(slice_, reso, tolerance)
-            # plt.imshow(mask_3d[:, i, :] + slice_)
-            # plt.show()
+        if axis == 1:
+            slice_ = array_3dC[:, i, :]
+            # clean image form noise --> delete islands smaller then 10 pixels
+            slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
+            slice_ = slice_ * 1
+            if np.sum(slice_) >= 10:
+                mask_3d[:, i, :] = BoneEnvelope(slice_, reso, tolerance)
+                # plt.imshow(mask_3d[:, i, :] + slice_)
+                # plt.show()
     return mask_3d
 
 
@@ -212,7 +213,7 @@ def findPeaks(number_, co, plot_):
         plt.legend()
     return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy] - data['a_f'][0]
 
-
+t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
 for i in [5]:
@@ -227,8 +228,22 @@ for i in [5]:
     resolution = bone_grey_.GetSpacing()[1]
     bone_img_ = np.transpose(sitk.GetArrayFromImage(bone_grey_), [2, 1, 0])
     bone_bvtv_ = rR.zeros_and_ones(bone_img_, 320)
-    mask = BoneMask(bone_bvtv_, resolution, 2)
+    mask_x = BoneMask(bone_bvtv_, resolution, 0, 2)
+    mask_y = BoneMask(bone_bvtv_, resolution, 1, 2)
+    mask_z = BoneMask(bone_bvtv_, resolution, 2, 2)
+tRun = time.time() - t0
+if tRun >= 3600:
+    print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
+          str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+elif tRun >= 60:
+    print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+else:
+    print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
 
+#%%
+plt.figure()
+s = 350
+plt.imshow(mask_y[:, s, :] + bone_bvtv_[:, s, :])
 # %%
 # try:
 #     os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
