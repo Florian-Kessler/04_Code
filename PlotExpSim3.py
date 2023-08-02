@@ -161,24 +161,29 @@ for i in ti_samples:  # range(2, 34):
         axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
         axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
-    print('Exp.: ' + str(slope[i]) + ' N/mm')
-    fric = '02'
+    print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
+    fric = '05'
     sample = sample.split('_resample')[0].split('/')[-1]
-    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
+    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
+                '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
     [uy, rf_] = read_RFnodeFile(file_path)
     [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-    plt.figure()
-    plt.plot(uy, -rfy)
-    plt.scatter([uy[-11], uy[-6]], [-rfy[-11], -rfy[-6]])
+    if plots:
+        plt.figure()
+        plt.plot(uy, -rfy)
+        plt.scatter([uy[-11], uy[-6]], [-rfy[-11], -rfy[-6]])
     if len(uy) == 42:
         slopeFE[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
     else:
         print('Not completed.')
-    print('FE: ' + str(slopeFE[i]) + ' N/mm')
+    print('FE:   ' + str(np.round(slopeFE[i], 1)) + ' N/mm\n')
 plt.figure()
 #plt.plot(slope[peek_samples])
 plt.plot(slope[ti_samples])
 plt.plot(slopeFE[ti_samples])
+plt.figure()
+plt.scatter(slope[ti_samples], slopeFE[ti_samples])
+plt.plot([0, 100], [0, 100], 'k')
 
 
 #plt.figure()
@@ -276,6 +281,7 @@ elif tRun >= 60:
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.')'''
 #%%
+'''
 fric = '02'
 sample = sample.split('_resample')[0].split('/')[-1]
 file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
@@ -286,3 +292,4 @@ plt.plot(uy, -rfy)
 plt.plot(uy[-11:-5], -rfy[-11:-5])
 slopeFE = -(rfy[-11]-rfy[-6])/(uy[-11]-uy[-6])
 print(slopeFE)
+'''
