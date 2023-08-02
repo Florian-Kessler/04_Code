@@ -1,13 +1,89 @@
-# import mapping_noRot as mappNR
 import numpy as np
 import matplotlib.pyplot as plt
-# import matplotlib.cm as cm
 import SimpleITK as sitk
 import time
 import os
 import ReadRawMHD as rR
 import pandas as pd
 from scipy.signal import butter, filtfilt, find_peaks
+from ConcaveHull import ConcaveHull
+from PIL import Image, ImageDraw
+from skimage import morphology
+
+def BoneEnvelope(img, tolerance=3, plot=False, path='', name=''):
+    '''
+    Creates the concave mask from the envelope of a porouse structure. The input image needs to be binray
+    :param img: 2d numpy array binary (segmented)
+    :param tolerance: tolernce for creating the concave envelope
+                    (see also: https://gist.github.com/AndreLester/589ea1eddd3a28d00f3d7e47bd9f28fb)
+    :param plot: Ture --> generates controle plots of the generated mask
+    :param path: path for control plot, by default the plot will be stored in the project folder
+    :param name: name of the image
+    :return: binary mask --> 2d array
+    '''
+
+    # get the ponits of segmented area
+    coordinates = np.array(np.where(img == 1)).T * 0.0245
+
+    # concave hull with ConcaveHull.py
+    ch = ConcaveHull()
+    ch.loadpoints(coordinates)
+    ch.calculatehull(tol=tolerance)
+    boundary_points = np.vstack(ch.boundary.exterior.coords.xy).T
+    # # control plot of the point cloud generated form segmented image
+    # plt.plot(coordinates[:, 0], coordinates[:, 1], 'o')
+    # plt.plot(boundary_points[:, 0], boundary_points[:, 1], 'x--', color='r')
+    # plt.show()
+
+    # transforming the points back into the 2d array
+    positionX = boundary_points[:,1] / 0.0245
+    positionY = boundary_points[:,0] / 0.0245
+    # # Control plot of selected points of the concave hull for the mask
+    # plt.imshow(img)
+    # plt.plot(positionX, positionY, '-r')
+    # plt.imshow(img)
+    # plt.show()
+
+
+    # create mask form selected points forming a concave object
+    polygon_coords = [(x, y) for x, y in zip(positionX, positionY)]
+    im = np.zeros(img.shape).T
+
+    # Create mask from coordinates
+    img_ = Image.new('L', im.shape, 0)
+    ImageDraw.Draw(img_).polygon(polygon_coords, outline=1, fill=1)
+    mask = np.array(img_, dtype=float)
+    # crate control plot of the masked region
+    if plot==True:
+        plt.imshow(mask + img)
+        # plt.show()
+        plt.savefig(path + name + 'ROIimpPosition.png', bbox_inches='tight')
+        plt.close()
+
+    return mask
+
+def BoneMask(array_3dC, tolerance, islandSize=80):
+    '''
+    Generates a 3d array with by sampling trough ech slice and creates an envelope of the bone. The result is a 3D mask
+    the bone's outer surface as boundary.
+    :param array_3dC: segmented 3d array
+    :return: 3d array with bone mask
+    '''
+    # create bone mask
+    # create empty 3d array for the bone mask
+    mask_3d = np.zeros_like(array_3dC)
+
+    for i in range(array_3dC.shape[1]):
+        # get a slice of with bone
+        slice_ = array_3dC[:, i, :]
+        # clean image form noise --> delete islands smaller then 10 pixels
+        slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
+        slice_ = slice_ * 1
+        if np.sum(slice_) >= 10:
+            mask_3d[:, i, :] = BoneEnvelope(slice_, tolerance)
+            # plt.imshow(mask_3d[:, i, :] + slice_)
+            # plt.show()
+    return mask_3d
 
 
 t0 = time.time()
