@@ -127,10 +127,11 @@ number = ['75']  # simulations
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
 slope = np.zeros(34)
-cycle = 1
-plots = 1
+slopeFE = np.zeros(34)
+cycle = 2
+plots = 0
 
-for i in [4]:  # range(2, 34):
+for i in ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
 
     # # # # # Experiments # # # # #
@@ -160,10 +161,25 @@ for i in [4]:  # range(2, 34):
         axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
         axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
-    print(str(slope[i]) + ' N/mm')
-#plt.figure()
+    print('Exp.: ' + str(slope[i]) + ' N/mm')
+    fric = '02'
+    sample = sample.split('_resample')[0].split('/')[-1]
+    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
+    [uy, rf_] = read_RFnodeFile(file_path)
+    [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+    plt.figure()
+    plt.plot(uy, -rfy)
+    plt.scatter([uy[-11], uy[-6]], [-rfy[-11], -rfy[-6]])
+    if len(uy) == 42:
+        slopeFE[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
+    else:
+        print('Not completed.')
+    print('FE: ' + str(slopeFE[i]) + ' N/mm')
+plt.figure()
 #plt.plot(slope[peek_samples])
-#plt.plot(slope[ti_samples])
+plt.plot(slope[ti_samples])
+plt.plot(slopeFE[ti_samples])
+
 
 #plt.figure()
 #plt.plot(slope[peek_samples] / slope[ti_samples])
@@ -172,8 +188,9 @@ for i in [4]:  # range(2, 34):
 #plt.scatter(slope[peek_samples], slope[ti_samples], color='k')
 #plt.xlim([0, 80])
 #plt.ylim([0, 80])
-#%%
 
+#%%
+'''
 
 style = ['solid', 'dashed', 'dashed']
 
@@ -257,4 +274,15 @@ if tRun >= 3600:
 elif tRun >= 60:
     print('Execution time: ' + str(int(tRun/60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
 else:
-    print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
+    print('Execution time: ' + str(round(tRun, 1)) + ' sec.')'''
+#%%
+fric = '02'
+sample = sample.split('_resample')[0].split('/')[-1]
+file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
+[uy, rf_] = read_RFnodeFile(file_path)
+[u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+plt.figure()
+plt.plot(uy, -rfy)
+plt.plot(uy[-11:-5], -rfy[-11:-5])
+slopeFE = -(rfy[-11]-rfy[-6])/(uy[-11]-uy[-6])
+print(slopeFE)
