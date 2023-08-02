@@ -74,10 +74,20 @@ def BoneMask(array_3dC, reso, axis, tolerance, islandSize=2):
     # create bone mask
     # create empty 3d array for the bone mask
     mask_3d = np.zeros_like(array_3dC)
-
-    for i in range(array_3dC.shape[1]):
-        # get a slice of with bone
-        if axis == 1:
+    if axis == 0:
+        for i in range(array_3dC.shape[0]):
+            # get a slice of with bone
+            slice_ = array_3dC[i, :, :]
+            # clean image form noise --> delete islands smaller then 10 pixels
+            slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
+            slice_ = slice_ * 1
+            if np.sum(slice_) >= 10:
+                mask_3d[i, :, :] = BoneEnvelope(slice_, reso, tolerance)
+                # plt.imshow(mask_3d[i, :, :] + slice_)
+                # plt.show()
+    elif axis == 1:
+        for i in range(array_3dC.shape[1]):
+            # get a slice of with bone
             slice_ = array_3dC[:, i, :]
             # clean image form noise --> delete islands smaller then 10 pixels
             slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
@@ -85,6 +95,17 @@ def BoneMask(array_3dC, reso, axis, tolerance, islandSize=2):
             if np.sum(slice_) >= 10:
                 mask_3d[:, i, :] = BoneEnvelope(slice_, reso, tolerance)
                 # plt.imshow(mask_3d[:, i, :] + slice_)
+                # plt.show()
+    elif axis == 2:
+        for i in range(array_3dC.shape[2]):
+            # get a slice of with bone
+            slice_ = array_3dC[:, :, i]
+            # clean image form noise --> delete islands smaller then 10 pixels
+            slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
+            slice_ = slice_ * 1
+            if np.sum(slice_) >= 10:
+                mask_3d[:, :, i] = BoneEnvelope(slice_, reso, tolerance)
+                # plt.imshow(mask_3d[:, :, i] + slice_)
                 # plt.show()
     return mask_3d
 
@@ -244,6 +265,10 @@ else:
 plt.figure()
 s = 350
 plt.imshow(mask_y[:, s, :] + bone_bvtv_[:, s, :])
+plt.figure()
+plt.imshow(mask_x[200, :, :] + bone_bvtv_[200, :, :])
+plt.figure()
+plt.imshow(mask_z[:, :, 500] + bone_bvtv_[:, :, 500])
 # %%
 # try:
 #     os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
