@@ -238,7 +238,7 @@ def findPeaks(number_, co, plot_):
 t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in [5]:
+for i in range(34):
     sample_code_ = sample_list[i]
     path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
@@ -261,8 +261,12 @@ elif tRun >= 60:
     print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-
+path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'
+np.save(path_bvtv + sample_code_ + '_mask_x.npy', mask_x)
+np.save(path_bvtv + sample_code_ + '_mask_y.npy', mask_y)
+np.save(path_bvtv + sample_code_ + '_mask_z.npy', mask_z)
 #%%
+'''
 plt.figure()
 s = 350
 plt.imshow(mask_y[:, s, :] + bone_bvtv_[:, s, :])
@@ -270,6 +274,24 @@ plt.figure()
 plt.imshow(mask_x[200, :, :] + bone_bvtv_[200, :, :])
 plt.figure()
 plt.imshow(mask_z[:, :, 500] + bone_bvtv_[:, :, 500])
+
+mask_add = mask_x + mask_y + mask_z
+mask_add_b = (mask_add >= 1).astype(int)
+mask_mul = mask_x * mask_y * mask_z
+plt.figure()
+plt.imshow(mask_add_b[:, s, :] + bone_bvtv_[:, s, :])
+plt.figure()
+plt.imshow(mask_add_b[200, :, :] + bone_bvtv_[200, :, :])
+plt.figure()
+plt.imshow(mask_add_b[:, :, 500] + bone_bvtv_[:, :, 500])
+plt.figure()
+plt.imshow(mask_mul[:, s, :] + bone_bvtv_[:, s, :])
+plt.figure()
+plt.imshow(mask_mul[200, :, :] + bone_bvtv_[200, :, :])
+plt.figure()
+plt.imshow(mask_mul[:, :, 500] + bone_bvtv_[:, :, 500])
+'''
+
 # %%
 # try:
 #     os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV.txt')
