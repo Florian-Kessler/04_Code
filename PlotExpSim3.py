@@ -163,6 +163,8 @@ for i in ti_samples:  # range(2, 34):
         #axs1.scatter(AcY_smooth[peaks[cycle-1]], AcFy_smooth[peaks[cycle-1]], color=col[2])
         axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
         axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
+        axs1.set_xlabel('Displacement / mm')
+        axs1.set_ylabel('Force / N')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
 
 
@@ -185,7 +187,11 @@ for i in ti_samples:  # range(2, 34):
     if plots:
         plt.figure()
         plt.plot(uy, -rfy)
-        plt.scatter([uy[-11], uy[-6]], [-rfy[-11], -rfy[-6]])
+        plt.scatter(uy[-6], -rfy[-6], color=col[1])
+        plt.scatter(uy[-11], -rfy[-11], color=col[2])
+        plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
+        plt.xlabel('Displacement / mm')
+        plt.ylabel('Force / N')
     file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
                 '/87_L50_S50_D45_d1_05_T_RFnode.txt'
     if len(open(file_path, 'r').readline()) > 0:
@@ -204,12 +210,18 @@ for i in ti_samples:  # range(2, 34):
     if plots:
         plt.figure()
         plt.plot(uy, -rfy)
-        plt.scatter([uy[-11], uy[-6]], [-rfy[-11], -rfy[-6]])
+        plt.scatter(uy[-6], -rfy[-6], color=col[1])
+        plt.scatter(uy[-11], -rfy[-11], color=col[2])
+        plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
+        plt.xlabel('Displacement / mm')
+        plt.ylabel('Force / N')
 
 
 plt.figure()
+
 plt.scatter(slope[ti_samples], slopeFE02[ti_samples], label='$\mu$ = 0.2')
-plt.scatter(slope[ti_samples], slopeFE05[ti_samples], label='$\mu$ = 0.5', alpha=0.7)
+plt.scatter(slope[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
+            slopeFE05[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]], label='$\mu$ = 0.5', alpha=0.7)
 plt.plot([0, 100], [0, 100], 'k')
 plt.xlabel('Stiffness Experiment / N/mm')
 plt.ylabel('Stiffness FE / N/mm')

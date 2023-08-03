@@ -238,11 +238,11 @@ def findPeaks(number_, co, plot_):
 t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(34):
+for i in [5]:  # range(2, 34):
     sample_code_ = sample_list[i]
     path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
-    file_bone_ = [filename for filename in os.listdir(path_ct_ + '/') if filename.endswith('image_corr.mhd')
+    file_bone_ = [filename for filename in os.listdir(path_ct_ + '/') if filename.endswith('image.mhd')
                   and str(sample_code_) in filename][0]
     file_ = path_ct_ + file_bone_
 
