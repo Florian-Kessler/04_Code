@@ -234,6 +234,7 @@ def findPeaks(number_, co, plot_):
         plt.legend()
     return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy] - data['a_f'][0]
 
+
 t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
@@ -277,7 +278,7 @@ plt.imshow(mask_z[:, :, 500] + bone_bvtv_[:, :, 500])
 #     print('Creating new file')
 
 # radius_mm = [3, 4, 5, 6]
-
+'''
 radius_mm = [5]
 
 for j in range(len(radius_mm)):
@@ -396,3 +397,4 @@ plt.ylabel('Difference in %')
 plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3],
            ['+30% right', '+20% right', '+10% right', '0%', '+10% left', '+20% left', '+30% left', ])
 plt.legend()
+'''
