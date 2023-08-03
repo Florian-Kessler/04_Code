@@ -265,6 +265,7 @@ path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'
 np.save(path_bvtv + sample_code_ + '_mask_x.npy', mask_x)
 np.save(path_bvtv + sample_code_ + '_mask_y.npy', mask_y)
 np.save(path_bvtv + sample_code_ + '_mask_z.npy', mask_z)
+
 #%%
 '''
 plt.figure()
