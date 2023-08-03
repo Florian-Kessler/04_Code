@@ -110,9 +110,6 @@ def BoneMask(array_3dC, reso, axis, tolerance, islandSize=2):
     return mask_3d
 
 
-t0 = time.time()
-
-
 def butter_lowpass_filter(data_, cutoff_, order=9):
     fs = 10  # sample rate, Hz
     nyq = 0.5 * fs
@@ -235,12 +232,38 @@ def findPeaks(number_, co, plot_):
     return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy] - data['a_f'][0]
 
 
+class IndexTracker(object):
+    def __init__(self, ax, X):
+        self.ax = ax
+        ax.set_title('use scroll wheel to navigate images')
+
+        self.X = X
+        rows, cols, self.slices = X.shape
+        self.ind = self.slices//2
+
+        self.im = ax.imshow(self.X[:, :, self.ind])
+        self.update()
+
+    def onscroll(self, event):
+        print("%s %s" % (event.button, event.step))
+        if event.button == 'up':
+            self.ind = (self.ind + 1) % self.slices
+        else:
+            self.ind = (self.ind - 1) % self.slices
+        self.update()
+
+    def update(self):
+        self.im.set_data(self.X[:, :, self.ind])
+        self.ax.set_ylabel('slice %s' % self.ind)
+        self.im.axes.figure.canvas.draw()
+
+
 t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
 path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
-
-for i in range(3, 34):
+'''
+for i in [100]:  # range(3, 34):
     sample_code_ = sample_list[i]
     path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
     file_bone_ = [filename for filename in os.listdir(path_ct_ + '/') if filename.endswith('image.mhd')
@@ -266,7 +289,32 @@ for i in range(3, 34):
         print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
     else:
         print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
+'''
+#%%
+i = 5
+sample_code_ = sample_list[i]
+maskX = np.load(path_bvtv + sample_code_ + '_mask_x.npy')
+maskY = np.load(path_bvtv + sample_code_ + '_mask_y.npy')
+maskZ = np.load(path_bvtv + sample_code_ + '_mask_z.npy')
 
+#%%
+mask_add = ((maskX + maskY + maskZ) >= 1).astype(int)
+mask_mul = maskX * maskY * maskZ
+
+#%%
+plt.figure()
+plt.imshow(mask_add[:, 150, :])
+
+#%%
+fig, ax = plt.subplots(1, 1)
+
+# X = np.random.rand(20, 20, 40)
+
+tracker = IndexTracker(ax, mask_add)
+
+
+fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
+plt.show()
 #%%
 '''
 plt.figure()
