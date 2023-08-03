@@ -199,6 +199,76 @@ def eval_bvtv(sample, radius):
     return bvtv
 
 
+def eval_bvtv_mask(sample, radius):
+    t1 = time.time()
+    check = 0
+    sample_code = sample
+    path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
+    path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
+    path_mask = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code
+    mask_X_ = np.load(path_mask + '_mask_x.npy')
+    mask_Y_ = np.load(path_mask + '_mask_y.npy')
+    mask_Z_ = np.load(path_mask + '_mask_z.npy')
+    mask = ((mask_X_ + mask_Y_ + mask_Z_) >= 1).astype(int)
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image_corr.mhd')
+                 and str(sample_code) in filename][0]
+    file = path_ct + file_bone
+
+    bone_grey = sitk.ReadImage(file)
+    bone_img = np.transpose(sitk.GetArrayFromImage(bone_grey), [2, 1, 0])
+    bone_bvtv = rR.zeros_and_ones(bone_img, 320)
+    # herehere where include mask???
+    check_image = rR.zeros_and_ones(bone_img, 320)
+    res = max(np.array(bone_grey.GetSpacing()))
+    ori = abs((np.array(bone_grey.GetOrigin()) / res).astype(int))
+
+    # Area to evaluate
+    r_mm = radius  # radius in mm
+    r = int(np.rint(r_mm / res))
+    length = np.rint(np.array([-45, 0]) / res).astype(int)
+    drill = int(1.4 / res)  # radius drill
+
+    b = 0
+    o = 0
+    for z in range(min(length), max(length)):
+        for y in range(-r, r):
+            for x in range(-r, r):
+                if r ** 2 >= x ** 2 + y ** 2 > drill ** 2:
+                    check_image[x + ori[0], y + ori[1], z + ori[2]] = check_image[
+                                                                          x + ori[0], y + ori[1], z + ori[2]] + 2
+                    if bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 1:
+                        b = b + 1
+                    elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 0:
+                        o = o + 1
+                    else:
+                        print('**ERROR**')
+
+    bvtv = round(b / (b + o), 3)
+    if check:
+        print('BV/BV: ' + str(bvtv))
+        plt.figure()
+        plt.imshow(check_image[:, :, 800])
+        plt.figure()
+        plt.imshow(check_image[:, :, 600])
+        plt.figure()
+        plt.imshow(check_image[:, :, 400])
+        plt.figure()
+        plt.imshow(check_image[:, :, 200])
+        plt.figure()
+        plt.imshow(check_image[:, ori[1], :])
+        plt.figure()
+        plt.imshow(check_image[ori[0], :, :])
+    tRun = time.time() - t1
+    if tRun >= 3600:
+        print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun, 60), 1)) + ' sec.')
+    elif tRun >= 60:
+        print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
+    else:
+        print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
+    return bvtv
+
+
 def findPeaks(number_, co, plot_):
     sample_list_ = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
     data = {}
@@ -238,10 +308,10 @@ class IndexTracker(object):
         ax.set_title('use scroll wheel to navigate images')
 
         self.X = X
-        rows, cols, self.slices = X.shape
+        rows, self.slices, cols = X.shape
         self.ind = self.slices//2
 
-        self.im = ax.imshow(self.X[:, :, self.ind])
+        self.im = ax.imshow(self.X[:, self.ind, :])
         self.update()
 
     def onscroll(self, event):
@@ -253,7 +323,7 @@ class IndexTracker(object):
         self.update()
 
     def update(self):
-        self.im.set_data(self.X[:, :, self.ind])
+        self.im.set_data(self.X[:, self.ind, :])
         self.ax.set_ylabel('slice %s' % self.ind)
         self.im.axes.figure.canvas.draw()
 
@@ -299,11 +369,12 @@ maskZ = np.load(path_bvtv + sample_code_ + '_mask_z.npy')
 
 #%%
 mask_add = ((maskX + maskY + maskZ) >= 1).astype(int)
+mask_mix = ((maskX + maskY + maskZ) >= 2).astype(int)
 mask_mul = maskX * maskY * maskZ
 
 #%%
-plt.figure()
-plt.imshow(mask_add[:, 150, :])
+radius_mm = 5
+
 
 #%%
 fig, ax = plt.subplots(1, 1)
@@ -341,6 +412,7 @@ plt.imshow(mask_mul[200, :, :] + bone_bvtv_[200, :, :])
 plt.figure()
 plt.imshow(mask_mul[:, :, 500] + bone_bvtv_[:, :, 500])
 '''
+
 
 # %%
 # try:
