@@ -237,15 +237,16 @@ def findPeaks(number_, co, plot_):
 
 t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
+path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
+path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
 
-for i in [5]:  # range(2, 34):
+for i in range(2, 34):  # done: 2, 5
     sample_code_ = sample_list[i]
-    path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
     file_bone_ = [filename for filename in os.listdir(path_ct_ + '/') if filename.endswith('image.mhd')
                   and str(sample_code_) in filename][0]
     file_ = path_ct_ + file_bone_
-
+    print('\nWorking on ' + sample_code_ + '...')
     bone_grey_ = sitk.ReadImage(file_)
     resolution = bone_grey_.GetSpacing()[1]
     bone_img_ = np.transpose(sitk.GetArrayFromImage(bone_grey_), [2, 1, 0])
@@ -253,18 +254,18 @@ for i in [5]:  # range(2, 34):
     mask_x = BoneMask(bone_bvtv_, resolution, 0, 2)
     mask_y = BoneMask(bone_bvtv_, resolution, 1, 2)
     mask_z = BoneMask(bone_bvtv_, resolution, 2, 2)
-tRun = time.time() - t0
-if tRun >= 3600:
-    print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
-          str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
-elif tRun >= 60:
-    print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
-else:
-    print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'
-np.save(path_bvtv + sample_code_ + '_mask_x.npy', mask_x)
-np.save(path_bvtv + sample_code_ + '_mask_y.npy', mask_y)
-np.save(path_bvtv + sample_code_ + '_mask_z.npy', mask_z)
+
+    np.save(path_bvtv + sample_code_ + '_mask_x.npy', mask_x)
+    np.save(path_bvtv + sample_code_ + '_mask_y.npy', mask_y)
+    np.save(path_bvtv + sample_code_ + '_mask_z.npy', mask_z)
+    tRun = time.time() - t0
+    if tRun >= 3600:
+        print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+    elif tRun >= 60:
+        print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+    else:
+        print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
 
 #%%
 '''
