@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
-import os
 import scipy
 
 
@@ -109,13 +108,13 @@ def find_first(array, value):
 
 
 def smooth(y_, box_pts):
-    box = np.ones(box_pts)/box_pts
+    box = np.ones(box_pts) / box_pts
     y_smooth = np.convolve(y_, box, mode='same')
     return y_smooth
 
 
 t1 = time.time()
-#plt.close('all')
+# plt.close('all')
 # mue = ['07', '05', '03', '02', '01', '00']
 
 # # # # # INPUT # # # # #
@@ -136,16 +135,17 @@ noData05 = []
 
 for i in ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
-
+    uy = 0
+    rfy = 0
     # # # # # Experiments # # # # #
 
     sample = loc + specimen + '_resample.csv'
     [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
     AcFy = AcFy[5:]
     AcY = AcY[5:]
-    AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 4)
+    AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy), ), 4)
     # ArY_smooth = smooth(np.array(ArY).reshape(len(ArY),), 2)
-    AcY_smooth = smooth(np.array(AcY).reshape(len(AcY),), 4)
+    AcY_smooth = smooth(np.array(AcY).reshape(len(AcY), ), 4)
     peaks = np.array(scipy.signal.argrelextrema(AcY_smooth, np.less))[0]
     valls = np.array(scipy.signal.argrelextrema(AcY_smooth, np.greater))[0]
     s = [peaks[cycle - 1], int((valls[cycle - 1] + peaks[cycle - 1]) / 2)]
@@ -160,13 +160,12 @@ for i in ti_samples:  # range(2, 34):
         axs1.plot(AcY[:valls[2]], AcFy_smooth[:valls[2]], color=col[0])
         axs1.scatter(AcY_smooth[valls[:3]], AcFy_smooth[valls[:3]], color=col[1])
         axs1.scatter(AcY_smooth[peaks[:3]], AcFy_smooth[peaks[:3]], color=col[2])
-        #axs1.scatter(AcY_smooth[peaks[cycle-1]], AcFy_smooth[peaks[cycle-1]], color=col[2])
+        # axs1.scatter(AcY_smooth[peaks[cycle-1]], AcFy_smooth[peaks[cycle-1]], color=col[2])
         axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
         axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
         axs1.set_xlabel('Displacement / mm')
         axs1.set_ylabel('Force / N')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
-
 
     sample = sample.split('_resample')[0].split('/')[-1]
     file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
@@ -216,7 +215,6 @@ for i in ti_samples:  # range(2, 34):
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
 
-
 plt.figure()
 
 plt.scatter(slope[ti_samples], slopeFE02[ti_samples], label='$\mu$ = 0.2')
@@ -227,16 +225,15 @@ plt.xlabel('Stiffness Experiment / N/mm')
 plt.ylabel('Stiffness FE / N/mm')
 plt.legend()
 
+# plt.figure()
+# plt.plot(slope[peek_samples] / slope[ti_samples])
 
-#plt.figure()
-#plt.plot(slope[peek_samples] / slope[ti_samples])
+# plt.figure()
+# plt.scatter(slope[peek_samples], slope[ti_samples], color='k')
+# plt.xlim([0, 80])
+# plt.ylim([0, 80])
 
-#plt.figure()
-#plt.scatter(slope[peek_samples], slope[ti_samples], color='k')
-#plt.xlim([0, 80])
-#plt.ylim([0, 80])
-
-#%%
+# %%
 '''
 
 style = ['solid', 'dashed', 'dashed']
@@ -322,11 +319,12 @@ elif tRun >= 60:
     print('Execution time: ' + str(int(tRun/60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.')'''
-#%%
+# %%
 '''
 fric = '02'
 sample = sample.split('_resample')[0].split('/')[-1]
-file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
+file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + 
+            '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
 [uy, rf_] = read_RFnodeFile(file_path)
 [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
 plt.figure()
