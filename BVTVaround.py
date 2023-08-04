@@ -12,7 +12,7 @@ from skimage import morphology
 
 
 def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
-    '''
+    """
     Creates the concave mask from the envelope of a porouse structure. The input image needs to be binray
     :param img: 2d numpy array binary (segmented)
     :param res_: resolution of image in mm
@@ -22,9 +22,9 @@ def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
     :param path: path for control plot, by default the plot will be stored in the project folder
     :param name: name of the image
     :return: binary mask --> 2d array
-    '''
+    """
 
-    # get the ponits of segmented area
+    # get the points of segmented area
     coordinates = np.array(np.where(img == 1)).T * res_
 
     # concave hull with ConcaveHull.py
@@ -55,7 +55,7 @@ def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
     ImageDraw.Draw(img_).polygon(polygon_coords, outline=1, fill=1)
     mask = np.array(img_, dtype=float)
     # crate control plot of the masked region
-    if plot == True:
+    if plot:
         plt.imshow(mask + img)
         # plt.show()
         plt.savefig(path + name + 'ROIimpPosition.png', bbox_inches='tight')
@@ -69,6 +69,10 @@ def BoneMask(array_3dC, reso, axis, tolerance, islandSize=2):
     Generates a 3d array with by sampling trough ech slice and creates an envelope of the bone. The result is a 3D mask
     the bone's outer surface as boundary.
     :param array_3dC: segmented 3d array
+    :param reso: resolution in mm
+    :param axis: 0, 1, 2 axis
+    :param tolerance: tolerance of mask shape
+    :param islandSize: size of islands to delete, default=2
     :return: 3d array with bone mask
     """
     # create bone mask
@@ -173,9 +177,9 @@ def eval_bvtv(sample, radius):
                     else:
                         print('**ERROR**')
 
-    bvtv = round(b / (b + o), 3)
+    bvtv_ = round(b / (b + o), 3)
     if check:
-        print('BV/BV: ' + str(bvtv))
+        print('BV/BV: ' + str(bvtv_))
         plt.figure()
         plt.imshow(check_image[:, :, 800])
         plt.figure()
@@ -196,7 +200,7 @@ def eval_bvtv(sample, radius):
         print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
     else:
         print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
-    return bvtv
+    return bvtv_
 
 
 def eval_bvtv_mask(sample, radius):
@@ -216,9 +220,8 @@ def eval_bvtv_mask(sample, radius):
 
     bone_grey = sitk.ReadImage(file)
     bone_img = np.transpose(sitk.GetArrayFromImage(bone_grey), [2, 1, 0])
-    bone_bvtv = rR.zeros_and_ones(bone_img, 320)
-    # herehere where include mask???
-    check_image = rR.zeros_and_ones(bone_img, 320)
+    bone_bvtv = rR.zeros_and_ones(bone_img, 320) + mask
+    check_image = rR.zeros_and_ones(bone_img, 320) + mask*4
     res = max(np.array(bone_grey.GetSpacing()))
     ori = abs((np.array(bone_grey.GetOrigin()) / res).astype(int))
 
@@ -230,22 +233,23 @@ def eval_bvtv_mask(sample, radius):
 
     b = 0
     o = 0
+    e = 0
     for z in range(min(length), max(length)):
         for y in range(-r, r):
             for x in range(-r, r):
                 if r ** 2 >= x ** 2 + y ** 2 > drill ** 2:
                     check_image[x + ori[0], y + ori[1], z + ori[2]] = check_image[
                                                                           x + ori[0], y + ori[1], z + ori[2]] + 2
-                    if bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 1:
+                    if bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 2:
                         b = b + 1
-                    elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 0:
+                    elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 1:
                         o = o + 1
                     else:
-                        print('**ERROR**')
+                        e = e + 1
 
-    bvtv = round(b / (b + o), 3)
+    bvtv_ = round(b / (b + o), 3)
     if check:
-        print('BV/BV: ' + str(bvtv))
+        print('BV/BV: ' + str(bvtv_))
         plt.figure()
         plt.imshow(check_image[:, :, 800])
         plt.figure()
@@ -266,7 +270,7 @@ def eval_bvtv_mask(sample, radius):
         print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
     else:
         print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
-    return bvtv
+    return bvtv_
 
 
 def findPeaks(number_, co, plot_):
@@ -283,9 +287,9 @@ def findPeaks(number_, co, plot_):
     data_filtered['A_y'] = butter_lowpass_filter(data['A_y'], cutoff)
     data_filtered['a_y'] = butter_lowpass_filter(data['a_y'], cutoff)
     data_filtered['a_f'] = butter_lowpass_filter(data['a_f'], cutoff)
-    peakdata = data_filtered['A_y']
+    # peakdata = data_filtered['A_y']
     peakdata = data_filtered['a_y']
-    peakf = data_filtered['a_f']
+    # peakf = data_filtered['a_f']
     [extAy, _] = find_peaks(-peakdata, width=20)
     n_peaks = len(extAy)
     if plot_:
@@ -303,15 +307,15 @@ def findPeaks(number_, co, plot_):
 
 
 class IndexTracker(object):
-    def __init__(self, ax, X):
-        self.ax = ax
-        ax.set_title('use scroll wheel to navigate images')
+    def __init__(self, ax_, X):
+        self.ax = ax_
+        ax_.set_title('use scroll wheel to navigate images')
 
         self.X = X
         rows, self.slices, cols = X.shape
         self.ind = self.slices//2
 
-        self.im = ax.imshow(self.X[:, self.ind, :])
+        self.im = ax_.imshow(self.X[:, self.ind, :])
         self.update()
 
     def onscroll(self, event):
@@ -328,11 +332,11 @@ class IndexTracker(object):
         self.im.axes.figure.canvas.draw()
 
 
-
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
 path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
 
+'''
 for i in [31, 32, 33]:  # range(3, 34):
     t0 = time.time()
     sample_code_ = sample_list[i]
@@ -359,11 +363,11 @@ for i in [31, 32, 33]:  # range(3, 34):
     elif tRun >= 60:
         print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
     else:
-        print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-'''
+        print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')'''
+
 #%%
-i = 5
-sample_code_ = sample_list[i]
+ii = 5
+sample_code_ = sample_list[ii]
 maskX = np.load(path_bvtv + sample_code_ + '_mask_x.npy')
 maskY = np.load(path_bvtv + sample_code_ + '_mask_y.npy')
 maskZ = np.load(path_bvtv + sample_code_ + '_mask_z.npy')
@@ -374,8 +378,16 @@ mask_mix = ((maskX + maskY + maskZ) >= 2).astype(int)
 mask_mul = maskX * maskY * maskZ
 
 #%%
-radius_mm = 5
-
+samples = [2, 3, 4, 5, 6]
+radius_mm = [3, 5]
+bvtv_mask = np.zeros((4, 33))
+bvtv = np.zeros((4, 33))
+for ii in samples:
+    print(ii)
+    for jj in range(len(radius_mm)):
+        print(jj)
+        bvtv_mask[ii, jj] = eval_bvtv_mask(sample_list[ii], radius_mm[jj])
+        bvtv[ii, jj] = eval_bvtv(sample_list[ii], radius_mm[jj])
 
 #%%
 fig, ax = plt.subplots(1, 1)
@@ -386,7 +398,7 @@ tracker = IndexTracker(ax, mask_add)
 
 
 fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
-plt.show()'''
+plt.show()
 #%%
 '''
 plt.figure()
