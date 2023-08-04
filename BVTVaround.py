@@ -367,6 +367,7 @@ for i in [0, 1]:  # range(3, 34):
 '''
 
 #%%
+'''
 ii = 5
 sample_code_ = sample_list[ii]
 maskX = np.load(path_bvtv + sample_code_ + '_mask_x.npy')
@@ -377,10 +378,10 @@ maskZ = np.load(path_bvtv + sample_code_ + '_mask_z.npy')
 mask_add = ((maskX + maskY + maskZ) >= 1).astype(int)
 mask_mix = ((maskX + maskY + maskZ) >= 2).astype(int)
 mask_mul = maskX * maskY * maskZ
-
+'''
 #%%
-samples = [2, 3, 4, 5, 6]
-radius_mm = [3, 5]
+samples = np.arange(0, 34)
+radius_mm = [4, 4.5, 5]
 bvtv_mask = np.zeros((4, 33))
 bvtv = np.zeros((4, 33))
 for jj in range(len(radius_mm)):
@@ -427,6 +428,7 @@ for jj in range(len(radius_mm)):
         f.close()
 
 #%%
+'''
 fig, ax = plt.subplots(1, 1)
 
 # X = np.random.rand(20, 20, 40)
@@ -435,7 +437,7 @@ tracker = IndexTracker(ax, mask_add)
 
 
 fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
-plt.show()
+plt.show()'''
 #%%
 '''
 plt.figure()
