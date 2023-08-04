@@ -13,12 +13,12 @@ from skimage import morphology
 
 def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
     """
-    Creates the concave mask from the envelope of a porouse structure. The input image needs to be binray
+    Creates the concave mask from the envelope of a porous structure. The input image needs to be binary
     :param img: 2d numpy array binary (segmented)
     :param res_: resolution of image in mm
-    :param tolerance: tolernce for creating the concave envelope
+    :param tolerance: tolerance for creating the concave envelope
                     (see also: https://gist.github.com/AndreLester/589ea1eddd3a28d00f3d7e47bd9f28fb)
-    :param plot: Ture --> generates controle plots of the generated mask
+    :param plot: Ture --> generates control plots of the generated mask
     :param path: path for control plot, by default the plot will be stored in the project folder
     :param name: name of the image
     :return: binary mask --> 2d array
@@ -79,36 +79,36 @@ def BoneMask(array_3dC, reso, axis, tolerance, islandSize=2):
     # create empty 3d array for the bone mask
     mask_3d = np.zeros_like(array_3dC)
     if axis == 0:
-        for i in range(array_3dC.shape[0]):
+        for i_ in range(array_3dC.shape[0]):
             # get a slice of with bone
-            slice_ = array_3dC[i, :, :]
+            slice_ = array_3dC[i_, :, :]
             # clean image form noise --> delete islands smaller then 10 pixels
             slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
             slice_ = slice_ * 1
             if np.sum(slice_) >= 10:
-                mask_3d[i, :, :] = BoneEnvelope(slice_, reso, tolerance)
+                mask_3d[i_, :, :] = BoneEnvelope(slice_, reso, tolerance)
                 # plt.imshow(mask_3d[i, :, :] + slice_)
                 # plt.show()
     elif axis == 1:
-        for i in range(array_3dC.shape[1]):
+        for i_ in range(array_3dC.shape[1]):
             # get a slice of with bone
-            slice_ = array_3dC[:, i, :]
+            slice_ = array_3dC[:, i_, :]
             # clean image form noise --> delete islands smaller then 10 pixels
             slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
             slice_ = slice_ * 1
             if np.sum(slice_) >= 10:
-                mask_3d[:, i, :] = BoneEnvelope(slice_, reso, tolerance)
+                mask_3d[:, i_, :] = BoneEnvelope(slice_, reso, tolerance)
                 # plt.imshow(mask_3d[:, i, :] + slice_)
                 # plt.show()
     elif axis == 2:
-        for i in range(array_3dC.shape[2]):
+        for i_ in range(array_3dC.shape[2]):
             # get a slice of with bone
-            slice_ = array_3dC[:, :, i]
+            slice_ = array_3dC[:, :, i_]
             # clean image form noise --> delete islands smaller then 10 pixels
             slice_ = morphology.remove_small_objects(np.array(slice_, bool), islandSize)
             slice_ = slice_ * 1
             if np.sum(slice_) >= 10:
-                mask_3d[:, :, i] = BoneEnvelope(slice_, reso, tolerance)
+                mask_3d[:, :, i_] = BoneEnvelope(slice_, reso, tolerance)
                 # plt.imshow(mask_3d[:, :, i] + slice_)
                 # plt.show()
     return mask_3d
@@ -192,14 +192,14 @@ def eval_bvtv(sample, radius):
         plt.imshow(check_image[:, ori[1], :])
         plt.figure()
         plt.imshow(check_image[ori[0], :, :])
-    tRun = time.time() - t1
-    if tRun >= 3600:
-        print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
-              str(round(np.mod(tRun, 60), 1)) + ' sec.')
-    elif tRun >= 60:
-        print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
+    tRun_ = time.time() - t1
+    if tRun_ >= 3600:
+        print('Execution time: ' + str(int(tRun_ / 3600)) + ' h ' + str(int(np.mod(tRun_, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun_, 60), 1)) + ' sec.')
+    elif tRun_ >= 60:
+        print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.')
     else:
-        print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
+        print('Execution time: ' + str(round(tRun_, 1)) + ' sec.')
     return bvtv_
 
 
@@ -262,14 +262,14 @@ def eval_bvtv_mask(sample, radius):
         plt.imshow(check_image[:, ori[1], :])
         plt.figure()
         plt.imshow(check_image[ori[0], :, :])
-    tRun = time.time() - t1
-    if tRun >= 3600:
-        print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
-              str(round(np.mod(tRun, 60), 1)) + ' sec.')
-    elif tRun >= 60:
-        print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
+    tRun_ = time.time() - t1
+    if tRun_ >= 3600:
+        print('Execution time: ' + str(int(tRun_ / 3600)) + ' h ' + str(int(np.mod(tRun_, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun_, 60), 1)) + ' sec.')
+    elif tRun_ >= 60:
+        print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.')
     else:
-        print('Execution time: ' + str(round(tRun, 1)) + ' sec.')
+        print('Execution time: ' + str(round(tRun_, 1)) + ' sec.')
     return bvtv_
 
 
@@ -337,7 +337,7 @@ path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on D
 path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
 
 '''
-for i in [31, 32, 33]:  # range(3, 34):
+for i in [0, 1]:  # range(3, 34):
     t0 = time.time()
     sample_code_ = sample_list[i]
     path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
@@ -363,7 +363,8 @@ for i in [31, 32, 33]:  # range(3, 34):
     elif tRun >= 60:
         print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
     else:
-        print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')'''
+        print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
+'''
 
 #%%
 ii = 5
@@ -382,12 +383,48 @@ samples = [2, 3, 4, 5, 6]
 radius_mm = [3, 5]
 bvtv_mask = np.zeros((4, 33))
 bvtv = np.zeros((4, 33))
-for ii in samples:
-    print(ii)
-    for jj in range(len(radius_mm)):
-        print(jj)
-        bvtv_mask[ii, jj] = eval_bvtv_mask(sample_list[ii], radius_mm[jj])
-        bvtv[ii, jj] = eval_bvtv(sample_list[ii], radius_mm[jj])
+for jj in range(len(radius_mm)):
+    print(jj)
+    try:
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
+                  + str(radius_mm[jj]) + '.txt')
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
+                  + str(radius_mm[jj]) + 's.txt')
+        print('Existing mask file has been deleted. Creating new mask file.')
+    except FileNotFoundError:
+        print('Creating new file.')
+    try:
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_'
+                  + str(radius_mm[jj]) + '.txt')
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_'
+                  + str(radius_mm[jj]) + 's.txt')
+        print('Existing file has been deleted. Creating new file.')
+    except FileNotFoundError:
+        print('Creating new mask file.')
+    for ii in samples:
+        print(ii)
+        BVTV_mask = eval_bvtv_mask(sample_list[ii], radius_mm[jj])
+        BVTV = eval_bvtv(sample_list[ii], radius_mm[jj])
+        print('\n' + str(ii) + '/' + str(len(sample_list)))
+        print(BVTV)
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm[jj]) +
+                  '.txt', 'a') as f:
+            f.write(sample_list[ii] + '\n')
+            f.write(str(BVTV) + '\n')
+        f.close()
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm[jj]) +
+                  's.txt', 'a') as f:
+            f.write(str(BVTV) + '\n')
+        f.close()
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm[jj])
+                  + '.txt', 'a') as f:
+            f.write(sample_list[ii] + '\n')
+            f.write(str(BVTV_mask) + '\n')
+        f.close()
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm[jj])
+                  + 's.txt', 'a') as f:
+            f.write(str(BVTV_mask) + '\n')
+        f.close()
 
 #%%
 fig, ax = plt.subplots(1, 1)
@@ -449,18 +486,7 @@ for j in range(len(radius_mm)):
         print('Creating new file')
 
     for i in range(len(sample_list)):
-        BVTV = eval_bvtv(sample_list[i], radius_mm[j])
-        print('\n' + str(i) + '/' + str(len(sample_list)))
-        print(BVTV)
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
-                  '.txt', 'a') as f:
-            f.write(sample_list[i] + '\n')
-            f.write(str(BVTV) + '\n')
-        f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV_' + str(radius_mm[j]) +
-                  's.txt', 'a') as f:
-            f.write(str(BVTV) + '\n')
-        f.close()
+        
 
 tRunT = time.time() - t0
 if tRunT >= 3600:
