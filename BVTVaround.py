@@ -328,12 +328,13 @@ class IndexTracker(object):
         self.im.axes.figure.canvas.draw()
 
 
-t0 = time.time()
+
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
 path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
-'''
-for i in [100]:  # range(3, 34):
+
+for i in [31, 32, 33]:  # range(3, 34):
+    t0 = time.time()
     sample_code_ = sample_list[i]
     path_ct_ = path_project_ + '01_Experiments/02_Scans/' + sample_code_ + '/04_Registered/'  # Folder of CT dat
     file_bone_ = [filename for filename in os.listdir(path_ct_ + '/') if filename.endswith('image.mhd')
@@ -385,7 +386,7 @@ tracker = IndexTracker(ax, mask_add)
 
 
 fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
-plt.show()
+plt.show()'''
 #%%
 '''
 plt.figure()

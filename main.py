@@ -149,10 +149,10 @@ def mapping(sample, mod, fric_):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
+for i in range(2, 16):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 24, 0.2)  # samples, model, friction
+    mapping(sample_list[i], 25, 0.2)  # samples, model, friction
 
 # 88 0.5 done
 # 87* 0.2/0.5 done (only first 3 steps = first 2 amplitudes i.e. 0.25, 0.5 mm)
