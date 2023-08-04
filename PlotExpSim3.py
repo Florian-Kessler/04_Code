@@ -148,7 +148,8 @@ for i in ti_samples:  # range(2, 34):
     AcY_smooth = smooth(np.array(AcY).reshape(len(AcY), ), 4)
     peaks = np.array(scipy.signal.argrelextrema(AcY_smooth, np.less))[0]
     valls = np.array(scipy.signal.argrelextrema(AcY_smooth, np.greater))[0]
-    s = [peaks[cycle - 1], int((valls[cycle - 1] + peaks[cycle - 1]) / 2)]
+    # s = [peaks[cycle - 1], int((valls[cycle - 1] + peaks[cycle - 1]) / 2)]  # secant between extremum and halfway back
+    s = [peaks[cycle - 1], valls[cycle - 1]]  # secant between both extrema
     if plots:
         # axs1.plot(np.array(ArY_smooth), AcFy_smooth, color=col[0])
         # axs1.scatter(np.array(ArY_smooth)[valls], np.array(AcFy_smooth)[valls], color='r')
@@ -186,9 +187,9 @@ for i in ti_samples:  # range(2, 34):
     if plots:
         plt.figure()
         plt.plot(uy, -rfy)
-        plt.scatter(uy[-6], -rfy[-6], color=col[1])
+        plt.scatter(uy[-1], -rfy[-1], color=col[1])
         plt.scatter(uy[-11], -rfy[-11], color=col[2])
-        plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
+        plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'r--')
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
     file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
