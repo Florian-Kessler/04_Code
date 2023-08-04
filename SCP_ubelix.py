@@ -22,13 +22,13 @@ def copy(spec, mod, doc, dir):
 
 
 specimen = np.arange(0, 34)
-document = '*P.inp'
-direction = 'to'  # from local TO REMOTE or FROM REMOTE to local
+document = '*P.odb'
+direction = 'from'  # from local TO REMOTE or FROM REMOTE to local
 model = '88_L50_S50_D45'
 
 # peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]
 # ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
 
 # [12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # range(12, 19):  # range(len(specimen)):
-for i in [21, 23, 24, 26]:
+for i in [2, 5]:
     copy(specimen[i], model, document, direction)

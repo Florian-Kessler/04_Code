@@ -123,11 +123,16 @@ specimen_names = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').re
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 number = ['75']  # simulations
 
+plt.close('all')
+
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
 slope = np.zeros(34)
+slope2 = np.zeros(34)
 slopeFE02 = np.zeros(34)
+slopeFE02_2 = np.zeros(34)
 slopeFE05 = np.zeros(34)
+slopeFE05_2 = np.zeros(34)
 cycle = 2
 plots = 0
 noData02 = []
@@ -148,8 +153,8 @@ for i in ti_samples:  # range(2, 34):
     AcY_smooth = smooth(np.array(AcY).reshape(len(AcY), ), 4)
     peaks = np.array(scipy.signal.argrelextrema(AcY_smooth, np.less))[0]
     valls = np.array(scipy.signal.argrelextrema(AcY_smooth, np.greater))[0]
-    # s = [peaks[cycle - 1], int((valls[cycle - 1] + peaks[cycle - 1]) / 2)]  # secant between extremum and halfway back
-    s = [peaks[cycle - 1], valls[cycle - 1]]  # secant between both extrema
+    s = [peaks[cycle - 1], int((valls[cycle - 1] + peaks[cycle - 1]) / 2)]  # secant between extremum and halfway back
+    s2 = [peaks[cycle - 1], valls[cycle - 1]]  # secant between both extrema
     if plots:
         # axs1.plot(np.array(ArY_smooth), AcFy_smooth, color=col[0])
         # axs1.scatter(np.array(ArY_smooth)[valls], np.array(AcFy_smooth)[valls], color='r')
@@ -164,9 +169,12 @@ for i in ti_samples:  # range(2, 34):
         # axs1.scatter(AcY_smooth[peaks[cycle-1]], AcFy_smooth[peaks[cycle-1]], color=col[2])
         axs1.scatter(AcY_smooth[s[1]], AcFy_smooth[s[1]], color=col[3])
         axs1.plot(AcY_smooth[s], AcFy_smooth[s], 'r--')
+        axs1.scatter(AcY_smooth[s2[1]], AcFy_smooth[s2[1]], color=col[3])
+        axs1.plot(AcY_smooth[s2], AcFy_smooth[s2], 'g--')
         axs1.set_xlabel('Displacement / mm')
         axs1.set_ylabel('Force / N')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
+    slope2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]]) / (AcY_smooth[s2[1]] - AcY_smooth[s2[0]])
 
     sample = sample.split('_resample')[0].split('/')[-1]
     file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
@@ -176,8 +184,11 @@ for i in ti_samples:  # range(2, 34):
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
         if len(uy) == 42:
             slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
+            slopeFE02_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
             print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
-            print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm\n')
+            print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
+            print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm')
+            print('FE2:  ' + str(np.round(slopeFE02_2[i], 1)) + ' N/mm\n')
         else:
             print('Data missing for ' + str(sample) + '.\n')
             noData02.append(i)
@@ -187,9 +198,11 @@ for i in ti_samples:  # range(2, 34):
     if plots:
         plt.figure()
         plt.plot(uy, -rfy)
+        plt.scatter(uy[-6], -rfy[-6], color=col[1])
         plt.scatter(uy[-1], -rfy[-1], color=col[1])
         plt.scatter(uy[-11], -rfy[-11], color=col[2])
-        plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'r--')
+        plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
+        plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'g--')
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
     file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
@@ -199,8 +212,11 @@ for i in ti_samples:  # range(2, 34):
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
         if len(uy) == 42:
             slopeFE05[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
+            slopeFE05_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
             print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
-            print('FE:   ' + str(np.round(slopeFE05[i], 1)) + ' N/mm\n')
+            print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
+            print('FE:   ' + str(np.round(slopeFE05[i], 1)) + ' N/mm')
+            print('FE:   ' + str(np.round(slopeFE05_2[i], 1)) + ' N/mm\n')
         else:
             print('Data missing for ' + str(sample) + '.\n')
             noData05.append(i)
@@ -211,16 +227,22 @@ for i in ti_samples:  # range(2, 34):
         plt.figure()
         plt.plot(uy, -rfy)
         plt.scatter(uy[-6], -rfy[-6], color=col[1])
+        plt.scatter(uy[-1], -rfy[-1], color=col[1])
         plt.scatter(uy[-11], -rfy[-11], color=col[2])
         plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
+        plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'g--')
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
 
 plt.figure()
 
-plt.scatter(slope[ti_samples], slopeFE02[ti_samples], label='$\mu$ = 0.2')
+plt.scatter(slope[ti_samples], slopeFE02[ti_samples], color=col[0], label='$\mu$ = 0.2')
+plt.scatter(slope2[ti_samples], slopeFE02_2[ti_samples], color=col[0], marker='x', label='$\mu$ = 0.2 (extrema)')
 plt.scatter(slope[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
-            slopeFE05[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]], label='$\mu$ = 0.5', alpha=0.7)
+            slopeFE05[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]], color=col[1], label='$\mu$ = 0.5', alpha=0.7)
+plt.scatter(slope2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
+            slopeFE05_2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
+            color=col[1], marker='x', label='$\mu$ = 0.5 (extrema)', alpha=0.7)
 plt.plot([0, 100], [0, 100], 'k')
 plt.xlabel('Stiffness Experiment / N/mm')
 plt.ylabel('Stiffness FE / N/mm')
@@ -234,7 +256,7 @@ plt.legend()
 # plt.xlim([0, 80])
 # plt.ylim([0, 80])
 
-# %%
+
 '''
 
 style = ['solid', 'dashed', 'dashed']
@@ -320,7 +342,7 @@ elif tRun >= 60:
     print('Execution time: ' + str(int(tRun/60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.')'''
-# %%
+
 '''
 fric = '02'
 sample = sample.split('_resample')[0].split('/')[-1]
