@@ -331,7 +331,7 @@ class IndexTracker(object):
         self.ax.set_ylabel('slice %s' % self.ind)
         self.im.axes.figure.canvas.draw()
 
-
+t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
 path_project_ = '/home/biomech/Documents/01_Icotec/'  # General project folder
@@ -385,7 +385,7 @@ radius_mm = [4, 4.5, 5]
 bvtv_mask = np.zeros((4, 33))
 bvtv = np.zeros((4, 33))
 for jj in range(len(radius_mm)):
-    print(jj)
+    print('Radius: ' + str(radius_mm[jj]))
     try:
         os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
                   + str(radius_mm[jj]) + '.txt')
@@ -403,11 +403,12 @@ for jj in range(len(radius_mm)):
     except FileNotFoundError:
         print('Creating new mask file.')
     for ii in samples:
+        t1 = time.time()
         print(ii)
         BVTV_mask = eval_bvtv_mask(sample_list[ii], radius_mm[jj])
         BVTV = eval_bvtv(sample_list[ii], radius_mm[jj])
         print('\n' + str(ii) + '/' + str(len(sample_list)))
-        print(BVTV)
+        print('Sample: ' + sample_list[samples])
         with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm[jj]) +
                   '.txt', 'a') as f:
             f.write(sample_list[ii] + '\n')
@@ -426,7 +427,23 @@ for jj in range(len(radius_mm)):
                   + 's.txt', 'a') as f:
             f.write(str(BVTV_mask) + '\n')
         f.close()
-
+        tRun_ = time.time() - t1
+        if tRun_ >= 3600:
+            print('Execution time: ' + str(int(tRun_ / 3600)) + ' h ' + str(int(np.mod(tRun_, 3600) / 60)) + ' min ' +
+                  str(round(np.mod(tRun_, 60), 1)) + ' sec.\n')
+        elif tRun_ >= 60:
+            print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.\n')
+        else:
+            print('Execution time: ' + str(round(tRun_, 1)) + ' sec.\n')
+    print(radius_mm[jj] + ' done.')
+tRun = time.time() - t0
+if tRun >= 3600:
+    print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
+          str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+elif tRun >= 60:
+    print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+else:
+    print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
 #%%
 '''
 fig, ax = plt.subplots(1, 1)

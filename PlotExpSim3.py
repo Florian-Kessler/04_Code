@@ -134,11 +134,11 @@ slopeFE02_2 = np.zeros(34)
 slopeFE05 = np.zeros(34)
 slopeFE05_2 = np.zeros(34)
 cycle = 2
-plots = 0
+plots = 1
 noData02 = []
 noData05 = []
 
-for i in ti_samples:  # range(2, 34):
+for i in [9]:  # ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
