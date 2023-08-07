@@ -604,17 +604,21 @@ plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3],
 plt.legend()
 '''
 #%%
-radius = 4
-file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius) + 's.txt'
+radius = 5
+radius_file = 5
+file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_file) + 's.txt'
 bvtv_wo = pd.read_csv(file)
-file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius) + 's.txt'
+file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_file) + 's.txt'
 bvtv_wm = pd.read_csv(file)
 plt.figure()
 plt.scatter(bvtv_wo, bvtv_wm)
 
 plt.title('Radius: ' + str(radius) + ' mm')
-plt.plot([0.08, 0.18], [0.08, 0.18], 'k')
+plt.plot([0.08, 0.20], [0.08, 0.20], 'k')
 plt.xlabel('BVTV w/o mask')
 plt.ylabel('BVTV with mask')
 
+plt.figure()
+plt.title('Left/right comparison')
+plt.scatter()
 #%%
