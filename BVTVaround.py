@@ -404,11 +404,10 @@ for jj in range(len(radius_mm)):
         print('Creating new mask file.')
     for ii in samples:
         t1 = time.time()
-        print(ii)
         BVTV_mask = eval_bvtv_mask(sample_list[ii], radius_mm[jj])
         BVTV = eval_bvtv(sample_list[ii], radius_mm[jj])
         print('\n' + str(ii) + '/' + str(len(sample_list)))
-        print('Sample: ' + sample_list[samples])
+        print('Sample: ' + sample_list[ii])
         with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm[jj]) +
                   '.txt', 'a') as f:
             f.write(sample_list[ii] + '\n')
