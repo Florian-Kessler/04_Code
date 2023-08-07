@@ -356,3 +356,9 @@ plt.plot(uy[-11:-5], -rfy[-11:-5])
 slopeFE = -(rfy[-11]-rfy[-6])/(uy[-11]-uy[-6])
 print(slopeFE)
 '''
+#%%
+file = '/home/biomech/DATA/01_Icotec/02_FEA/Tests/test_7_RFnodeFix.txt'
+[uy, rf_] = read_RFnodeFile(file_path)
+[u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+plt.figure()
+plt.plot(uy)

@@ -331,6 +331,7 @@ class IndexTracker(object):
         self.ax.set_ylabel('slice %s' % self.ind)
         self.im.axes.figure.canvas.draw()
 
+
 t0 = time.time()
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
@@ -380,25 +381,27 @@ mask_mix = ((maskX + maskY + maskZ) >= 2).astype(int)
 mask_mul = maskX * maskY * maskZ
 '''
 #%%
+'''
 samples = np.arange(0, 34)
-radius_mm = [4, 4.5, 5]
+radius_mm = [4.5, 5]
+radius_mm_str = ['45', '5']
 bvtv_mask = np.zeros((4, 33))
 bvtv = np.zeros((4, 33))
 for jj in range(len(radius_mm)):
     print('Radius: ' + str(radius_mm[jj]))
     try:
         os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
-                  + str(radius_mm[jj]) + '.txt')
+                  + str(radius_mm_str[jj]) + '.txt')
         os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
-                  + str(radius_mm[jj]) + 's.txt')
+                  + str(radius_mm_str[jj]) + 's.txt')
         print('Existing mask file has been deleted. Creating new mask file.')
     except FileNotFoundError:
         print('Creating new file.')
     try:
         os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_'
-                  + str(radius_mm[jj]) + '.txt')
+                  + str(radius_mm_str[jj]) + '.txt')
         os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_'
-                  + str(radius_mm[jj]) + 's.txt')
+                  + str(radius_mm_str[jj]) + 's.txt')
         print('Existing file has been deleted. Creating new file.')
     except FileNotFoundError:
         print('Creating new mask file.')
@@ -408,21 +411,21 @@ for jj in range(len(radius_mm)):
         BVTV = eval_bvtv(sample_list[ii], radius_mm[jj])
         print('\n' + str(ii) + '/' + str(len(sample_list)))
         print('Sample: ' + sample_list[ii])
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm[jj]) +
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm_str[jj]) +
                   '.txt', 'a') as f:
             f.write(sample_list[ii] + '\n')
             f.write(str(BVTV) + '\n')
         f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm[jj]) +
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm_str[jj]) +
                   's.txt', 'a') as f:
             f.write(str(BVTV) + '\n')
         f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm[jj])
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm_str[jj])
                   + '.txt', 'a') as f:
             f.write(sample_list[ii] + '\n')
             f.write(str(BVTV_mask) + '\n')
         f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm[jj])
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm_str[jj])
                   + 's.txt', 'a') as f:
             f.write(str(BVTV_mask) + '\n')
         f.close()
@@ -434,7 +437,7 @@ for jj in range(len(radius_mm)):
             print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.\n')
         else:
             print('Execution time: ' + str(round(tRun_, 1)) + ' sec.\n')
-    print(radius_mm[jj] + ' done.')
+    print(str(radius_mm[jj]) + ' done.')
 tRun = time.time() - t0
 if tRun >= 3600:
     print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
@@ -443,6 +446,7 @@ elif tRun >= 60:
     print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
+    '''
 #%%
 '''
 fig, ax = plt.subplots(1, 1)
@@ -599,3 +603,18 @@ plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3],
            ['+30% right', '+20% right', '+10% right', '0%', '+10% left', '+20% left', '+30% left', ])
 plt.legend()
 '''
+#%%
+radius = 4
+file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius) + 's.txt'
+bvtv_wo = pd.read_csv(file)
+file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius) + 's.txt'
+bvtv_wm = pd.read_csv(file)
+plt.figure()
+plt.scatter(bvtv_wo, bvtv_wm)
+
+plt.title('Radius: ' + str(radius) + ' mm')
+plt.plot([0.08, 0.18], [0.08, 0.18], 'k')
+plt.xlabel('BVTV w/o mask')
+plt.ylabel('BVTV with mask')
+
+#%%
