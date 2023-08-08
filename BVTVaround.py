@@ -621,4 +621,5 @@ plt.ylabel('BVTV with mask')
 plt.figure()
 plt.title('Left/right comparison')
 plt.scatter()
+
 #%%
