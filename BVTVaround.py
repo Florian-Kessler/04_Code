@@ -9,6 +9,7 @@ from scipy.signal import butter, filtfilt, find_peaks
 from ConcaveHull import ConcaveHull
 from PIL import Image, ImageDraw
 from skimage import morphology
+import statsmodels.api as sm
 
 
 def BoneEnvelope(img, res_, tolerance=3, plot=False, path='', name=''):
@@ -178,8 +179,8 @@ def eval_bvtv(sample, radius):
                         print('**ERROR**')
 
     bvtv_ = round(b / (b + o), 3)
+    print('BV/TV: ' + str(bvtv_))
     if check:
-        print('BV/BV: ' + str(bvtv_))
         plt.figure()
         plt.imshow(check_image[:, :, 800])
         plt.figure()
@@ -221,7 +222,7 @@ def eval_bvtv_mask(sample, radius):
     bone_grey = sitk.ReadImage(file)
     bone_img = np.transpose(sitk.GetArrayFromImage(bone_grey), [2, 1, 0])
     bone_bvtv = rR.zeros_and_ones(bone_img, 320) + mask
-    check_image = rR.zeros_and_ones(bone_img, 320) + mask*4
+    check_image = rR.zeros_and_ones(bone_img, 320) + mask * 4
     res = max(np.array(bone_grey.GetSpacing()))
     ori = abs((np.array(bone_grey.GetOrigin()) / res).astype(int))
 
@@ -248,8 +249,8 @@ def eval_bvtv_mask(sample, radius):
                         e = e + 1
 
     bvtv_ = round(b / (b + o), 3)
+    print('BV/TV: ' + str(bvtv_))
     if check:
-        print('BV/BV: ' + str(bvtv_))
         plt.figure()
         plt.imshow(check_image[:, :, 800])
         plt.figure()
@@ -273,15 +274,87 @@ def eval_bvtv_mask(sample, radius):
     return bvtv_
 
 
-def findPeaks(number_, co, plot_):
+def eval_bvtv_mask_along(sample, radius):
+    t1 = time.time()
+    check = 0
+    sample_code = sample
+    path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
+    path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
+    path_mask = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code
+    mask_X_ = np.load(path_mask + '_mask_x.npy')
+    mask_Y_ = np.load(path_mask + '_mask_y.npy')
+    mask_Z_ = np.load(path_mask + '_mask_z.npy')
+    mask = ((mask_X_ + mask_Y_ + mask_Z_) >= 1).astype(int)
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image_corr.mhd')
+                 and str(sample_code) in filename][0]
+    file = path_ct + file_bone
+
+    bone_grey = sitk.ReadImage(file)
+    bone_img = np.transpose(sitk.GetArrayFromImage(bone_grey), [2, 1, 0])
+    bone_bvtv = rR.zeros_and_ones(bone_img, 320) + mask * 3
+    check_image = rR.zeros_and_ones(bone_img, 320) + mask * 4
+    res = max(np.array(bone_grey.GetSpacing()))
+    ori = abs((np.array(bone_grey.GetOrigin()) / res).astype(int))
+
+    # Area to evaluate
+    r_mm = radius  # radius in mm
+    r = int(np.rint(r_mm / res))
+    length = np.rint(np.array([-45, 0]) / res).astype(int)
+    drill = int(1.4 / res)  # radius drill
+    bvtv_along_ = np.zeros(len(range(min(length), max(length))))
+    bv = 0
+    ev = 0
+    for z in range(min(length), max(length)):
+        bv_z = 0
+        ev_z = 0
+        for y in range(-r, r):
+            for x in range(-r, r):
+                if r ** 2 >= x ** 2 + y ** 2 > drill ** 2:
+                    check_image[x + ori[0], y + ori[1], z + ori[2]] = check_image[
+                                                                          x + ori[0], y + ori[1], z + ori[2]] + 2
+                    if bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 4:
+                        bv = bv + 1
+                        bv_z = bv_z + 1
+                    elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 3:
+                        ev = ev + 1
+                        ev_z = ev_z + 1
+
+        bvtv_along_[z] = bv_z / (bv_z + ev_z)
+
+    tv = bv + ev
+    bvtv_ = round(bv / tv, 3)
+    print('BV/TV: ' + str(bvtv_))
+    if check:
+        plt.figure()
+        plt.imshow(check_image[:, :, 800])
+        plt.figure()
+        plt.imshow(check_image[:, :, 600])
+        plt.figure()
+        plt.imshow(check_image[:, :, 400])
+        plt.figure()
+        plt.imshow(check_image[:, :, 200])
+        plt.figure()
+        plt.imshow(check_image[:, ori[1], :])
+        plt.figure()
+        plt.imshow(check_image[ori[0], :, :])
+    tRun_ = time.time() - t1
+    if tRun_ >= 3600:
+        print('Execution time: ' + str(int(tRun_ / 3600)) + ' h ' + str(int(np.mod(tRun_, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun_, 60), 1)) + ' sec.')
+    elif tRun_ >= 60:
+        print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.')
+    else:
+        print('Execution time: ' + str(round(tRun_, 1)) + ' sec.')
+    return bvtv_, bvtv_along_
+
+
+def findPeaks(number_, cutoff, plot_):
     sample_list_ = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
     data = {}
     [data['A_x'], data['A_y'], data['A_z'], data['A_rx'], data['A_ry'],
      data['A_rz'], data['a_y'], data['a_f'], data['a_c']] = \
         read_resample('/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' +
                       sample_list_[number_] + '_resample.csv')
-
-    cutoff = co
 
     data_filtered = {}
     data_filtered['A_y'] = butter_lowpass_filter(data['A_y'], cutoff)
@@ -306,6 +379,19 @@ def findPeaks(number_, co, plot_):
     return n_peaks, extAy, data_filtered['A_y'][extAy], data_filtered['a_f'][extAy] - data['a_f'][0]
 
 
+def lin_reg(X, Y):
+    X = X.flatten().ravel()
+    Y = Y.flatten()
+    X = X[X != 0]
+    Y = Y[X != 0]
+    X = X[Y != 0]
+    Y = Y[Y != 0]
+    X = sm.add_constant(X)  # Add a constant term to the independent variable array
+    mod = sm.OLS(Y, X)  # y, X
+    reg = mod.fit()
+    return reg, X, Y
+
+
 class IndexTracker(object):
     def __init__(self, ax_, X):
         self.ax = ax_
@@ -313,7 +399,7 @@ class IndexTracker(object):
 
         self.X = X
         rows, self.slices, cols = X.shape
-        self.ind = self.slices//2
+        self.ind = self.slices // 2
 
         self.im = ax_.imshow(self.X[:, self.ind, :])
         self.update()
@@ -367,7 +453,7 @@ for i in [0, 1]:  # range(3, 34):
         print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
 '''
 
-#%%
+# %%
 '''
 ii = 5
 sample_code_ = sample_list[ii]
@@ -380,52 +466,55 @@ mask_add = ((maskX + maskY + maskZ) >= 1).astype(int)
 mask_mix = ((maskX + maskY + maskZ) >= 2).astype(int)
 mask_mul = maskX * maskY * maskZ
 '''
-#%%
+# %%
 '''
-samples = np.arange(0, 34)
-radius_mm = [4.5, 5]
-radius_mm_str = ['45', '5']
+samples = [5]  # np.arange(0, 34)
+radius_mm = [6]
+radius_mm_str = ['6']
 bvtv_mask = np.zeros((4, 33))
 bvtv = np.zeros((4, 33))
+
 for jj in range(len(radius_mm)):
     print('Radius: ' + str(radius_mm[jj]))
     try:
-        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_mask_'
                   + str(radius_mm_str[jj]) + '.txt')
-        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_'
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_mask_'
                   + str(radius_mm_str[jj]) + 's.txt')
         print('Existing mask file has been deleted. Creating new mask file.')
     except FileNotFoundError:
         print('Creating new file.')
     try:
-        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_'
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_'
                   + str(radius_mm_str[jj]) + '.txt')
-        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_'
+        os.remove('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_'
                   + str(radius_mm_str[jj]) + 's.txt')
         print('Existing file has been deleted. Creating new file.')
     except FileNotFoundError:
         print('Creating new mask file.')
     for ii in samples:
         t1 = time.time()
-        BVTV_mask = eval_bvtv_mask(sample_list[ii], radius_mm[jj])
+        BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[ii], radius_mm[jj])
+        print('\n-----\n-----\nBV/TV along:')
+        print(BVTV_mask_along)
         BVTV = eval_bvtv(sample_list[ii], radius_mm[jj])
         print('\n' + str(ii) + '/' + str(len(sample_list)))
         print('Sample: ' + sample_list[ii])
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm_str[jj]) +
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_' + str(radius_mm_str[jj]) +
                   '.txt', 'a') as f:
             f.write(sample_list[ii] + '\n')
             f.write(str(BVTV) + '\n')
         f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_mm_str[jj]) +
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_' + str(radius_mm_str[jj]) +
                   's.txt', 'a') as f:
             f.write(str(BVTV) + '\n')
         f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm_str[jj])
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_mask_' + str(radius_mm_str[jj])
                   + '.txt', 'a') as f:
             f.write(sample_list[ii] + '\n')
             f.write(str(BVTV_mask) + '\n')
         f.close()
-        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_mm_str[jj])
+        with open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/x3BVTV_mask_' + str(radius_mm_str[jj])
                   + 's.txt', 'a') as f:
             f.write(str(BVTV_mask) + '\n')
         f.close()
@@ -437,7 +526,7 @@ for jj in range(len(radius_mm)):
             print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.\n')
         else:
             print('Execution time: ' + str(round(tRun_, 1)) + ' sec.\n')
-    print(str(radius_mm[jj]) + ' done.')
+    print(str(radius_mm[jj]) + ' mm ROI done.')
 tRun = time.time() - t0
 if tRun >= 3600:
     print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
@@ -446,8 +535,8 @@ elif tRun >= 60:
     print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
-    '''
-#%%
+'''
+# %%
 '''
 fig, ax = plt.subplots(1, 1)
 
@@ -458,7 +547,7 @@ tracker = IndexTracker(ax, mask_add)
 
 fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
 plt.show()'''
-#%%
+# %%
 '''
 plt.figure()
 s = 350
@@ -484,7 +573,6 @@ plt.imshow(mask_mul[200, :, :] + bone_bvtv_[200, :, :])
 plt.figure()
 plt.imshow(mask_mul[:, :, 500] + bone_bvtv_[:, :, 500])
 '''
-
 
 # %%
 # try:
@@ -603,9 +691,10 @@ plt.yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3],
            ['+30% right', '+20% right', '+10% right', '0%', '+10% left', '+20% left', '+30% left', ])
 plt.legend()
 '''
-#%%
-radius = 5
-radius_file = 5
+# %%
+'''
+radius = 6
+radius_file = 6
 file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_' + str(radius_file) + 's.txt'
 bvtv_wo = pd.read_csv(file)
 file = '/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/BVTV/xBVTV_mask_' + str(radius_file) + 's.txt'
@@ -613,13 +702,48 @@ bvtv_wm = pd.read_csv(file)
 plt.figure()
 plt.scatter(bvtv_wo, bvtv_wm)
 
+regression_T, xx_T, yy_T = lin_reg(np.array(bvtv_wo), np.array(bvtv_wm))
+plt.plot(np.array([0, 0.225]), np.array([0, 0.225]) * regression_T.params[1] + regression_T.params[0],
+         color='k', linestyle='dotted', label=str(np.round(regression_T.params[1], 3)) + 'x + ' +
+                                              str(np.round(regression_T.params[0], 3)))
+if regression_T.pvalues[1] >= 0.05:
+    lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
+else:
+    lab_pvalue_T = 'p < 0.05'
+plt.plot([-1, 0], [-1, 0], color='w', linestyle='dashed',
+         label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+plt.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+
 plt.title('Radius: ' + str(radius) + ' mm')
-plt.plot([0.08, 0.20], [0.08, 0.20], 'k')
+plt.plot([0, 0.225], [0, 0.225], 'k')
 plt.xlabel('BVTV w/o mask')
 plt.ylabel('BVTV with mask')
+plt.legend()
+plt.xlim([0, 0.225])
+plt.ylim([0, 0.225])
 
-plt.figure()
-plt.title('Left/right comparison')
-plt.scatter()
-
+# %%
+sample_code_ = sample_list[8]
+path_bvtv = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/'  # on DATA drive, not in Documents!!!
+maskX = np.load(path_bvtv + sample_code_ + '_mask_x.npy')
+maskY = np.load(path_bvtv + sample_code_ + '_mask_y.npy')
+maskZ = np.load(path_bvtv + sample_code_ + '_mask_z.npy')
+mask = ((maskX + maskY + maskZ)>=1).astype(int)
 #%%
+plt.figure()
+plt.imshow(mask[:, 300, :])
+'''
+#%%
+radius_list = [4, 4.5, 5, 6]
+radius_list_str = ['4', '45', '5', '6']
+for i in range(len(sample_list)):
+    print('\nStart ' + sample_list[i] + '...')
+    for j in range(len(radius_list)):
+        BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[i], 6)
+        plt.figure()
+        plt.plot(BVTV_mask_along)
+        plt.savefig(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
+        plt.close()
+        np.save(BVTV_mask_along, path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.npy')
+        print(sample_list[i] + ' on radius ' + radius_list_str[j] + ' mm finished.')
+    print(sample_list[i] + ' finished.\n')

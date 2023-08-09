@@ -5,9 +5,6 @@ import pandas as pd
 import scipy
 
 
-# from scipy.signal import argrelextrema
-
-
 def read_RFnodeFile(file_):
     # read data from text file
     df_ = np.loadtxt(file_, delimiter=',')
@@ -360,5 +357,22 @@ print(slopeFE)
 file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_RFnode.txt'
 [uy, rf_] = read_RFnodeFile(file)
 [u_, rfy] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
+
+sample = loc + specimen_names[8] + '_resample.csv'
+[ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
+
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_RFnode.txt'
+[uy2, rf_] = read_RFnodeFile(file)
+[u_, rfy2] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
+
 plt.figure()
-plt.plot(uy, -rfy)
+plt.plot(uy, -rfy, label='Ti')
+
+plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
+plt.plot(uy2, -rfy2, label='PEEK')
+plt.scatter(uy[-1], -rfy[-1], color='r', marker='x')
+plt.scatter(uy2[-1], -rfy2[-1], color='r', marker='x')
+plt.title('uFE tests')
+plt.xlabel('Displacement / mm')
+plt.ylabel('Force / N')
+
