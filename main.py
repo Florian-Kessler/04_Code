@@ -113,10 +113,13 @@ def mapping(sample, mod, fric_):
     plt.close()
 
     bone['MASK'] = imMask_np_corr
-    shape_mask_x = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + 'mask_x.npy')
-    shape_mask_y = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + 'mask_y.npy')
-    shape_mask_z = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + 'mask_z.npy')
-    bone['shape_mask'] = ((shape_mask_x + shape_mask_y + shape_mask_z)>0).astype(int)
+    shape_mask_x = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + '_mask_x.npy')
+    shape_mask_y = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + '_mask_y.npy')
+    shape_mask_z = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + '_mask_z.npy')
+    bone['shape_mask'] = ((shape_mask_x + shape_mask_y + shape_mask_z) > 0).astype(int)
+    del shape_mask_x
+    del shape_mask_y
+    del shape_mask_z
     if write_output:
         img_screw = sitk.GetImageFromArray(np.transpose(bone['MASK'], [2, 1, 0]))
         img_screw.SetOrigin(bone['GreyImage'].GetOrigin())
@@ -157,6 +160,3 @@ for i in range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
     mapping(sample_list[i], 24, 0.2)  # samples, model, friction
-
-# 88 0.5 done, 88 0.2 running
-# 87* 0.2/0.5 done (only first 3 steps = first 2 amplitudes i.e. 0.25, 0.5 mm)

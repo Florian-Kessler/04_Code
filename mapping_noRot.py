@@ -300,7 +300,7 @@ def load_BVTVdata(bone, filename):
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
     bone["Origin"] = bone["GreyImage"].GetOrigin()
 
-    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 320)  # Segmentation of gray image
+    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 358)  # Segmentation of gray image, otsu mean of all images
 
     # Flip image 180° to get same COS origin
     # bone["BVTVscaled"] = bone["BVTVscaled"][:, :, ::-1]
