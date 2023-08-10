@@ -129,6 +129,8 @@ specimen_names = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').re
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
 number = ['75']  # simulations
 
+
+#%%
 plt.close('all')
 
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
@@ -239,6 +241,8 @@ for i in [9]:  # ti_samples:  # range(2, 34):
         plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'g--')
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
+
+
 
 plt.figure()
 
@@ -414,22 +418,32 @@ plt.plot(t, ke/(ie + ke), label='$E_k$/$E_{total}$')
 plt.plot([t[0], t[-1]], [0.1, 0.1], 'k--')
 plt.legend()
 #%% BVTV Plot
-bvtvList=[]
-specList=[]
-indexList=[]
-fig, axs = plt.subplots(1, 1, figsize=(9, 6))
+radius = [4, 6]
+# fig, axs = plt.subplots(1, 1, figsize=(9, 6))
+for j in range(len(radius)):
+    bvtvList = []
+    specList = []
+    indexList = []
+    for i in range(len(specimen_names)):
+        loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
+        bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[j]) + 'mm.npy')
+        # axs.plot(bvtv)
+        # test line plot seaborn
+        bvtvList += bvtv.T.tolist()
+        specList += len(bvtv)*[i]
+        indexList += range(len(bvtv))
+    dfPlot = pd.DataFrame()
+    dfPlot['bvtv'] = bvtvList
+    dfPlot['specimen'] = specList
+    dfPlot['index'] = indexList
+    sns.lineplot(data=dfPlot, x='index', y='bvtv', errorbar='sd', label='Radius: ' + str(radius[j]) + ' mm')
+#%%
+plt.figure()
+radius = [4, 45, 5, 6]
 for i in range(len(specimen_names)):
-    loc = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
-    bvtv = np.load(loc + specimen_names[i] + '_6mm.npy')
-    axs.plot(bvtv)
-    # test lineplot seaborn
-    bvtvList+=bvtv.T.tolist()
-    specList+=len(bvtv)*[i]
-    indexList += range(len(bvtv))
-    
-dfPlot = pd.DataFrame()
-dfPlot['bvtv']=bvtvList
-dfPlot['specimen']=specList
-dfPlot['index']=indexList
-sns.lineplot(data=dfPlot, x='index',y='bvtv',errorbar='sd')
+    loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
+    bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[0]) + 'mm.npy')
 
+    sample = loc + specimen_names[i] + '_resample.csv'
+    [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
+    plt.scatter(np.max(AcFy, axis=0), np.mean(bvtv[:200], axis=0))

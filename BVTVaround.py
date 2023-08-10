@@ -146,7 +146,7 @@ def eval_bvtv(sample, radius):
     sample_code = sample
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
-    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image_corr.mhd')
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image.mhd')
                  and str(sample_code) in filename][0]
     file = path_ct + file_bone
 
@@ -215,7 +215,7 @@ def eval_bvtv_mask(sample, radius):
     mask_Y_ = np.load(path_mask + '_mask_y.npy')
     mask_Z_ = np.load(path_mask + '_mask_z.npy')
     mask = ((mask_X_ + mask_Y_ + mask_Z_) >= 1).astype(int)
-    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image_corr.mhd')
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image.mhd')
                  and str(sample_code) in filename][0]
     file = path_ct + file_bone
 
@@ -285,7 +285,7 @@ def eval_bvtv_mask_along(sample, radius):
     mask_Y_ = np.load(path_mask + '_mask_y.npy')
     mask_Z_ = np.load(path_mask + '_mask_z.npy')
     mask = ((mask_X_ + mask_Y_ + mask_Z_) >= 1).astype(int)
-    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image_corr.mhd')
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image.mhd')
                  and str(sample_code) in filename][0]
     file = path_ct + file_bone
 
@@ -318,9 +318,10 @@ def eval_bvtv_mask_along(sample, radius):
                     elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 3:
                         ev = ev + 1
                         ev_z = ev_z + 1
-
-        bvtv_along_[z] = bv_z / (bv_z + ev_z)
-
+        if (bv_z + ev_z) != 0:
+            bvtv_along_[z] = bv_z / (bv_z + ev_z)
+        else:
+            bvtv_along_[z] = 0
     tv = bv + ev
     bvtv_ = round(bv / tv, 3)
     print('BV/TV: ' + str(bvtv_))
@@ -734,27 +735,23 @@ plt.figure()
 plt.imshow(mask[:, 300, :])
 '''
 #%%
-radius_list = [4]  # [4, 4.5, 5, 6]  # working on 4, done: 6
-radius_list_str = ['4']  # ['4', '45', '5', '6']
+radius_list = [4]  # working on: 4. done:
+radius_list_str = ['4']
 # BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[8], 4.5)
 BVTV_mask = 0
 BVTV_mask_along = 0
-for i in range(3, len(sample_list)):
+for i in range(len(sample_list)):
     print('\nStart ' + sample_list[i] + '...')
     for j in range(len(radius_list)):
-        print('start analysis')
         del BVTV_mask
         del BVTV_mask_along
         BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[i], radius_list[j])
         plt.figure()
         plt.plot(BVTV_mask_along)
-        print('plot ok')
         plt.savefig(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
-        print('fig saved')
         plt.close('all')
-        print('saving npy...')
         np.save(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
-        print(sample_list[i] + ' on radius ' + radius_list_str[j] + ' mm finished.')
+        print(sample_list[i] + ' on radius ' + str(radius_list[j]) + ' mm finished.')
     print(sample_list[i] + ' finished.\n')
 tRun = time.time() - t0
 if tRun >= 3600:

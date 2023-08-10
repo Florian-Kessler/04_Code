@@ -30,5 +30,5 @@ model = '88_L50_S50_D45'
 # ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
 
 # [12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # range(12, 19):  # range(len(specimen)):
-for i in [2, 5]:
+for i in [29]:
     copy(specimen[i], model, document, direction)
