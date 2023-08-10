@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import time
 import pandas as pd
 import scipy
@@ -33,6 +34,14 @@ def read_RFnodeFile(file_):
     # urz_ = np.array(df_[:, 12])
 
     return uy_, rfy_
+
+
+def read_energy(file_):
+    # read data from text file
+    df_ = np.loadtxt(file_)#, delimiter='   ')
+    t_ = np.array(df_[:, 0])
+    e_ = np.array(df_[:, 1])
+    return t_, e_
 
 
 def read_ARAMIS(file_A):
@@ -375,4 +384,52 @@ plt.scatter(uy2[-1], -rfy2[-1], color='r', marker='x')
 plt.title('uFE tests')
 plt.xlabel('Displacement / mm')
 plt.ylabel('Force / N')
+
+#%% Energy plot
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_ke.txt'
+t, ke = read_energy(file)
+t = t[1:]
+ke = ke[1:]
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_ie.txt'
+_, ie = read_energy(file)
+ie = ie[1:]
+plt.figure()
+# plt.plot(t, ke, label='$E_k$')
+# plt.plot(t, ie, label='$E_i$')
+plt.plot(t, ke/(ie + ke), label='$E_k$/$E_{total}$')
+plt.plot([t[0], t[-1]], [0.1, 0.1], 'k--')
+plt.legend()
+
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_ke.txt'
+t, ke = read_energy(file)
+t = t[1:]
+ke = ke[1:]
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_ie.txt'
+_, ie = read_energy(file)
+ie = ie[1:]
+plt.figure()
+# plt.plot(t, ke)
+# plt.plot(t, ie)
+plt.plot(t, ke/(ie + ke), label='$E_k$/$E_{total}$')
+plt.plot([t[0], t[-1]], [0.1, 0.1], 'k--')
+plt.legend()
+#%% BVTV Plot
+bvtvList=[]
+specList=[]
+indexList=[]
+fig, axs = plt.subplots(1, 1, figsize=(9, 6))
+for i in range(len(specimen_names)):
+    loc = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
+    bvtv = np.load(loc + specimen_names[i] + '_6mm.npy')
+    axs.plot(bvtv)
+    # test lineplot seaborn
+    bvtvList+=bvtv.T.tolist()
+    specList+=len(bvtv)*[i]
+    indexList += range(len(bvtv))
+    
+dfPlot = pd.DataFrame()
+dfPlot['bvtv']=bvtvList
+dfPlot['specimen']=specList
+dfPlot['index']=indexList
+sns.lineplot(data=dfPlot, x='index',y='bvtv',errorbar='sd')
 

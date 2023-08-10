@@ -734,16 +734,33 @@ plt.figure()
 plt.imshow(mask[:, 300, :])
 '''
 #%%
-radius_list = [4, 4.5, 5, 6]
-radius_list_str = ['4', '45', '5', '6']
-for i in range(len(sample_list)):
+radius_list = [4]  # [4, 4.5, 5, 6]  # working on 4, done: 6
+radius_list_str = ['4']  # ['4', '45', '5', '6']
+# BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[8], 4.5)
+BVTV_mask = 0
+BVTV_mask_along = 0
+for i in range(3, len(sample_list)):
     print('\nStart ' + sample_list[i] + '...')
     for j in range(len(radius_list)):
-        BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[i], 6)
+        print('start analysis')
+        del BVTV_mask
+        del BVTV_mask_along
+        BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[i], radius_list[j])
         plt.figure()
         plt.plot(BVTV_mask_along)
+        print('plot ok')
         plt.savefig(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
-        plt.close()
-        np.save(BVTV_mask_along, path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.npy')
+        print('fig saved')
+        plt.close('all')
+        print('saving npy...')
+        np.save(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
         print(sample_list[i] + ' on radius ' + radius_list_str[j] + ' mm finished.')
     print(sample_list[i] + ' finished.\n')
+tRun = time.time() - t0
+if tRun >= 3600:
+    print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
+          str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+elif tRun >= 60:
+    print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+else:
+    print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
