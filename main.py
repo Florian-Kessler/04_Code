@@ -113,6 +113,10 @@ def mapping(sample, mod, fric_):
     plt.close()
 
     bone['MASK'] = imMask_np_corr
+    shape_mask_x = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + 'mask_x.npy')
+    shape_mask_y = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + 'mask_y.npy')
+    shape_mask_z = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + 'mask_z.npy')
+    bone['shape_mask'] = ((shape_mask_x + shape_mask_y + shape_mask_z)>0).astype(int)
     if write_output:
         img_screw = sitk.GetImageFromArray(np.transpose(bone['MASK'], [2, 1, 0]))
         img_screw.SetOrigin(bone['GreyImage'].GetOrigin())

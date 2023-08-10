@@ -735,8 +735,8 @@ plt.figure()
 plt.imshow(mask[:, 300, :])
 '''
 #%%
-radius_list = [5]  # working on: 5, done: 4, 4.5
-radius_list_str = ['5']
+radius_list = [6]  # working on: 5, done: 4, 4.5
+radius_list_str = ['6']
 # BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[8], 4.5)
 BVTV_mask = 0
 BVTV_mask_along = 0

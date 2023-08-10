@@ -418,7 +418,7 @@ plt.plot(t, ke/(ie + ke), label='$E_k$/$E_{total}$')
 plt.plot([t[0], t[-1]], [0.1, 0.1], 'k--')
 plt.legend()
 #%% BVTV Plot
-radius = [4, 6]
+radius = [4, 45, 5]
 # fig, axs = plt.subplots(1, 1, figsize=(9, 6))
 for j in range(len(radius)):
     bvtvList = []
@@ -446,4 +446,4 @@ for i in range(len(specimen_names)):
 
     sample = loc + specimen_names[i] + '_resample.csv'
     [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
-    plt.scatter(np.max(AcFy, axis=0), np.mean(bvtv[:200], axis=0))
+    plt.scatter(np.max(AcFy, axis=0), np.sum(bvtv[:200], axis=0))
