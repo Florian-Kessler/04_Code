@@ -457,7 +457,7 @@ for j in range(len(radius)):
 #%% BVTV vs Exp
 
 bvtv_range = np.array([0, 0.6])
-radius = [45]
+radius = [6]
 offset = 0
 start = 0
 RR = np.array([])
@@ -467,7 +467,7 @@ RR = np.array([])
 # stop = [81, 82, 83]  # 82 for along_load, min(3500:5700)
 stop = [264]
 weight = 1  # 1
-
+temp = np.array([])
 for j in range(len(stop)):
     # plt.figure()
     xdata = []
@@ -482,6 +482,8 @@ for j in range(len(stop)):
         AcFy = AcFy - AcFy['Acumen Fy'][0]
         xdata = np.append(xdata, np.mean(bvtv[start+offset:stop[j]+offset], axis=0))
         ydata = np.append(ydata, np.min(AcFy[3500:5700], axis=0))
+        print('Offset for ' + specimen_names[i] + ' = \t' + str(np.round(offset*0.0606995, 3)) + ' mm')
+        temp = np.append(temp, offset*0.0606995)
         # plt.scatter(xdata[i], ydata[i])
     # plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop[j]))
     # plt.ylabel('Force / N')
@@ -503,3 +505,4 @@ for j in range(len(stop)):
     # plt.close('all')
 plt.figure()
 plt.plot(RR)
+np.savetxt('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Lever_' + str(radius[0]) + 'mmrad.txt', temp)

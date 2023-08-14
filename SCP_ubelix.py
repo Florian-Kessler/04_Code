@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 
-def copy(spec, mod, doc, dir):
+def copy(spec, mod, doc, dir_):
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
 
     user = 'fk21b515'
@@ -11,10 +11,10 @@ def copy(spec, mod, doc, dir):
              + specimens[spec] + '/' + mod + '/'
     local = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + specimens[spec] + '/' + mod + '/'
     pw = open('/home/biomech/Documents/99_General/P_fk.txt', 'r').read()
-    if dir == 'to':
+    if dir_ == 'to':
         os.system('sshpass -p ' + pw + ' scp ' + local + doc + ' ' + user + '@' + server + remote)
         print(doc + ' successfully copied from ' + local + ' \nto \n' + user + '@' + server + remote + '.')
-    elif dir == 'from':
+    elif dir_ == 'from':
         os.system('sshpass -p ' + pw + ' scp ' + user + '@' + server + remote + doc + ' ' + local)
         print(doc + ' successfully copied from ' + user + '@' + server + remote + ' \nto \n' + local + '.')
     else:
