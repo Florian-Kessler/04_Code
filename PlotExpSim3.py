@@ -4,6 +4,7 @@ import seaborn as sns
 import time
 import pandas as pd
 import scipy
+import statsmodels.api as sm
 
 
 def read_RFnodeFile(file_):
@@ -38,17 +39,17 @@ def read_RFnodeFile(file_):
 
 def read_energy(file_):
     # read data from text file
-    df_ = np.loadtxt(file_)#, delimiter='   ')
+    df_ = np.loadtxt(file_)  # , delimiter='   ')
     t_ = np.array(df_[:, 0])
     e_ = np.array(df_[:, 1])
     return t_, e_
 
 
 def read_ARAMIS(file_A):
-    stop = 0
+    stop_ = 0
     df_ = pd.read_csv(file_A, delimiter=';', skiprows=[0])  # , quoting=csv.QUOTE_NONE, error_bad_lines=False)
     if np.isnan(np.array(df_)[-1][-1]):
-        stop = np.where(df_.isnull())[0][0]
+        stop_ = np.where(df_.isnull())[0][0]
     lx = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LX [mm]'])
     ly = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LY [mm]'])
     lz = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.LZ [mm]'])
@@ -57,8 +58,8 @@ def read_ARAMIS(file_A):
     psiZ = pd.DataFrame(df_, columns=['RodCsys→BoneCsys.Psi(Z) [°]'])
     t_ = pd.DataFrame(df_, columns=['Time UTC'])
     # print(len(lx))
-    if stop:
-        return lx[:stop], ly[:stop], lz[:stop], phiX[:stop], thetaY[:stop], psiZ[:stop], t_[:stop]
+    if stop_:
+        return lx[:stop_], ly[:stop_], lz[:stop_], phiX[:stop_], thetaY[:stop_], psiZ[:stop_], t_[:stop_]
     else:
         return lx, ly, lz, phiX, thetaY, psiZ, t_
 
@@ -117,6 +118,19 @@ def smooth(y_, box_pts):
     box = np.ones(box_pts) / box_pts
     y_smooth = np.convolve(y_, box, mode='same')
     return y_smooth
+
+
+def lin_reg(X, Y):
+    X = X.flatten().ravel()
+    Y = Y.flatten()
+    # X = X[X != 0]
+    # Y = Y[X != 0]
+    # X = X[Y != 0]
+    # Y = Y[Y != 0]
+    X = sm.add_constant(X)  # Add a constant term to the independent variable array
+    mod = sm.OLS(Y, X)  # y, X
+    reg = mod.fit()
+    return reg, X, Y
 
 
 t1 = time.time()
@@ -442,16 +456,36 @@ for j in range(len(radius)):
     sns.lineplot(data=dfPlot, x='index', y='bvtv', errorbar='sd', label='Radius: ' + str(radius[j]) + ' mm')
 #%% BVTV vs Exp
 plt.figure()
+bvtv_range = np.array([0, 0.6])
 radius = [45]
+offset = 0
 start = 0
 stop = 100
+weight = 4
+xdata = []
+ydata = []
 for i in range(len(specimen_names)):
     loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_load_'
     bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[0]) + 'mm.npy')
-
+    offset = int((bvtv != 0).argmax(axis=0)/weight)
     sample = loc + specimen_names[i] + '_resample.csv'
     [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
     # plt.scatter(np.mean(bvtv[start:stop], axis=0), np.max(-AcFy, axis=0))
-    plt.scatter(np.mean(bvtv[start:stop], axis=0), np.mean(AcFy[-4000:-2000], axis=0))
-plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop))
+    AcFy = AcFy - AcFy['Acumen Fy'][0]
+    xdata = np.append(xdata, np.mean(bvtv[start+offset:stop+offset], axis=0))
+    ydata = np.append(ydata, np.mean(AcFy[3500:5700], axis=0))
+    plt.scatter(xdata[i], ydata[i])
+plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop) + ' with a weighted offset (w=1/' + str(weight) + ').')
 plt.ylabel('Force / N')
+
+regression_T, xx_T, yy_T = lin_reg(np.array(xdata), np.array(ydata))
+plt.plot(bvtv_range, bvtv_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+         label='Titanium:')
+if regression_T.pvalues[1] >= 0.05:
+    lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
+else:
+    lab_pvalue_T = 'p < 0.05'
+plt.plot([0, 0], [0, 0], color='w', linestyle='dashed',
+         label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
+plt.legend()
