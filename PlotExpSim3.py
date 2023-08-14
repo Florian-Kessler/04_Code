@@ -461,17 +461,19 @@ radius = [45]
 offset = 0
 start = 0
 RR = np.array([])
-#stop = [230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245]  # 90 for load
-#stop = [235, 236]  # 236 for no load
-stop = range(1, 500)
+# stop = [235, 236, 237]  # 236 for along, mean(3500:5700)
+# stop = [263, 264, 265]  # 264 for along, mean(3500:5700)
+# stop = [90, 91, 92]  # 91 for along_load, mean(3500:5700)
+# stop = [81, 82, 83]  # 82 for along_load, min(3500:5700)
+stop = [264]
 weight = 1  # 1
 
 for j in range(len(stop)):
-    #plt.figure()
+    # plt.figure()
     xdata = []
     ydata = []
     for i in range(len(specimen_names)):
-        loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_load_'
+        loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
         bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[0]) + 'mm.npy')
         offset = int((bvtv != 0).argmax(axis=0)/weight)
         sample = loc + specimen_names[i] + '_resample.csv'
@@ -479,27 +481,25 @@ for j in range(len(stop)):
         # plt.scatter(np.mean(bvtv[start:stop], axis=0), np.max(-AcFy, axis=0))
         AcFy = AcFy - AcFy['Acumen Fy'][0]
         xdata = np.append(xdata, np.mean(bvtv[start+offset:stop[j]+offset], axis=0))
-        ydata = np.append(ydata, np.mean(AcFy[3500:5700], axis=0))
-        #plt.scatter(xdata[i], ydata[i])
-    #plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop[j]))
-    #plt.ylabel('Force / N')
-    #plt.title('Radius: ' + str(radius[0]) + ', weighted offset: w = 1/' + str(weight))
+        ydata = np.append(ydata, np.min(AcFy[3500:5700], axis=0))
+        # plt.scatter(xdata[i], ydata[i])
+    # plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop[j]))
+    # plt.ylabel('Force / N')
+    # plt.title('Radius: ' + str(radius[0]) + ', weighted offset: w = 1/' + str(weight))
 
     regression_T, xx_T, yy_T = lin_reg(np.array(xdata), np.array(ydata))
-    #plt.plot(bvtv_range, bvtv_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+    # plt.plot(bvtv_range, bvtv_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
     #         label='Titanium:')
     if regression_T.pvalues[1] >= 0.05:
         lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
     else:
         lab_pvalue_T = 'p < 0.05'
-    #plt.plot([0, 0], [0, 0], color='w', linestyle='dashed',
+    # plt.plot([0, 0], [0, 0], color='w', linestyle='dashed',
     #         label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
-    #plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
-    #plt.legend()
-    #print(regression_T.rsquared)
+    # plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
+    # plt.legend()
+    # print(regression_T.rsquared)
     RR = np.append(RR, regression_T.rsquared)
-    #plt.close('all')
-    if not np.mod(i, 20):
-        print(i)
+    # plt.close('all')
 plt.figure()
 plt.plot(RR)
