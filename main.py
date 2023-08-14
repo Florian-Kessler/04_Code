@@ -70,6 +70,7 @@ def mapping(sample, mod, fric_):
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
 
+    # Bone dictionary will contain all information about the CT image
     bone = {}
     bone = mappNR.readInpBoneDummy(bone, Input)  # Read bone mesh from abaqus. Read elements, nodes
     bone = mappNR.load_BVTVdata(bone, path_ct + file_bone)
@@ -77,13 +78,12 @@ def mapping(sample, mod, fric_):
 
     # Read mask
     imMask = sitk.ReadImage(Input['FEA_loc'] + Input['Model_Code'] + '_mask.mhd')
-    imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])  # .T[:, ::-1, :]
+    imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])
     orM = np.array(imMask.GetOrigin())
     orB = np.array(bone['GreyImage'].GetOrigin())
     insBefore = np.rint(abs(orB - orM) / Input['Resolution']).astype(int)
     bone['insBefore'] = insBefore
     print('insBefore: ' + str(insBefore))
-    # dimMask = np.array(imMask.GetSize())
     dimMask = np.array(imMask_np.shape)
     dimBone = np.array(bone['GreyImage'].GetSize())
     insAfter = (dimBone - dimMask - insBefore).astype(int)
@@ -105,7 +105,6 @@ def mapping(sample, mod, fric_):
         np.zeros((imMask_np_corr.shape[0], imMask_np_corr.shape[1], insAfter[2])), 2)
     print('new mask dimension: ' + str(np.array(imMask_np_corr.shape)))
 
-    # imSum = imMask_np_corr + bone['BVTVscaled']
     plt.figure()
     plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
     plt.show()

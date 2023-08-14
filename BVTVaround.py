@@ -120,7 +120,7 @@ def butter_lowpass_filter(data_, cutoff_, order=9):
     nyq = 0.5 * fs
     normal_cutoff = cutoff_ / nyq
     # Get the filter coefficients
-    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    b, a = butter(order, normal_cutoff, btype='low', analog=False, output='ba')
     y = filtfilt(b, a, data_)
     return y
 
@@ -308,6 +308,81 @@ def eval_bvtv_mask_along(sample, radius):
         bv_z = 0
         ev_z = 0
         for y in range(-r, r):
+            for x in range(-r, r):
+                if r ** 2 >= x ** 2 + y ** 2 > drill ** 2:
+                    check_image[x + ori[0], y + ori[1], z + ori[2]] = check_image[
+                                                                          x + ori[0], y + ori[1], z + ori[2]] + 2
+                    if bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 4:
+                        bv = bv + 1
+                        bv_z = bv_z + 1
+                    elif bone_bvtv[x + ori[0], y + ori[1], z + ori[2]] == 3:
+                        ev = ev + 1
+                        ev_z = ev_z + 1
+        if (bv_z + ev_z) != 0:
+            bvtv_along_[z] = bv_z / (bv_z + ev_z)
+        else:
+            bvtv_along_[z] = 0
+    tv = bv + ev
+    bvtv_ = round(bv / tv, 3)
+    print('BV/TV: ' + str(bvtv_))
+    if check:
+        plt.figure()
+        plt.imshow(check_image[:, :, 800])
+        plt.figure()
+        plt.imshow(check_image[:, :, 600])
+        plt.figure()
+        plt.imshow(check_image[:, :, 400])
+        plt.figure()
+        plt.imshow(check_image[:, :, 200])
+        plt.figure()
+        plt.imshow(check_image[:, ori[1], :])
+        plt.figure()
+        plt.imshow(check_image[ori[0], :, :])
+    tRun_ = time.time() - t1
+    if tRun_ >= 3600:
+        print('Execution time: ' + str(int(tRun_ / 3600)) + ' h ' + str(int(np.mod(tRun_, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun_, 60), 1)) + ' sec.')
+    elif tRun_ >= 60:
+        print('Execution time: ' + str(int(tRun_ / 60)) + ' min ' + str(round(np.mod(tRun_, 60), 1)) + ' sec.')
+    else:
+        print('Execution time: ' + str(round(tRun_, 1)) + ' sec.')
+    return bvtv_, bvtv_along_
+
+
+def eval_bvtv_mask_along_load(sample, radius):
+    t1 = time.time()
+    check = 0
+    sample_code = sample
+    path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
+    path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
+    path_mask = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code
+    mask_X_ = np.load(path_mask + '_mask_x.npy')
+    mask_Y_ = np.load(path_mask + '_mask_y.npy')
+    mask_Z_ = np.load(path_mask + '_mask_z.npy')
+    mask = ((mask_X_ + mask_Y_ + mask_Z_) >= 1).astype(int)
+    file_bone = [filename for filename in os.listdir(path_ct + '/') if filename.endswith('image.mhd')
+                 and str(sample_code) in filename][0]
+    file = path_ct + file_bone
+
+    bone_grey = sitk.ReadImage(file)
+    bone_img = np.transpose(sitk.GetArrayFromImage(bone_grey), [2, 1, 0])
+    bone_bvtv = rR.zeros_and_ones(bone_img, 320) + mask * 3
+    check_image = rR.zeros_and_ones(bone_img, 320) + mask * 4
+    res = max(np.array(bone_grey.GetSpacing()))
+    ori = abs((np.array(bone_grey.GetOrigin()) / res).astype(int))
+
+    # Area to evaluate
+    r_mm = radius  # radius in mm
+    r = int(np.rint(r_mm / res))
+    length = np.rint(np.array([-45, 0]) / res).astype(int)
+    drill = int(1.4 / res)  # radius drill
+    bvtv_along_ = np.zeros(len(range(min(length), max(length))))
+    bv = 0
+    ev = 0
+    for z in range(min(length), max(length)):
+        bv_z = 0
+        ev_z = 0
+        for y in range(-r, 0):  # r -> 0 to only include loaded side. maybe even reduce to -2r/3??
             for x in range(-r, r):
                 if r ** 2 >= x ** 2 + y ** 2 > drill ** 2:
                     check_image[x + ori[0], y + ori[1], z + ori[2]] = check_image[
@@ -735,6 +810,7 @@ plt.figure()
 plt.imshow(mask[:, 300, :])
 '''
 #%%
+
 radius_list = [6]  # working on: 5, done: 4, 4.5
 radius_list_str = ['6']
 # BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[8], 4.5)
@@ -745,12 +821,12 @@ for i in range(len(sample_list)):
     for j in range(len(radius_list)):
         del BVTV_mask
         del BVTV_mask_along
-        BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[i], radius_list[j])
+        BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along_load(sample_list[i], radius_list[j])
         plt.figure()
         plt.plot(BVTV_mask_along)
-        plt.savefig(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
+        plt.savefig(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
         plt.close('all')
-        np.save(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
+        np.save(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
         print(sample_list[i] + ' on radius ' + str(radius_list[j]) + ' mm finished.')
     print(sample_list[i] + ' finished.\n')
 tRun = time.time() - t0

@@ -117,7 +117,7 @@ def read_FE_(number, model_code, plot, fric_):
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
         model_code = model_code[:19] + fric_.split('.')[-1] + '_P'
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-        model_code = '81' + model_code[2:19] + fric_.split('.')[-1] + '_T'
+        model_code = '87' + model_code[2:19] + fric_.split('.')[-1] + '_T'
     else:
         print('Invalid model code!')
     specimen = specimens[number]
@@ -191,7 +191,7 @@ x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
-model = '82_L50_S50_D45_d1_05_P'  # automatically switches to titanium for respective samples
+model = '86_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -215,7 +215,7 @@ else:
     F_range = np.array([-10, 450])
 plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
-friction = '0.5'
+friction = '0.2'
 for x in range(x0, x1):
     for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))
@@ -447,7 +447,7 @@ x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
-model = '82_L50_S50_D45_d1_05_P'  # automatically switches to titanium for respective samples
+model = '86_L50_S50_D45_d1_05_P'  # automatically switches to titanium for respective samples
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))

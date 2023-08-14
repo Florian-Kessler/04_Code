@@ -127,13 +127,13 @@ t1 = time.time()
 loc = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'
 specimen_names = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
 col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F', '#A214CC', '#A2DD2F']
-number = ['75']  # simulations
+number = ['86']  # simulations
 
 
 #%%
 plt.close('all')
 
-peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18]  # , 21, 23, 26, 29, 31, 32]  # without 24
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
 slope = np.zeros(34)
 slope2 = np.zeros(34)
@@ -142,11 +142,12 @@ slopeFE02_2 = np.zeros(34)
 slopeFE05 = np.zeros(34)
 slopeFE05_2 = np.zeros(34)
 cycle = 2
-plots = 1
+plots = 0
 noData02 = []
 noData05 = []
+samples = peek_samples
 
-for i in [9]:  # ti_samples:  # range(2, 34):
+for i in samples:  # ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
@@ -185,14 +186,16 @@ for i in [9]:  # ti_samples:  # range(2, 34):
     slope2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]]) / (AcY_smooth[s2[1]] - AcY_smooth[s2[0]])
 
     sample = sample.split('_resample')[0].split('/')[-1]
-    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
-                '/87_L50_S50_D45_d1_02_T_RFnode.txt'
+    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
+                '/86_L50_S50_D45_d1_02_P_RFnode.txt'
     if len(open(file_path, 'r').readline()) > 0:
         [uy, rf_] = read_RFnodeFile(file_path)
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-        if len(uy) == 42:
-            slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
-            slopeFE02_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
+        if len(uy) >= 42:
+            # slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
+            slopeFE02[i] = -(rfy[31] - rfy[36]) / (uy[31] - uy[36])
+            # slopeFE02_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
+            slopeFE02_2[i] = -(rfy[31] - rfy[41]) / (uy[31] - uy[41])
             print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
             print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
             print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm')
@@ -206,21 +209,22 @@ for i in [9]:  # ti_samples:  # range(2, 34):
     if plots:
         plt.figure()
         plt.plot(uy, -rfy)
-        plt.scatter(uy[-6], -rfy[-6], color=col[1])
-        plt.scatter(uy[-1], -rfy[-1], color=col[1])
-        plt.scatter(uy[-11], -rfy[-11], color=col[2])
-        plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
-        plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'g--')
+        plt.scatter(uy[36], -rfy[36], color=col[1])
+        plt.scatter(uy[41], -rfy[41], color=col[1])
+        plt.scatter(uy[31], -rfy[31], color=col[2])
+        plt.plot(uy[[31, 36]], -rfy[[31, 36]], 'r--')
+        plt.plot(uy[[31, 41]], -rfy[[31, 41]], 'g--')
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
-    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
-                '/87_L50_S50_D45_d1_05_T_RFnode.txt'
+    '''
+    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
+                '/86_L50_S50_D45_d1_05_P_RFnode.txt'
     if len(open(file_path, 'r').readline()) > 0:
         [uy, rf_] = read_RFnodeFile(file_path)
         [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
         if len(uy) == 42:
-            slopeFE05[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
-            slopeFE05_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
+            slopeFE05[i] = -(rfy[31] - rfy[36]) / (uy[31] - uy[36])
+            slopeFE05_2[i] = -(rfy[31] - rfy[41]) / (uy[31] - uy[41])
             print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
             print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
             print('FE:   ' + str(np.round(slopeFE05[i], 1)) + ' N/mm')
@@ -237,17 +241,16 @@ for i in [9]:  # ti_samples:  # range(2, 34):
         plt.scatter(uy[-6], -rfy[-6], color=col[1])
         plt.scatter(uy[-1], -rfy[-1], color=col[1])
         plt.scatter(uy[-11], -rfy[-11], color=col[2])
-        plt.plot(uy[[-11, -6]], -rfy[[-11, -6]], 'r--')
-        plt.plot(uy[[-11, -1]], -rfy[[-11, -1]], 'g--')
+        plt.plot(uy[[31, 36]], -rfy[[31, 36]], 'r--')
+        plt.plot(uy[[31, 41]], -rfy[[31, 41]], 'g--')
         plt.xlabel('Displacement / mm')
         plt.ylabel('Force / N')
-
-
+    '''
 
 plt.figure()
 
-plt.scatter(slope[ti_samples], slopeFE02[ti_samples], color=col[0], label='$\mu$ = 0.2')
-plt.scatter(slope2[ti_samples], slopeFE02_2[ti_samples], color=col[0], marker='x', label='$\mu$ = 0.2 (extrema)')
+plt.scatter(slope[samples], slopeFE02[samples], color=col[0], label='$\mu$ = 0.2')
+plt.scatter(slope2[samples], slopeFE02_2[samples], color=col[0], marker='x', label='$\mu$ = 0.2 (extrema)')
 plt.scatter(slope[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
             slopeFE05[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]], color=col[1], label='$\mu$ = 0.5', alpha=0.7)
 plt.scatter(slope2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
@@ -366,17 +369,17 @@ plt.plot(uy[-11:-5], -rfy[-11:-5])
 slopeFE = -(rfy[-11]-rfy[-6])/(uy[-11]-uy[-6])
 print(slopeFE)
 '''
-#%%
+#%% uFE test files
 file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_RFnode.txt'
-[uy, rf_] = read_RFnodeFile(file)
-[u_, rfy] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
+[uy, _] = read_RFnodeFile(file)
+[_, rfy] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
 
 sample = loc + specimen_names[8] + '_resample.csv'
 [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
 
 file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_RFnode.txt'
-[uy2, rf_] = read_RFnodeFile(file)
-[u_, rfy2] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
+[uy2, _] = read_RFnodeFile(file)
+[_, rfy2] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
 
 plt.figure()
 plt.plot(uy, -rfy, label='Ti')
@@ -418,14 +421,14 @@ plt.plot(t, ke/(ie + ke), label='$E_k$/$E_{total}$')
 plt.plot([t[0], t[-1]], [0.1, 0.1], 'k--')
 plt.legend()
 #%% BVTV Plot
-radius = [4, 45, 5]
+radius = [4, 45, 5, 6]
 # fig, axs = plt.subplots(1, 1, figsize=(9, 6))
 for j in range(len(radius)):
     bvtvList = []
     specList = []
     indexList = []
     for i in range(len(specimen_names)):
-        loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
+        loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_load_'
         bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[j]) + 'mm.npy')
         # axs.plot(bvtv)
         # test line plot seaborn
@@ -437,13 +440,18 @@ for j in range(len(radius)):
     dfPlot['specimen'] = specList
     dfPlot['index'] = indexList
     sns.lineplot(data=dfPlot, x='index', y='bvtv', errorbar='sd', label='Radius: ' + str(radius[j]) + ' mm')
-#%%
+#%% BVTV vs Exp
 plt.figure()
-radius = [4, 45, 5, 6]
+radius = [45]
+start = 0
+stop = 100
 for i in range(len(specimen_names)):
-    loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
+    loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_load_'
     bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[0]) + 'mm.npy')
 
     sample = loc + specimen_names[i] + '_resample.csv'
     [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
-    plt.scatter(np.max(AcFy, axis=0), np.sum(bvtv[:200], axis=0))
+    # plt.scatter(np.mean(bvtv[start:stop], axis=0), np.max(-AcFy, axis=0))
+    plt.scatter(np.mean(bvtv[start:stop], axis=0), np.mean(AcFy[-4000:-2000], axis=0))
+plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop))
+plt.ylabel('Force / N')
