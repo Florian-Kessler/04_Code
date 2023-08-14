@@ -351,7 +351,7 @@ def eval_bvtv_mask_along(sample, radius):
 
 def eval_bvtv_mask_along_load(sample, radius):
     t1 = time.time()
-    check = 0
+    check = 1
     sample_code = sample
     path_project = '/home/biomech/Documents/01_Icotec/'  # General project folder
     path_ct = path_project + '01_Experiments/02_Scans/' + sample_code + '/04_Registered/'  # Folder of CT dat
@@ -811,12 +811,12 @@ plt.imshow(mask[:, 300, :])
 '''
 #%%
 '''
-radius_list = [6]  # working on: 5, done: 4, 4.5
+radius_list = [4]  # working on: 5, done: 4, 4.5
 radius_list_str = ['6']
 # BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[8], 4.5)
 BVTV_mask = 0
 BVTV_mask_along = 0
-for i in range(len(sample_list)):
+for i in [8]:  # range(len(sample_list)):
     print('\nStart ' + sample_list[i] + '...')
     for j in range(len(radius_list)):
         del BVTV_mask
@@ -824,9 +824,9 @@ for i in range(len(sample_list)):
         BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along_load(sample_list[i], radius_list[j])
         plt.figure()
         plt.plot(BVTV_mask_along)
-        plt.savefig(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
-        plt.close('all')
-        np.save(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
+        #plt.savefig(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
+        # plt.close('all')
+        #np.save(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
         print(sample_list[i] + ' on radius ' + str(radius_list[j]) + ' mm finished.')
     print(sample_list[i] + ' finished.\n')
 tRun = time.time() - t0
