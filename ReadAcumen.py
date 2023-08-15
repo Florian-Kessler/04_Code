@@ -322,7 +322,7 @@ for x in range(x0, x1):
             elif i in ti_samples:  # T (missing 1)
                 axs5.scatter(x + 0.1, peakF, color='r', marker='s', label='_nolegend_')
         try:
-            [_, RFy_, _, _, _] = read_FE_(i, model, 0, '0.5')
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0, '0.2')
         except FileNotFoundError:
             continue
         try:

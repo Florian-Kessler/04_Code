@@ -147,7 +147,7 @@ number = ['86']  # simulations
 #%%
 plt.close('all')
 
-peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18]  # , 21, 23, 26, 29, 31, 32]  # without 24
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
 slope = np.zeros(34)
 slope2 = np.zeros(34)
@@ -275,6 +275,12 @@ plt.xlabel('Stiffness Experiment / N/mm')
 plt.ylabel('Stiffness FE / N/mm')
 plt.legend()
 
+offset = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Lever_45mmrad.txt').read().splitlines()
+for i in range(len(offset)):
+    offset[i] = float(offset[i])
+offset = np.array(offset)
+plt.figure()
+plt.scatter(offset[samples], slopeFE02[samples])
 # plt.figure()
 # plt.plot(slope[peek_samples] / slope[ti_samples])
 
@@ -457,7 +463,7 @@ for j in range(len(radius)):
 #%% BVTV vs Exp
 
 bvtv_range = np.array([0, 0.6])
-radius = [6]
+radius = [4]
 offset = 0
 start = 0
 RR = np.array([])
@@ -504,5 +510,6 @@ for j in range(len(stop)):
     RR = np.append(RR, regression_T.rsquared)
     # plt.close('all')
 plt.figure()
-plt.plot(RR)
-np.savetxt('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Lever_' + str(radius[0]) + 'mmrad.txt', temp)
+plt.plot(temp)
+plt.plot([0, 33], [np.mean(temp), np.mean(temp)])
+print('Mean offset:\t\t\t\t\t' + str(np.round(np.mean(temp), 3)) + ' mm')
