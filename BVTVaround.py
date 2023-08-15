@@ -824,9 +824,9 @@ for i in range(len(sample_list)):
         BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along_load(sample_list[i], radius_list[j])
         plt.figure()
         plt.plot(BVTV_mask_along)
-        plt.savefig(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
+        plt.savefig(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm.png')
         plt.close('all')
-        np.save(path_bvtv + 'BVTV_along_load_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
+        np.save(path_bvtv + 'BVTV_along_' + sample_list[i] + '_' + radius_list_str[j] + 'mm', BVTV_mask_along)
         print(sample_list[i] + ' on radius ' + str(radius_list[j]) + ' mm finished.')
     print(sample_list[i] + ' finished.\n')
 tRun = time.time() - t0

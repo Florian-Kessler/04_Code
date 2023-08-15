@@ -144,7 +144,7 @@ col = ['#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142
 number = ['86']  # simulations
 
 
-#%%
+#%% Stiffness Exp vs FEA
 plt.close('all')
 
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
@@ -200,11 +200,21 @@ for i in samples:  # ti_samples:  # range(2, 34):
     slope2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]]) / (AcY_smooth[s2[1]] - AcY_smooth[s2[0]])
 
     sample = sample.split('_resample')[0].split('/')[-1]
-    file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
+    file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
                 '/86_L50_S50_D45_d1_02_P_RFnode.txt'
-    if len(open(file_path, 'r').readline()) > 0:
-        [uy, rf_] = read_RFnodeFile(file_path)
-        [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
+    file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
+                '/88_L50_S50_D45_d1_02_P_RFnode.txt'
+    if len(open(file_path1, 'r').readline()) > 0 and len(open(file_path2, 'r').readline()) > 0:
+        [uy1, _] = read_RFnodeFile(file_path1)
+        [_, rfy1] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
+        [uy2, _] = read_RFnodeFile(file_path2)
+        [_, rfy2] = read_RFnodeFile(file_path2.split('.txt')[0] + 'Fix.txt')
+        if len(uy1) < len(uy2):
+            uy = uy2
+            rfy = rfy2
+        else:
+            uy = uy1
+            rfy = rfy1
         if len(uy) >= 42:
             # slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
             slopeFE02[i] = -(rfy[31] - rfy[36]) / (uy[31] - uy[36])
@@ -275,12 +285,13 @@ plt.xlabel('Stiffness Experiment / N/mm')
 plt.ylabel('Stiffness FE / N/mm')
 plt.legend()
 
-offset = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Lever_45mmrad.txt').read().splitlines()
+offset = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Lever_4mmrad.txt').read().splitlines()
 for i in range(len(offset)):
     offset[i] = float(offset[i])
 offset = np.array(offset)
 plt.figure()
-plt.scatter(offset[samples], slopeFE02[samples])
+plt.scatter(offset[samples], slopeFE02[samples], color=col[0])
+plt.scatter(offset[samples], slopeFE02_2[samples], color=col[0], marker='x')
 # plt.figure()
 # plt.plot(slope[peek_samples] / slope[ti_samples])
 
