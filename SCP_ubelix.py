@@ -1,5 +1,4 @@
 import os
-import numpy as np
 
 
 def copy(spec, mod, doc, dir_):

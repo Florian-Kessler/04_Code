@@ -19,7 +19,7 @@ def mapping(sample, mod, fric_):
               '63_L50_S50_D45', '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',
               # 15, 16, 17, 18, 19
               '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 20, 21, 22, 23
-              '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 24, 25, 26
+              '85_L50_S50_D45', '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 24, 25, 26, 27
               '94_OSTP']  # 26
 
     model_code = models[mod]  # FEA model name
@@ -161,4 +161,4 @@ ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # wit
 for i in ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 25, 0.5)  # samples, model, friction
+    mapping(sample_list[i], 24, 0.2)  # samples, model, friction

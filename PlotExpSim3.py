@@ -155,11 +155,13 @@ slopeFE02 = np.zeros(34)
 slopeFE02_2 = np.zeros(34)
 slopeFE05 = np.zeros(34)
 slopeFE05_2 = np.zeros(34)
+f_rel = np.zeros(34)
+f_abs = np.zeros(34)
 cycle = 2
 plots = 0
 noData02 = []
 noData05 = []
-samples = peek_samples
+samples = ti_samples#peek_samples
 
 for i in samples:  # ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
@@ -198,13 +200,20 @@ for i in samples:  # ti_samples:  # range(2, 34):
         axs1.set_ylabel('Force / N')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
     slope2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]]) / (AcY_smooth[s2[1]] - AcY_smooth[s2[0]])
-
+    f_rel[i] = AcFy_smooth[s[1]] - AcFy_smooth[s[0]]
+    f_abs[i] = AcFy_smooth[s[1]]
     sample = sample.split('_resample')[0].split('/')[-1]
-    file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
-                '/86_L50_S50_D45_d1_02_P_RFnode.txt'
-    file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
-                '/88_L50_S50_D45_d1_02_P_RFnode.txt'
-    if len(open(file_path1, 'r').readline()) > 0 and len(open(file_path2, 'r').readline()) > 0:
+    if i in peek_samples:
+        file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
+                    '/86_L50_S50_D45_d1_02_P_RFnode.txt'
+        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
+                    '/88_L50_S50_D45_d1_02_P_RFnode.txt'
+
+    elif i in ti_samples:
+        file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
+                     '/87_L50_S50_D45_d1_02_T_RFnode.txt'
+
+    if i in peek_samples and len(open(file_path1, 'r').readline()) > 0 and len(open(file_path2, 'r').readline()) > 0:
         [uy1, _] = read_RFnodeFile(file_path1)
         [_, rfy1] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
         [uy2, _] = read_RFnodeFile(file_path2)
@@ -215,18 +224,18 @@ for i in samples:  # ti_samples:  # range(2, 34):
         else:
             uy = uy1
             rfy = rfy1
-        if len(uy) >= 42:
-            # slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
-            slopeFE02[i] = -(rfy[31] - rfy[36]) / (uy[31] - uy[36])
-            # slopeFE02_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
-            slopeFE02_2[i] = -(rfy[31] - rfy[41]) / (uy[31] - uy[41])
-            print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
-            print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
-            print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm')
-            print('FE2:  ' + str(np.round(slopeFE02_2[i], 1)) + ' N/mm\n')
-        else:
-            print('Data missing for ' + str(sample) + '.\n')
-            noData02.append(i)
+    elif i in ti_samples and len(open(file_path, 'r').readline()) > 0:
+        [uy, _] = read_RFnodeFile(file_path1)
+        [_, rfy] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
+    if len(uy) >= 42:
+        # slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
+        slopeFE02[i] = -(rfy[31] - rfy[36]) / (uy[31] - uy[36])
+        # slopeFE02_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
+        slopeFE02_2[i] = -(rfy[31] - rfy[41]) / (uy[31] - uy[41])
+        print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
+        print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
+        print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm')
+        print('FE2:  ' + str(np.round(slopeFE02_2[i], 1)) + ' N/mm\n')
     else:
         print('Data missing for ' + str(sample) + '.\n')
         noData02.append(i)
@@ -305,106 +314,18 @@ axs3.set_ylabel('Stiffness / N/mm')
 # plt.xlim([0, 80])
 # plt.ylim([0, 80])
 
+# # # # # Stiffness vs F_rel # # # # #
+fig4, axs4 = plt.subplots(1, 1)
+axs4.scatter(slope[samples], f_rel[samples], color=col[0])
+axs4.set_xlabel('Stiffness Experiment / N/mm')
+axs4.set_ylabel('F$_{rel}$ / N')
+# axs4.set_aspect('equal')
 
-'''
-
-style = ['solid', 'dashed', 'dashed']
-
-l_s = ['Icotec', 'Icotec2', 'DPS']
-for i in range(len(samples)):
-    if samples[i]:
-        [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(loc + folder + samples[i])
-        AcFy_smooth = smooth(np.array(AcFy).reshape(len(AcFy),), 3)
-        peaks = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.less))[0]
-        valls = np.array(scipy.signal.argrelextrema(AcFy_smooth, np.greater))[0]
-        if i == 0 or i == 1:
-            # figP.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[i], s=1, label='Experiment ' + l_s[i])
-            figP.plot(-np.array(ArY), -AcFy_smooth,
-                      color=col[i], alpha=0.2, linestyle=style[i], label='Experiment ' + l_s[i])
-        elif i == 2:
-            # figT.scatter(-np.array(ArY)[peaks], -AcFy_smooth[peaks], color=col[0], s=1, label='Experiment ' + l_s[i])
-            figT.plot(-np.array(ArY), -AcFy_smooth,
-                      color=col[i], alpha=0.2, linestyle=style[0], label='Experiment ' + l_s[i])
-
-
-# # # # # Simulations # # # # #
-loc = '/home/biomech/Documents/01_Icotec/02_FEA/98_Pilots/' + specimen + '/'
-for n in range(len(mue)):
-    friction = mue[n]
-    lab = '\u03BC = 0.' + str(int(friction))
-    if friction == '00':
-        lab += '5'
-    for i in range(len(number)):
-        folder = [filename for filename in os.listdir(loc) if filename.startswith(number[i])][0] + '/'
-        samples = [filename for filename in sorted(os.listdir(loc + folder + '/'))
-                   if filename.endswith('RFnode.txt') and '_' + friction + '_' in filename]
-        [uy, rfy] = 2 * [0]
-        screw_force = np.zeros([5, 21])
-        ang = np.zeros([5, 21])
-        Screw_mat = ['P', 'T']
-        Sim_mat = ['P', 'T']
-        Fpoint = (-np.array([0, 75, 150])) * -37.037 - 1851
-        for j in range(len(samples)):
-            file_path = loc + folder + samples[j]
-            [uy, rf_] = read_RFnodeFile(file_path)
-            [u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-            # print('\n' + samples[j])
-            # print('Displacement:')
-            # print(uy)
-            # print('Force:')
-            # print(rfy)
-
-            if 'P_P' in samples[j]:
-                figP.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)
-                if uy[-1] > 1.01:
-                    figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
-            elif 'T_T' in samples[j]:
-                figT.plot(-uy, rfy, color=col[n], linestyle='solid', label=lab)
-                if uy[-1] > 1.01:
-                    figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
-            elif 'P_T' in samples[j]:
-                figT.plot(-uy, rfy, color=col[n], linestyle='dashed', label='_')
-                if uy[-1] > 1.01:
-                    figT.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
-            elif 'T_P' in samples[j]:
-                figP.plot(-uy, rfy, color=col[n], linestyle='solid', label='_')
-                if uy[-1] > 1.01:
-                    figP.scatter(-uy[-1], rfy[-1], color='k', marker='x', label='_')
-            else:
-                print('\n . . . Invalid file!\n')
-figP.axis([0, 10.5, 0, 250])
-figT.axis([0, 15.0, 0, 300])
-
-figP.legend()
-figP.set_xlabel('Displacement / mm')
-figP.set_ylabel('Force / N')
-figT.legend()
-figT.set_xlabel('Displacement / mm')
-figT.set_ylabel('Force / N')
-
-
-tRun = time.time()-t1
-if tRun >= 3600:
-    print('Execution time: ' + str(int(tRun/3600)) + ' h ' + str(int(np.mod(tRun, 3600)/60)) + ' min ' +
-          str(round(np.mod(tRun, 60), 1)) + ' sec.')
-elif tRun >= 60:
-    print('Execution time: ' + str(int(tRun/60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.')
-else:
-    print('Execution time: ' + str(round(tRun, 1)) + ' sec.')'''
-
-'''
-fric = '02'
-sample = sample.split('_resample')[0].split('/')[-1]
-file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + 
-            '/87_L50_S50_D45_d1_' + fric + '_T_RFnode.txt'
-[uy, rf_] = read_RFnodeFile(file_path)
-[u_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
-plt.figure()
-plt.plot(uy, -rfy)
-plt.plot(uy[-11:-5], -rfy[-11:-5])
-slopeFE = -(rfy[-11]-rfy[-6])/(uy[-11]-uy[-6])
-print(slopeFE)
-'''
+# # # # # Stiffness vs F_abs # # # # #
+fig5, axs5 = plt.subplot(1, 1)
+axs5.scatter(slope[samples], f_abs[samples], color=col[0])
+axs5.set_xlabel('Stiffness Experiment / N/mm')
+axs5.set_ylabel('F$_{abs}$ / N')
 
 #%% FEA catalogue
 for i in [24]:  # samples:  # ti_samples:  # range(2, 34):
