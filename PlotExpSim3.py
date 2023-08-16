@@ -271,27 +271,32 @@ for i in samples:  # ti_samples:  # range(2, 34):
         plt.ylabel('Force / N')
     '''
 
-plt.figure()
+fig2, axs2 = plt.subplots(1, 1)
 
-plt.scatter(slope[samples], slopeFE02[samples], color=col[0], label='$\mu$ = 0.2')
-plt.scatter(slope2[samples], slopeFE02_2[samples], color=col[0], marker='x', label='$\mu$ = 0.2 (extrema)')
-plt.scatter(slope[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
-            slopeFE05[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]], color=col[1], label='$\mu$ = 0.5', alpha=0.7)
-plt.scatter(slope2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
-            slopeFE05_2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
-            color=col[1], marker='x', label='$\mu$ = 0.5 (extrema)', alpha=0.7)
-plt.plot([0, 100], [0, 100], 'k')
-plt.xlabel('Stiffness Experiment / N/mm')
-plt.ylabel('Stiffness FE / N/mm')
+axs2.scatter(slope[samples], slopeFE02[samples], color=col[0], label='$\mu$ = 0.2')
+axs2.scatter(slope2[samples], slopeFE02_2[samples], color=col[0], marker='x', label='$\mu$ = 0.2 (extrema)')
+# axs2.scatter(slope[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
+#             slopeFE05[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]], color=col[1], label='$\mu$ = 0.5', alpha=0.7)
+# axs2.scatter(slope2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
+#             slopeFE05_2[[3, 4, 6, 9, 11, 12, 14, 22, 27, 28, 30, 33]],
+#             color=col[1], marker='x', label='$\mu$ = 0.5 (extrema)', alpha=0.7)
+axs2.plot([0, 100], [0, 100], 'k')
+axs2.set_xlabel('Stiffness Experiment / N/mm')
+axs2.set_ylabel('Stiffness FE / N/mm')
+axs2.set_aspect('equal')
 plt.legend()
 
 offset = open('/home/biomech/Documents/01_Icotec/01_Experiments/02_Scans/Lever_4mmrad.txt').read().splitlines()
 for i in range(len(offset)):
     offset[i] = float(offset[i])
 offset = np.array(offset)
-plt.figure()
-plt.scatter(offset[samples], slopeFE02[samples], color=col[0])
-plt.scatter(offset[samples], slopeFE02_2[samples], color=col[0], marker='x')
+fig3, axs3 = plt.subplots(1, 1)
+axs3.scatter(offset[samples], slopeFE02[samples], color=col[0])
+# plt.scatter(offset[samples], slopeFE02_2[samples], color=col[0], marker='x')
+axs3.set_xlabel('Offset / mm')
+axs3.set_ylabel('Stiffness / N/mm')
+
+# plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
 # plt.figure()
 # plt.plot(slope[peek_samples] / slope[ti_samples])
 
@@ -400,6 +405,40 @@ plt.plot(uy[-11:-5], -rfy[-11:-5])
 slopeFE = -(rfy[-11]-rfy[-6])/(uy[-11]-uy[-6])
 print(slopeFE)
 '''
+
+#%% FEA catalogue
+for i in [24]:  # samples:  # ti_samples:  # range(2, 34):
+    specimen = specimen_names[i]  # 'S131318_L4_right'
+    uy = 0
+    rfy = 0
+    # # # # # Experiments # # # # #
+    sample = loc + specimen + '_resample.csv'
+    [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
+
+    sample = sample.split('_resample')[0].split('/')[-1]
+    file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
+                '/86_L50_S50_D45_d1_02_P_RFnode.txt'
+    file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
+                '/88_L50_S50_D45_d1_02_P_RFnode.txt'
+    if len(open(file_path1, 'r').readline()) > 0 and len(open(file_path2, 'r').readline()) > 0:
+        [uy1, _] = read_RFnodeFile(file_path1)
+        [_, rfy1] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
+        [uy2, _] = read_RFnodeFile(file_path2)
+        [_, rfy2] = read_RFnodeFile(file_path2.split('.txt')[0] + 'Fix.txt')
+        if len(uy1) < len(uy2):
+            uy = uy2
+            rfy = rfy2
+        else:
+            uy = uy1
+            rfy = rfy1
+    plt.figure()
+    plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
+    plt.plot(uy, -rfy, label='FEA')
+    plt.xlabel('Displacement / mm')
+    plt.ylabel('Force / N')
+    plt.title(specimen)
+    plt.legend()
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/01_Catalogue_FEA_Exp/' + sample + '.png')
 #%% uFE test files
 file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_RFnode.txt'
 [uy, _] = read_RFnodeFile(file)
@@ -413,15 +452,15 @@ file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_RFnode.txt'
 [_, rfy2] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
 
 plt.figure()
-plt.plot(uy, -rfy, label='Ti')
-
 plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
+plt.plot(uy, -rfy, label='Ti')
 plt.plot(uy2, -rfy2, label='PEEK')
 plt.scatter(uy[-1], -rfy[-1], color='r', marker='x')
 plt.scatter(uy2[-1], -rfy2[-1], color='r', marker='x')
 plt.title('uFE tests')
 plt.xlabel('Displacement / mm')
 plt.ylabel('Force / N')
+plt.legend()
 
 #%% Energy plot
 file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_ke.txt'
@@ -452,8 +491,10 @@ plt.plot(t, ke/(ie + ke), label='$E_k$/$E_{total}$')
 plt.plot([t[0], t[-1]], [0.1, 0.1], 'k--')
 plt.legend()
 #%% BVTV Plot
-radius = [4, 45, 5, 6]
+radius = [6]
+radius_txt = [6]
 # fig, axs = plt.subplots(1, 1, figsize=(9, 6))
+plt.figure()
 for j in range(len(radius)):
     bvtvList = []
     specList = []
@@ -467,10 +508,10 @@ for j in range(len(radius)):
         specList += len(bvtv)*[i]
         indexList += range(len(bvtv))
     dfPlot = pd.DataFrame()
-    dfPlot['bvtv'] = bvtvList
+    dfPlot['BV/TV'] = bvtvList
     dfPlot['specimen'] = specList
-    dfPlot['index'] = indexList
-    sns.lineplot(data=dfPlot, x='index', y='bvtv', errorbar='sd', label='Radius: ' + str(radius[j]) + ' mm')
+    dfPlot['Slice Number'] = indexList
+    sns.lineplot(data=dfPlot, x='Slice Number', y='BV/TV', errorbar='sd', label='Radius: ' + str(radius_txt[j]) + ' mm')
 #%% BVTV vs Exp
 
 bvtv_range = np.array([0, 0.6])
@@ -485,8 +526,11 @@ RR = np.array([])
 stop = [264]
 weight = 1  # 1
 temp = np.array([])
+col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+       '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+mark = ['o', 's']
 for j in range(len(stop)):
-    # plt.figure()
+    plt.figure()
     xdata = []
     ydata = []
     for i in range(len(specimen_names)):
@@ -495,32 +539,32 @@ for j in range(len(stop)):
         offset = int((bvtv != 0).argmax(axis=0)/weight)
         sample = loc + specimen_names[i] + '_resample.csv'
         [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
-        # plt.scatter(np.mean(bvtv[start:stop], axis=0), np.max(-AcFy, axis=0))
+        # plt.scatter(np.mean(bvtv[start:stop[j]], axis=0), np.max(-AcFy, axis=0))
         AcFy = AcFy - AcFy['Acumen Fy'][0]
         xdata = np.append(xdata, np.mean(bvtv[start+offset:stop[j]+offset], axis=0))
         ydata = np.append(ydata, np.min(AcFy[3500:5700], axis=0))
         print('Offset for ' + specimen_names[i] + ' = \t' + str(np.round(offset*0.0606995, 3)) + ' mm')
         temp = np.append(temp, offset*0.0606995)
-        # plt.scatter(xdata[i], ydata[i])
-    # plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop[j]))
-    # plt.ylabel('Force / N')
-    # plt.title('Radius: ' + str(radius[0]) + ', weighted offset: w = 1/' + str(weight))
+        plt.scatter(xdata[i], ydata[i], color=col[int(i/2)], marker=mark[int(i/20)])
+    plt.xlabel('BV/TV for slices ' + str(start) + ' to ' + str(stop[j]))
+    plt.ylabel('Mean(force / N) of last cycle')
+    plt.title('Radius: ' + str(radius[0]) + ', weighted offset: w = 1/' + str(weight))
 
     regression_T, xx_T, yy_T = lin_reg(np.array(xdata), np.array(ydata))
-    # plt.plot(bvtv_range, bvtv_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
-    #         label='Titanium:')
+    plt.plot(bvtv_range, bvtv_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+             label='Titanium:')
     if regression_T.pvalues[1] >= 0.05:
         lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
     else:
         lab_pvalue_T = 'p < 0.05'
-    # plt.plot([0, 0], [0, 0], color='w', linestyle='dashed',
-    #         label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
-    # plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
-    # plt.legend()
-    # print(regression_T.rsquared)
+    plt.plot([0, 0], [0, 0], color='w', linestyle='dashed',
+             label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+    plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
+    plt.legend()
+    print(regression_T.rsquared)
     RR = np.append(RR, regression_T.rsquared)
     # plt.close('all')
-plt.figure()
-plt.plot(temp)
-plt.plot([0, 33], [np.mean(temp), np.mean(temp)])
+# plt.figure()
+# plt.plot(temp)
+# plt.plot([0, 33], [np.mean(temp), np.mean(temp)])
 print('Mean offset:\t\t\t\t\t' + str(np.round(np.mean(temp), 3)) + ' mm')

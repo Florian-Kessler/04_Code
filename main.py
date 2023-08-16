@@ -155,7 +155,10 @@ def mapping(sample, mod, fric_):
 
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-for i in range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]  # without 0
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # without 1
+
+for i in ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 24, 0.2)  # samples, model, friction
+    mapping(sample_list[i], 25, 0.5)  # samples, model, friction

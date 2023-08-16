@@ -810,7 +810,7 @@ plt.figure()
 plt.imshow(mask[:, 300, :])
 '''
 #%%
-
+'''
 radius_list = [3]  # working on: 5, done: 4, 4.5
 radius_list_str = ['3']
 # BVTV_mask, BVTV_mask_along = eval_bvtv_mask_along(sample_list[8], 4.5)
@@ -837,3 +837,4 @@ elif tRun >= 60:
     print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
 else:
     print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
+'''
