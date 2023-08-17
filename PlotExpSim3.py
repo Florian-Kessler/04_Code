@@ -324,15 +324,46 @@ datarange = np.array([0, 90])
 axs4.scatter(xdata, ydata, color=col[0])
 axs4.set_xlabel('Stiffness Experiment / N/mm')
 axs4.set_ylabel('F$_{rel}$ / N')
-regression_T, xx_T, yy_T = lin_reg(np.array(xdata), np.array(ydata))
-axs4.plot(datarange, datarange * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
-          label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+regression, xx, yy = lin_reg(np.array(xdata), np.array(ydata))
+axs4.plot(datarange, datarange * regression.params[1] + regression.params[0], color='k', linestyle='dotted',
+          label='R$^2$ = {:0.2f}'.format(np.round(regression.rsquared, 2)))
+if regression.pvalues[1] >= 0.05:
+    lab_pvalue = 'p = ' + str(np.round(regression.pvalues[1], 2))
+else:
+    lab_pvalue = 'p < 0.05'
+axs4.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue)
+plt.legend()
+
+# # # # # Stiffness normalised by F_rel # # # # #
+fig41, axs41 = plt.subplots(1, 1)
+datarange = np.array([0, 1400])
+axs41.scatter(slope[ti_samples] * f_rel[ti_samples], slopeFE02[ti_samples] * f_rel[ti_samples], label='Ti')
+axs41.scatter(slope[peek_samples] * f_rel[peek_samples], slopeFE02[peek_samples] * f_rel[peek_samples], label='PEEK')
+regression_T, xx_T, yy_T = lin_reg(np.array(slope[ti_samples] * f_rel[ti_samples]),
+                                   np.array(slopeFE02[ti_samples] * f_rel[ti_samples]))
+axs41.plot(datarange, datarange * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+           label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
 if regression_T.pvalues[1] >= 0.05:
     lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
 else:
     lab_pvalue_T = 'p < 0.05'
-axs4.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+axs41.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+regression_P, xx_P, yy_P = lin_reg(np.array(slope[peek_samples] * f_rel[peek_samples]),
+                                   np.array(slopeFE02[peek_samples] * f_rel[peek_samples]))
+axs41.plot(datarange, datarange * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashed',
+           label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)))
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+axs41.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P)
+
 plt.legend()
+axs41.set_xlabel('Stiffness Experiment / F$_{rel}$')
+axs41.set_ylabel('Stiffness FEA / F$_{rel}$')
+axs41.set_aspect('equal')
+axs41.set_xlim(datarange)
+axs41.set_ylim(datarange)
 
 # # # # # Stiffness vs F_abs # # # # #
 fig5, axs5 = plt.subplots(1, 1)
