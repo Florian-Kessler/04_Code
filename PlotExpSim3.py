@@ -149,6 +149,8 @@ plt.close('all')
 
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
+all_samples = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+               17, 18, 19, 20, 21, 22, 23, 26, 27, 28, 29, 30, 31, 32, 33]
 slope = np.zeros(34)
 slope2 = np.zeros(34)
 slopeFE02 = np.zeros(34)
@@ -161,7 +163,7 @@ cycle = 2
 plots = 0
 noData02 = []
 noData05 = []
-samples = ti_samples#peek_samples
+samples = all_samples #peek_samples
 
 for i in samples:  # ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
@@ -213,7 +215,7 @@ for i in samples:  # ti_samples:  # range(2, 34):
         file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
                      '/87_L50_S50_D45_d1_02_T_RFnode.txt'
 
-    if i in peek_samples and len(open(file_path1, 'r').readline()) > 0 and len(open(file_path2, 'r').readline()) > 0:
+    if i in peek_samples and len(open(file_path1, 'r').readline()) > 1 and len(open(file_path2, 'r').readline()) > 1:
         [uy1, _] = read_RFnodeFile(file_path1)
         [_, rfy1] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
         [uy2, _] = read_RFnodeFile(file_path2)
@@ -224,18 +226,18 @@ for i in samples:  # ti_samples:  # range(2, 34):
         else:
             uy = uy1
             rfy = rfy1
-    elif i in ti_samples and len(open(file_path, 'r').readline()) > 0:
-        [uy, _] = read_RFnodeFile(file_path1)
-        [_, rfy] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
+    elif i in ti_samples and len(open(file_path, 'r').readline()) > 1:
+        [uy, _] = read_RFnodeFile(file_path)
+        [_, rfy] = read_RFnodeFile(file_path.split('.txt')[0] + 'Fix.txt')
     if len(uy) >= 42:
         # slopeFE02[i] = -(rfy[-11] - rfy[-6]) / (uy[-11] - uy[-6])
         slopeFE02[i] = -(rfy[31] - rfy[36]) / (uy[31] - uy[36])
         # slopeFE02_2[i] = -(rfy[-11] - rfy[-1]) / (uy[-11] - uy[-1])
         slopeFE02_2[i] = -(rfy[31] - rfy[41]) / (uy[31] - uy[41])
-        print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
-        print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
-        print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm')
-        print('FE2:  ' + str(np.round(slopeFE02_2[i], 1)) + ' N/mm\n')
+        # print('Exp.: ' + str(np.round(slope[i], 1)) + ' N/mm')
+        # print('Exp2: ' + str(np.round(slope2[i], 1)) + ' N/mm')
+        # print('FE:   ' + str(np.round(slopeFE02[i], 1)) + ' N/mm')
+        # print('FE2:  ' + str(np.round(slopeFE02_2[i], 1)) + ' N/mm\n')
     else:
         print('Data missing for ' + str(sample) + '.\n')
         noData02.append(i)
@@ -316,13 +318,24 @@ axs3.set_ylabel('Stiffness / N/mm')
 
 # # # # # Stiffness vs F_rel # # # # #
 fig4, axs4 = plt.subplots(1, 1)
-axs4.scatter(slope[samples], f_rel[samples], color=col[0])
+xdata = slope[samples]
+ydata = f_rel[samples]
+datarange = np.array([0, 90])
+axs4.scatter(xdata, ydata, color=col[0])
 axs4.set_xlabel('Stiffness Experiment / N/mm')
 axs4.set_ylabel('F$_{rel}$ / N')
-# axs4.set_aspect('equal')
+regression_T, xx_T, yy_T = lin_reg(np.array(xdata), np.array(ydata))
+axs4.plot(datarange, datarange * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+          label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+if regression_T.pvalues[1] >= 0.05:
+    lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
+else:
+    lab_pvalue_T = 'p < 0.05'
+axs4.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+plt.legend()
 
 # # # # # Stiffness vs F_abs # # # # #
-fig5, axs5 = plt.subplot(1, 1)
+fig5, axs5 = plt.subplots(1, 1)
 axs5.scatter(slope[samples], f_abs[samples], color=col[0])
 axs5.set_xlabel('Stiffness Experiment / N/mm')
 axs5.set_ylabel('F$_{abs}$ / N')
