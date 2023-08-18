@@ -203,8 +203,10 @@ for i in samples:  # ti_samples:  # range(2, 34):
         axs1.set_ylabel('Force / N')
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
     slope2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]]) / (AcY_smooth[s2[1]] - AcY_smooth[s2[0]])
-    f_rel[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]])**1
-    f_rel2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]])**1
+    f_rel[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]])
+    # f_rel[i] = np.random.rand()
+    f_rel2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]])
+    # f_rel2[i] = np.random.rand()
     f_abs[i] = AcFy_smooth[s[1]]
     sample = sample.split('_resample')[0].split('/')[-1]
     if i in peek_samples:
@@ -339,15 +341,15 @@ plt.legend()
 # # # # # Stiffness normalised by F_rel # # # # #
 fig41, axs41 = plt.subplots(1, 1)
 datarange = np.array([0, 2500])
-# axs41.scatter(slope[ti_samples] * f_rel[ti_samples], slopeFE02[ti_samples] * f_rel[ti_samples],
-#               color=col[0], label='Ti')
-axs41.scatter(slope2[ti_samples] * f_rel2[ti_samples], slopeFE02_2[ti_samples] * f_rel2[ti_samples],
-              color=col[0], marker='x', label='Ti (extrema)')
-# axs41.scatter(slope[peek_samples] * f_rel[peek_samples], slopeFE02[peek_samples] * f_rel[peek_samples],
-#               color=col[1], label='PEEK')
-axs41.scatter(slope2[peek_samples] * f_rel2[peek_samples], slopeFE02_2[peek_samples] * f_rel2[peek_samples],
-              color=col[1], marker='x', label='PEEK (extrema)')
-'''
+axs41.scatter(slope[ti_samples] * f_rel[ti_samples], slopeFE02[ti_samples] * f_rel[ti_samples],
+              color=col[0], label='Ti')
+# axs41.scatter(slope2[ti_samples] * f_rel2[ti_samples], slopeFE02_2[ti_samples] * f_rel2[ti_samples],
+#               color=col[0], marker='x', label='Ti (extrema)')
+axs41.scatter(slope[peek_samples] * f_rel[peek_samples], slopeFE02[peek_samples] * f_rel[peek_samples],
+              color=col[1], label='PEEK')
+# axs41.scatter(slope2[peek_samples] * f_rel2[peek_samples], slopeFE02_2[peek_samples] * f_rel2[peek_samples],
+#               color=col[1], marker='x', label='PEEK (extrema)')
+
 regression_T, xx_T, yy_T = lin_reg(np.array(slope[ti_samples] * f_rel[ti_samples]),
                                    np.array(slopeFE02[ti_samples] * f_rel[ti_samples]))
 axs41.plot(datarange, datarange * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
@@ -385,10 +387,10 @@ if regression_Px.pvalues[1] >= 0.05:
 else:
     lab_pvalue_Px = 'p < 0.05'
 axs41.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_Px)
-
+'''
 plt.legend()
-axs41.set_xlabel('Stiffness Experiment / F$_{rel}$')
-axs41.set_ylabel('Stiffness FEA / F$_{rel}$')
+axs41.set_xlabel('Stiffness Experiment * F$_{rel}$')
+axs41.set_ylabel('Stiffness FEA * F$_{rel}$')
 axs41.set_aspect('equal')
 axs41.set_xlim(datarange)
 axs41.set_ylim(datarange)
@@ -554,7 +556,6 @@ for j in range(len(stop)):
              label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
     plt.plot([0, 0], [0, 0], color='w', label=lab_pvalue_T)
     plt.legend()
-    print(regression_T.rsquared)
     RR = np.append(RR, regression_T.rsquared)
     # plt.close('all')
 # plt.figure()

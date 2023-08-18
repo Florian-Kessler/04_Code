@@ -4,7 +4,7 @@ import os
 path = '/home/biomech/Downloads/FE_test/'
 inp_bone = 'Mesh_test_0121399icotest0.inp'
 inp_screw = 'Mesh_test_0121399icoscrew.inp'
-inp_template = 'inp_temp.inp'
+inp_template = 'inp_temp2.inp'
 
 bone_mesh = open(path + inp_bone, 'r')
 screw_mesh = open(path + inp_screw, 'r')
