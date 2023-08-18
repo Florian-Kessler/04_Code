@@ -20,7 +20,7 @@ def mapping(sample, mod, fric_):
               # 15, 16, 17, 18, 19
               '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 20, 21, 22, 23
               '85_L50_S50_D45', '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 24, 25, 26, 27
-              '94_OSTP']  # 26
+              '94_OSTP']  # 28
 
     model_code = models[mod]  # FEA model name
     print('Model: ' + str(model_code))
@@ -65,7 +65,7 @@ def mapping(sample, mod, fric_):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 0
+    write_output = 1
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -158,7 +158,7 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]  # without 0
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # without 1
 
-for i in ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
+for i in [8]:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 24, 0.2)  # samples, model, friction
+    mapping(sample_list[i], 28, 0.2)  # samples, model, friction
