@@ -204,9 +204,7 @@ for i in samples:  # ti_samples:  # range(2, 34):
     slope[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]]) / (AcY_smooth[s[1]] - AcY_smooth[s[0]])
     slope2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]]) / (AcY_smooth[s2[1]] - AcY_smooth[s2[0]])
     f_rel[i] = (AcFy_smooth[s[1]] - AcFy_smooth[s[0]])
-    # f_rel[i] = np.random.rand()
     f_rel2[i] = (AcFy_smooth[s2[1]] - AcFy_smooth[s2[0]])
-    # f_rel2[i] = np.random.rand()
     f_abs[i] = AcFy_smooth[s[1]]
     sample = sample.split('_resample')[0].split('/')[-1]
     if i in peek_samples:
@@ -218,6 +216,8 @@ for i in samples:  # ti_samples:  # range(2, 34):
     elif i in ti_samples:
         file_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
                      '/87_L50_S50_D45_d1_02_T_RFnode.txt'
+        # file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/85_L50_S50_D45' + \
+        #              '/85_L50_S50_D45_d1_02_T_RFnode.txt'
 
     if i in peek_samples and len(open(file_path1, 'r').readline()) > 1 and len(open(file_path2, 'r').readline()) > 1:
         [uy1, _] = read_RFnodeFile(file_path1)
@@ -402,19 +402,28 @@ axs5.set_xlabel('Stiffness Experiment / N/mm')
 axs5.set_ylabel('F$_{abs}$ / N')
 
 #%% FEA catalogue
-for i in [24]:  # samples:  # ti_samples:  # range(2, 34):
+for i in [25]:  # samples:  # ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
     # # # # # Experiments # # # # #
     sample = loc + specimen + '_resample.csv'
     [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
-
+    print(specimen)
     sample = sample.split('_resample')[0].split('/')[-1]
-    file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
-                '/86_L50_S50_D45_d1_02_P_RFnode.txt'
-    file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
-                '/88_L50_S50_D45_d1_02_P_RFnode.txt'
+    if i in peek_samples:
+        file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
+                    '/86_L50_S50_D45_d1_02_P_RFnode.txt'
+        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
+                    '/88_L50_S50_D45_d1_02_P_RFnode.txt'
+    elif i in ti_samples or i in [25]:
+        file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/85_L50_S50_D45' + \
+                    '/85_L50_S50_D45_d1_02_P_RFnode.txt'
+        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
+                    '/87_L50_S50_D45_d1_02_P_RFnode.txt'
+    else:
+        print('Specimen ' + specimen + ' not in list.')
+        continue
     if len(open(file_path1, 'r').readline()) > 0 and len(open(file_path2, 'r').readline()) > 0:
         [uy1, _] = read_RFnodeFile(file_path1)
         [_, rfy1] = read_RFnodeFile(file_path1.split('.txt')[0] + 'Fix.txt')
@@ -518,8 +527,8 @@ RR = np.array([])
 # stop = [263, 264, 265]  # 264 for along, mean(3500:5700)
 # stop = [90, 91, 92]  # 91 for along_load, mean(3500:5700)
 # stop = [81, 82, 83]  # 82 for along_load, min(3500:5700)
-stop = [264]
-weight = 1  # 1
+stop = [82]
+weight = 1
 temp = np.array([])
 col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']

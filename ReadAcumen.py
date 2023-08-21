@@ -183,9 +183,10 @@ def lin_reg(X, Y):
 
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
-peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
 # Titanium, without 1 (diff ampl)
-ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # wihtout 25
+
 
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
@@ -207,7 +208,7 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 1
+loglog = 0
 alp = 0.3
 if loglog:
     F_range = np.array([0, 2.6])
@@ -253,8 +254,8 @@ for x in range(x0, x1):
             RFy_exp_T.append(RFy_exp[x, i])
         elif i == 24:  # HERE exclude sample
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v', alpha=alp)
-        # elif i == 25:  # HERE exclude sample
-        #     plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
+        elif i == 25:  # HERE exclude sample
+            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
         del RFy_
 axs.plot(F_range, F_range, 'k', label='1:1')
 if loglog:
