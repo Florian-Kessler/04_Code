@@ -9,7 +9,7 @@ inp_template = 'inp_temp2.inp'
 bone_mesh = open(path + inp_bone, 'r')
 screw_mesh = open(path + inp_screw, 'r')
 template = open(path + inp_template, 'r')
-input_file = 'test_4.inp'
+input_file = 'test_x.inp'
 
 try:
     os.remove(path + input_file)
