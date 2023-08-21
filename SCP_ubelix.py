@@ -20,13 +20,13 @@ def copy(spec, mod, doc, dir_):
         print('Invalid direction.')
 
 
-document = '*_T.sh'
+document = '*_T.inp'
 direction = 'to'  # from local TO REMOTE or FROM REMOTE to local
-model = '87_L50_S50_D45'
+model = '85_L50_S50_D45'
 
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
 
 # [12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # range(12, 19):  # range(len(specimen)):
-for i in [12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # peek_samples:
+for i in ti_samples:
     copy(i, model, document, direction)
