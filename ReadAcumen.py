@@ -208,7 +208,7 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 0
+loglog = 1
 alp = 0.3
 if loglog:
     F_range = np.array([0, 2.6])

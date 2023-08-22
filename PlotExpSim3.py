@@ -397,12 +397,34 @@ axs41.set_ylim(datarange)
 
 # # # # # Stiffness vs F_abs # # # # #
 fig5, axs5 = plt.subplots(1, 1)
-axs5.scatter(slope[samples], f_abs[samples], color=col[0])
+axs5.scatter(slope[ti_samples], f_abs[ti_samples], color=col[0], label='Ti')
+axs5.scatter(slope[peek_samples], f_abs[peek_samples], color=col[1], label='PEEK')
 axs5.set_xlabel('Stiffness Experiment / N/mm')
 axs5.set_ylabel('F$_{abs}$ / N')
+datarange = np.array([0, 90])
 
+regression_T, xx_T, yy_T = lin_reg(np.array(slope[ti_samples]), f_abs[ti_samples])
+axs5.plot(datarange, datarange * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
+           label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
+if regression_T.pvalues[1] >= 0.05:
+    lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
+else:
+    lab_pvalue_T = 'p < 0.05'
+axs5.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
+
+regression_P, xx_P, yy_P = lin_reg(np.array(slope[peek_samples]), f_abs[peek_samples])
+axs5.plot(datarange, datarange * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashed',
+           label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)))
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+axs5.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P)
+
+plt.legend()
+axs5.set_xlim(datarange)
 #%% FEA catalogue
-for i in [25]:  # samples:  # ti_samples:  # range(2, 34):
+for i in ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
@@ -416,11 +438,12 @@ for i in [25]:  # samples:  # ti_samples:  # range(2, 34):
                     '/86_L50_S50_D45_d1_02_P_RFnode.txt'
         file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
                     '/88_L50_S50_D45_d1_02_P_RFnode.txt'
-    elif i in ti_samples or i in [25]:
-        file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/85_L50_S50_D45' + \
-                    '/85_L50_S50_D45_d1_02_P_RFnode.txt'
+    elif i in ti_samples:
+        # file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/85_L50_S50_D45' + \
+        #             '/85_L50_S50_D45_d1_02_T_RFnode.txt'
         file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
-                    '/87_L50_S50_D45_d1_02_P_RFnode.txt'
+                    '/87_L50_S50_D45_d1_02_T_RFnode.txt'
+        file_path1=file_path2
     else:
         print('Specimen ' + specimen + ' not in list.')
         continue
