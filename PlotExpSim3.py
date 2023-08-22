@@ -164,12 +164,15 @@ cycle = 2
 plots = 0
 noData02 = []
 noData05 = []
-samples = all_samples #peek_samples
+samples = all_samples  # peek_samples
 
 for i in samples:  # ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
+    file_path = []
+    file_path1 = []
+    file_path2 = []
     # # # # # Experiments # # # # #
 
     sample = loc + specimen + '_resample.csv'
@@ -609,7 +612,7 @@ RR = np.array([])
 # stop = [263, 264, 265]  # 264 for along, mean(3500:5700)
 # stop = [90, 91, 92]  # 91 for along_load, mean(3500:5700)
 # stop = [81, 82, 83]  # 82 for along_load, min(3500:5700)
-stop = [264]
+stop = [290]
 
 temp = np.array([])
 col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
@@ -637,16 +640,12 @@ for j in range(len(stop)):
         m = np.array(bvtv[start+offset:stop[j]+offset])
         COG = np.sum(m*x) / np.sum(m)
         cog = np.append(cog, COG)
-        print('COG:\t' + str(np.round(COG, 2)) + ' mm')
-        if plot:
-            plt.figure()
-            plt.plot(x, m)
-            plt.plot([COG, COG], [0, .5])
+        # print('COG:\t' + str(np.round(COG, 2)) + ' mm')
 
         # Moment
-        lever = COG + offset
-        moment = np.append(moment, lever * np.min(AcFy[3500:5700], axis=0))
-        print('Moment:\t' + str(np.round(moment[i], 2)) + ' Nmm\n')
+        lever = COG + offset*0.0606995
+        moment = np.append(moment, lever/1000 * np.min(AcFy[3500:5700], axis=0))
+        # print('Moment:\t' + str(np.round(moment[i], 2)) + ' Nm\n')
         ydata = np.append(ydata, moment[i])
 
         # print('Offset for ' + specimen_names[i] + ' = \t' + str(np.round(offset*0.0606995, 3)) + ' mm')
@@ -675,4 +674,4 @@ for j in range(len(stop)):
 # plt.figure()
 # plt.plot(temp)
 # plt.plot([0, 33], [np.mean(temp), np.mean(temp)])
-print('Mean offset:\t\t\t\t\t' + str(np.round(np.mean(temp), 3)) + ' mm')
+print('Mean offset:\t' + str(np.round(np.mean(temp), 3)) + ' mm')
