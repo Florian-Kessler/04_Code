@@ -115,33 +115,46 @@ def read_FE_(number, model_code, plot, fric_):
     loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
     loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
-        model_code = model_code[:19] + fric_.split('.')[-1] + '_P'
+        model_code1 = str(int(model_code[:2])-0) + model_code[2:19] + fric_.split('.')[-1] + '_P'
+        model_code2 = str(int(model_code[:2])-2) + model_code[2:19] + fric_.split('.')[-1] + '_P'
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
-        model_code = '87' + model_code[2:19] + fric_.split('.')[-1] + '_T'
+        model_code1 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'
+        model_code2 = str(int(model_code[:2])-3) + model_code[2:19] + fric_.split('.')[-1] + '_T'
     else:
         print('Invalid model code!')
     specimen = specimens[number]
     file = [loc_Exp + specimen + '_resample.csv',
-            loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnode.txt',
-            loc_FEA + specimen + '/' + model_code[:14] + '/' + model_code + '_RFnodeFix.txt']
+            loc_FEA + specimen + '/' + model_code1[:14] + '/' + model_code1 + '_RFnode.txt',
+            loc_FEA + specimen + '/' + model_code1[:14] + '/' + model_code1 + '_RFnodeFix.txt',
+            loc_FEA + specimen + '/' + model_code2[:14] + '/' + model_code2 + '_RFnode.txt',
+            loc_FEA + specimen + '/' + model_code2[:14] + '/' + model_code2 + '_RFnodeFix.txt'
+            ]
 
     # Load data
     # [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c]
     [_, A_y, _, _, _, _, a_y, a_f, _] = read_resample(file[0])  # load experimental result file (csv)
-    [Uy, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
-    [_, RFy] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
-    if plot:
+    [Uy1, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
+    [_, RFy1] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
+    [Uy2, _] = read_RFnodeFile(file[3])  # read y displacement of moving reference node
+    [_, RFy2] = read_RFnodeFile(file[4])  # read y reaction force of fixed reference node
+    if len(Uy1) >= len(Uy2):
+        Uy = Uy1
+        RFy = RFy1
+    elif len(Uy1) < len(Uy2):
+        Uy = Uy2
+        RFy = RFy2
+    if plot == 1:
         fig1, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
         plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
         if model_code.split('_')[-1] == 'P':
-            ax1.plot(Uy, -RFy + RFy[0], label='FEA (YM PEEK = 25 GPa, u = 0.5)', color='#1f77b4')  # plot fea results
+            ax1.plot(Uy, -RFy + RFy[0], label='FEA PEEK', color='#1f77b4')  # plot fea results
         else:
-            ax1.plot(Uy, -RFy + RFy[0], label='FEA (YM Ti = 100 GPa, u = 0.5)', color='#1f77b4')  # plot fea results
-        if number in [0, 1, 2, 10, 14, 17]:
-            print('Using Acumen displacement.')
-            ax1.plot(a_y, a_f - a_f[0], '--', label='Experiment', color='#ff7f0e')  # plot experimental results
-        else:
-            ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
+            ax1.plot(Uy, -RFy + RFy[0], label='FEA Ti', color='#1f77b4')  # plot fea results
+        if number in range(0, 40):  # [0, 1, 2, 10, 14, 17]:
+            # print('Using Acumen displacement.')
+            ax1.plot(a_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
+        #else:
+        #    ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
             # ax1.plot(a_y, a_f - a_f[0], '--', label='_nolegend_', color='#ff7f0e')  # plot y data from acumen
 
         ax1.legend()
@@ -150,6 +163,22 @@ def read_FE_(number, model_code, plot, fric_):
 
         fig1.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/00_Exp_FE/Exp_FE_' +
                      specimen + '_' + model_code + '.png')
+    elif plot == 2:
+        fig2, ax2 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
+        plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
+        if model_code.split('_')[-1] == 'P':
+            ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA PEEK 88', color='#1f77b4')  # plot fea results
+            ax2.plot(Uy2, -RFy2 + RFy2[0], '--', label='FEA PEEK 86', color='#1f77b4')  # plot fea results
+        else:
+            ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA Ti 87', color='#1f77b4')  # plot fea results
+            ax2.plot(Uy2, -RFy2 + RFy2[0], label='FEA Ti 85', color='#1f77b4')  # plot fea results
+        ax2.plot(a_y, a_f - a_f[0], label='Experiment Acumen', color='#ff7f0e')  # plot experimental results acumen
+        ax2.plot(A_y, a_f - a_f[0], '--', label='Experiment Aramis', color='#ff7f0e')  # plot experimental results Aramis
+        ax2.axhline(y=0, color='k', linestyle='--', lw=0.5)
+        ax2.axvline(x=0, color='k', linestyle='--', lw=0.5)
+        ax2.legend()
+        ax2.set_xlabel('Displacement / mm')
+        ax2.set_ylabel('Force / N')
     return Uy, RFy, A_y, a_y, a_f
 
 
@@ -192,7 +221,7 @@ x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
-model = '86_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
+model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -208,7 +237,7 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 1
+loglog = 0
 alp = 0.3
 if loglog:
     F_range = np.array([0, 2.6])
@@ -252,9 +281,9 @@ for x in range(x0, x1):
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s')
             RFy_FE_T.append(RFy_FE[x, i])
             RFy_exp_T.append(RFy_exp[x, i])
-        elif i == 24:  # HERE exclude sample
+        elif i == 24:  # HERE exclude sample from regression, plot transparent
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v', alpha=alp)
-        elif i == 25:  # HERE exclude sample
+        elif i == 25:  # HERE exclude sample from regression, plot transparent
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
         del RFy_
 axs.plot(F_range, F_range, 'k', label='1:1')
@@ -564,4 +593,3 @@ axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashed',
 axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
 
 plt.legend(framealpha=1)
-# %% Catalogue Exp vs FEA
