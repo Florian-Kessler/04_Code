@@ -612,6 +612,7 @@ RR = np.array([])
 # stop = [263, 264, 265]  # 264 for along, mean(3500:5700)
 # stop = [90, 91, 92]  # 91 for along_load, mean(3500:5700)
 # stop = [81, 82, 83]  # 82 for along_load, min(3500:5700)
+# stop = [290] for along, moment(min(3500:5700))
 stop = [290]
 
 temp = np.array([])
