@@ -111,6 +111,8 @@ def read_exp_peaks():
 
 def read_FE_(number, model_code, plot, fric_):
     # Locations
+    model_code1 = []
+    model_code2 = []
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
     loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
     loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
@@ -132,6 +134,8 @@ def read_FE_(number, model_code, plot, fric_):
 
     # Load data
     # [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c]
+    RFy = []
+    Uy = []
     [_, A_y, _, _, _, _, a_y, a_f, _] = read_resample(file[0])  # load experimental result file (csv)
     [Uy1, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
     [_, RFy1] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
@@ -145,16 +149,16 @@ def read_FE_(number, model_code, plot, fric_):
         RFy = RFy2
     if plot == 1:
         fig1, ax1 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
-        plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
-        if model_code.split('_')[-1] == 'P':
+        plt.title('Experimental results ' + specimen + ' ' + model_code1.split('_')[-1])
+        if model_code1.split('_')[-1] == 'P':
             ax1.plot(Uy, -RFy + RFy[0], label='FEA PEEK', color='#1f77b4')  # plot fea results
         else:
             ax1.plot(Uy, -RFy + RFy[0], label='FEA Ti', color='#1f77b4')  # plot fea results
         if number in range(0, 40):  # [0, 1, 2, 10, 14, 17]:
             # print('Using Acumen displacement.')
             ax1.plot(a_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
-        #else:
-        #    ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
+        # else:
+        #     ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
             # ax1.plot(a_y, a_f - a_f[0], '--', label='_nolegend_', color='#ff7f0e')  # plot y data from acumen
 
         ax1.legend()
@@ -162,18 +166,19 @@ def read_FE_(number, model_code, plot, fric_):
         ax1.set_ylabel('Force / N')
 
         fig1.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/00_Exp_FE/Exp_FE_' +
-                     specimen + '_' + model_code + '.png')
+                     specimen + '_' + model_code1 + '.png')
     elif plot == 2:
         fig2, ax2 = plt.subplots(1, 1, figsize=(9, 6))  # set figure size
-        plt.title('Experimental results ' + specimen + ' ' + model_code.split('_')[-1])
-        if model_code.split('_')[-1] == 'P':
-            ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA PEEK 88', color='#1f77b4')  # plot fea results
-            ax2.plot(Uy2, -RFy2 + RFy2[0], '--', label='FEA PEEK 86', color='#1f77b4')  # plot fea results
-        else:
-            ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA Ti 87', color='#1f77b4')  # plot fea results
-            ax2.plot(Uy2, -RFy2 + RFy2[0], label='FEA Ti 85', color='#1f77b4')  # plot fea results
-        ax2.plot(a_y, a_f - a_f[0], label='Experiment Acumen', color='#ff7f0e')  # plot experimental results acumen
-        ax2.plot(A_y, a_f - a_f[0], '--', label='Experiment Aramis', color='#ff7f0e')  # plot experimental results Aramis
+        plt.title('Experimental results ' + specimen + ' ' + model_code1.split('_')[-1] + ' (no. ' + str(number) + ')')
+        # if model_code.split('_')[-1] == 'P':
+        #     ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA PEEK 88', color='#1f77b4')  # plot fea results
+        #     ax2.plot(Uy2, -RFy2 + RFy2[0], '--', label='FEA PEEK 86', color='#1f77b4')  # plot fea results
+        # else:
+        #     ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA Ti 87', color='#1f77b4')  # plot fea results
+        #     ax2.plot(Uy2, -RFy2 + RFy2[0], label='FEA Ti 85', color='#1f77b4')  # plot fea results
+        # ax2.plot(a_y, a_f - a_f[0], label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
+        ax2.plot(a_y, a_f, label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
+        # ax2.plot(A_y, a_f - a_f[0], '--', label='Experiment Aramis', color='#ff7f0e')  # plot experimental (Aramis)
         ax2.axhline(y=0, color='k', linestyle='--', lw=0.5)
         ax2.axvline(x=0, color='k', linestyle='--', lw=0.5)
         ax2.legend()
