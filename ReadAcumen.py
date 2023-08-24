@@ -61,6 +61,12 @@ def read_acumen(file_a):
     return cycle_, d_, f_, peak_, vall_, t_
 
 
+def peaks_raw(i_, file_a='/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/peaks_raw.csv'):
+    df_ = pd.read_csv(file_a, delimiter=',', skiprows=[1])
+    Acumen_ = df_.iloc[i_]
+    return Acumen_
+
+
 def read_ARAMIS(file_A):
     df_ = pd.read_csv(file_A, delimiter=';', skiprows=[0])
     stop = np.where(df_.isnull())[0][0]
@@ -177,8 +183,8 @@ def read_FE_(number, model_code, plot, fric_):
         #     ax2.plot(Uy1, -RFy1 + RFy1[0], label='FEA Ti 87', color='#1f77b4')  # plot fea results
         #     ax2.plot(Uy2, -RFy2 + RFy2[0], label='FEA Ti 85', color='#1f77b4')  # plot fea results
         # ax2.plot(a_y, a_f - a_f[0], label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
-        ax2.plot(a_y, a_f, label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
-        # ax2.plot(A_y, a_f - a_f[0], '--', label='Experiment Aramis', color='#ff7f0e')  # plot experimental (Aramis)
+        # ax2.plot(a_y, a_f, label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
+        ax2.plot(A_y, a_f - a_f[0], label='Experiment Aramis', color='#ff7f0e')  # plot experimental (Aramis)
         ax2.axhline(y=0, color='k', linestyle='--', lw=0.5)
         ax2.axvline(x=0, color='k', linestyle='--', lw=0.5)
         ax2.legend()
@@ -213,7 +219,7 @@ def lin_reg(X, Y):
 # t1 = time.time()
 # print('Execution time: '+str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1))+' sec.')
 
-# %% Linear regression
+#%% Linear regression
 
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
@@ -335,7 +341,7 @@ axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
 
 plt.legend(framealpha=1)
 
-# %% Each amplitude
+#%% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
 fig5.set_figheight(7)
 fig5.set_figwidth(7)
@@ -470,7 +476,7 @@ for x in range(x0, 1):  # x1):
         # axs8.scatter(resExp, resFE)
         # print(resFE)
 
-# %% Linear regression incl friction
+#%% Linear regression incl friction
 
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
