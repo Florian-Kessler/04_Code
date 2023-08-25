@@ -184,7 +184,7 @@ def read_FE_(number, model_code, plot, fric_):
         #     ax2.plot(Uy2, -RFy2 + RFy2[0], label='FEA Ti 85', color='#1f77b4')  # plot fea results
         # ax2.plot(a_y, a_f - a_f[0], label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
         # ax2.plot(a_y, a_f, label='Experiment Acumen', color='#ff7f0e')  # plot experimental (acumen)
-        ax2.plot(A_y, a_f - a_f[0], label='Experiment Aramis', color='#ff7f0e')  # plot experimental (Aramis)
+        # ax2.plot(A_y, a_f - a_f[0], label='Experiment Aramis', color='#ff7f0e')  # plot experimental (Aramis)
         ax2.axhline(y=0, color='k', linestyle='--', lw=0.5)
         ax2.axvline(x=0, color='k', linestyle='--', lw=0.5)
         ax2.legend()
