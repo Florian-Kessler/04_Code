@@ -390,7 +390,7 @@ plt.xlabel('Amplitude')
 plt.ylabel('Max. Force / N')
 plt.xticks(np.arange(0, 7), lab)
 plt.title('Peak Forces')
-# %% Friction comparison
+#%% Friction comparison
 fig7, axs7 = plt.subplots(1, 1)
 
 with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
