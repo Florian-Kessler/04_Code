@@ -26,7 +26,7 @@ def main(ODBn):
         return input
 
     ODBname = ODBn + '.odb'
-    OUTname = ODBn + '_RFnode_2.txt'
+    OUTname = ODBn + '_RFnode_3.txt'
     OUTname2 = ODBn
     OUTname3 = ODBn + '_BDI.txt'
     try:
