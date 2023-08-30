@@ -37,6 +37,16 @@ def read_RFnodeFile(file_):
     return uy_, rfy_
 
 
+def read_RFnodeFile(file_):
+    # read data from text file
+    df_ = np.loadtxt(file_, delimiter='\t')
+
+    t_ = np.array(df_[:, 0])
+    d_ = np.array(df_[:, 1])
+
+    return t_, d_
+
+
 def read_energy(file_):
     # read data from text file
     df_ = np.loadtxt(file_)  # , delimiter='   ')
@@ -470,16 +480,16 @@ for i in ti_samples:  # range(2, 34):
     plt.legend()
     plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/01_Catalogue_FEA_Exp/' + sample + '.png')
 #%% uFE test files
-file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_7_RFnode.txt'
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_15_RFnode.txt'
 [uy, _] = read_RFnodeFile(file)
 [_, rfy] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
 
 sample = loc + specimen_names[8] + '_resample.csv'
 [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
 
-file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_RFnode.txt'
-[uy2, _] = read_RFnodeFile(file)
-[_, rfy2] = read_RFnodeFile(file.split('.txt')[0] + 'Fix.txt')
+file2 = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_8_RFnode.txt'
+[uy2, _] = read_RFnodeFile(file2)
+[_, rfy2] = read_RFnodeFile(file2.split('.txt')[0] + 'Fix.txt')
 
 plt.figure()
 plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
