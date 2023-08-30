@@ -26,7 +26,7 @@ def main(ODBn):
         return input
 
     ODBname = ODBn + '.odb'
-    OUTname = ODBn + '_RFnode_.txt'
+    OUTname = ODBn + '_RFnode_2.txt'
     OUTname2 = ODBn
     OUTname3 = ODBn + '_BDI.txt'
     try:
@@ -62,7 +62,7 @@ def main(ODBn):
 
                 frame = step.frames[i]
                 #field3 = frame.fieldOutputs['RM']
-                #field4 = frame.fieldOutputs['RF']
+                field4 = frame.fieldOutputs['RF']
                 field5 = frame.fieldOutputs['U']
                 #field6 = frame.fieldOutputs['UR']
                 try:
@@ -72,17 +72,17 @@ def main(ODBn):
                     sys.exit
 
                 #subField3 = field3.getSubset(region=nodeSet2)
-                #subField4 = field4.getSubset(region=nodeSet2)
+                subField4 = field4.getSubset(region=nodeSet2)
                 subField5 = field5.getSubset(region=nodeSet2)
                 #subField6 = field6.getSubset(region=nodeSet2)
 
-                opFileU.write("%10d,%10f\n"  # ",%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f\n" \
+                opFileU.write("%10d,%10f,%10f\n"  # ,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f\n" \
                               % (i, \
                                  #subField3.values[0].data[0], \
                                  #subField3.values[0].data[1], \
                                  #subField3.values[0].data[2], \
                                  #subField4.values[0].data[0], \
-                                 #subField4.values[0].data[1], \
+                                 subField4.values[0].data[1], \
                                  #subField4.values[0].data[2], \
                                  #subField5.values[0].data[0], \
                                  subField5.values[0].data[1], \
@@ -97,3 +97,4 @@ def main(ODBn):
     print('Done.')
 if __name__ == '__main__':
     main('96_screw_Osteoporosis_new_Bending')
+    main('97_screw_Osteoporosis_new_Bending_screw_no-nlgeom')
