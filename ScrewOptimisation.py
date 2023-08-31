@@ -98,3 +98,4 @@ def main(ODBn):
 if __name__ == '__main__':
     main('96_screw_Osteoporosis_new_Bending')
     main('97_screw_Osteoporosis_new_Bending_screw_no-nlgeom')
+    print('Script has finished.')
