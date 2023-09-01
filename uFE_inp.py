@@ -2,14 +2,14 @@ import os
 
 
 path = '/home/biomech/Downloads/FE_test/'
-inp_bone = 'Mesh_test_0121399icotest0.inp'
-inp_screw = 'Mesh_test_0121399icoscrew.inp'
+inp_bone = 'Mesh_test_A_0121399icotest_A01.inp'
+inp_screw = 'Mesh_test_A_0121399icoscrew_A01.inp'
 inp_template = 'inp_temp2.inp'
 
 bone_mesh = open(path + inp_bone, 'r')
 screw_mesh = open(path + inp_screw, 'r')
 template = open(path + inp_template, 'r')
-input_file = 'test_x.inp'
+input_file = 'test_A_0.inp'
 
 try:
     os.remove(path + input_file)

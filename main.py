@@ -17,10 +17,11 @@ def mapping(sample, mod, fric_):
               '31_L50_S50_D35', '43_L50_S00_D45',  # 11, 12
               '50_L50_S00_D30', '55_L50_S00_D30',  # 13, 14
               '63_L50_S50_D45',  # 15
-              '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',  # 16, 17, 18, 19
-              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 20, 21, 22, 23
-              '85_L50_S50_D45', '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 24, 25, 26, 27
-              '94_OSTP']  # 28
+              '65_L50_S50_D45', '66_L50_S50_D45',  # 16, 17
+              '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',  # 18, 19, 20, 21
+              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 22, 23, 24, 25
+              '85_L50_S50_D45', '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 26, 27, 28, 29
+              '94_OSTP']  # 30
 
     model_code = models[mod]  # FEA model name
     print('Model: ' + str(model_code))
@@ -65,7 +66,7 @@ def mapping(sample, mod, fric_):
     mappNR.write_submit(Input)
 
     # Write output images? segmented image and mask, for visual check
-    write_output = 1
+    write_output = 0
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -158,7 +159,7 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]  # without 0
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # without 1
 
-for i in [8]:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
+for i in ti_samples:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print(sample_list[i])
-    mapping(sample_list[i], 28, 0.2)  # samples, model, friction
+    mapping(sample_list[i], 16, 0.2)  # samples, model, friction

@@ -492,9 +492,9 @@ file2 = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_15_RFnode.txt'
 [_, rfy2] = read_RFnodeFile_uFE(file2.split('.txt')[0] + 'Fix.txt')
 
 plt.figure()
-plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
-plt.plot(uy, rfy, label='Ti')
-plt.plot(uy2, rfy2, label='PEEK')
+plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment (PEEK)')
+plt.plot(uy, rfy, label='PEEK')
+plt.plot(uy2, rfy2, label='Ti')
 # plt.scatter(uy[-1], rfy[-1], color='r', marker='x')
 # plt.scatter(uy2[-1], rfy2[-1], color='r', marker='x')
 plt.title('uFE tests')
