@@ -69,3 +69,47 @@ def stl2Mask(dict, path, filename, resolution, mask_name='BoneTest.mhd', control
             mask[i, :, :] = morph.closing(mask[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
+
+
+    origin = [0, 0, 0]
+    spacing = np.array([1, 1, 1]) * resolution
+
+    mask_trans = mask.astype(np.short)
+    itkmask = sitk.GetImageFromArray(mask_trans, isVector=None)
+    itkmask.SetSpacing(spacing)
+    itkmask.SetOrigin(origin)
+
+    path_to_local_folder = path
+    sitk.WriteImage(itkmask, f'{path_to_local_folder}/{mask_name}')
+
+    # set bone values
+    dict['MASK_array'] = mask_trans.T
+    # Wird benötigt, um das KOS an die richtige position in der Maske zu verschieben
+    dict['MaskX'] = np.array([x_min, x_max])
+    dict['MaskY'] = np.array([y_min, y_max])
+    dict['MaskZ'] = np.array([z_min, z_max])
+
+    print('BoneMeshMask')
+    return dict
+
+
+
+
+
+def main():
+    path2stl = 'C:/Users/kirta/OneDrive - Universitaet Bern/01_MBArtorg/' \
+               '2023_Projects/2023_Thommen/04_Simulation/04_Virtual_Insertion'
+    stl = 'ELEMENT_Shell_mesh.stl'
+
+    # a = vtk.vtkSTLReader()
+    # a.SetFileName(f'{path2stl}/{stl}')
+    # a.Update()
+    # a = a.GetOutput()
+
+
+    imp_info = {}
+    imp_info = stl2Mask(imp_info, path2stl, f'{path2stl}/{stl}', 0.072, mask_name='ImpTest.mhd')
+
+
+if __name__ == '__main__':
+    main()
