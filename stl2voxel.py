@@ -88,8 +88,10 @@ def stl2Mask(dict_, path, filename, resolution, mask_name='BoneTest.mhd',
 
 
 def main():
-    path2stl = '/home/biomech/Documents/01_Icotec/01_Experiments/99_Others/Screw_Ostp_new_20230605'
-    stl = 'LowStiffnessScrew_FreeCAD_v0.stl'
+    # path2stl = '/home/biomech/Documents/01_Icotec/01_Experiments/99_Others/Screw_Ostp_new_20230605'
+    path2stl = '/home/biomech/Documents/01_Icotec/01_Experiments/99_Others/Schrauben_ARI'
+    # stl = 'LowStiffnessScrew_FreeCAD_v0.stl'
+    stl = 'DPS_ViperScrew_remeshed_1a_binary_rot.stl'
 
     # a = vtk.vtkSTLReader()
     # a.SetFileName(f'{path2stl}/{stl}')
@@ -97,7 +99,7 @@ def main():
     # a = a.GetOutput()
 
     imp_info = {}
-    imp_info = stl2Mask(imp_info, path2stl, f'{path2stl}/{stl}', 0.0606995, mask_name='LowStiffnessScrew_test_v0.mhd')
+    imp_info = stl2Mask(imp_info, path2stl, f'{path2stl}/{stl}', 0.0606995, mask_name='DPSScrew_test_v0.mhd')
     notification.notify(
         title="Finished executing " + sys.argv[0],
         message="Successful",
