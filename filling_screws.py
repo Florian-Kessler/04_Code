@@ -85,8 +85,6 @@ im_itk_.SetSpacing(spacing)
 im_itk_.SetOrigin(origin)
 sitk.WriteImage(im_itk_, '/home/biomech/Downloads/FE_test/DPSScrew_test_v0_can.mhd')
 
-im = sitk.ReadImage('/home/biomech/Downloads/FE_test/DPSScrew_test_v0_can.mhd')
-img1 = sitk.GetArrayFromImage(im)
 img1 = np.transpose(img, (2, 1, 0))
 img1 = np.flip(np.swapaxes(img1, 0, 2), 1)
 img1 = img1[:, ::-1, 8:832]
