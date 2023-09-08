@@ -54,7 +54,11 @@ def mapping(sample, mod, fric_):
     Input['YM_titan'] = str(100000)  # young's modulus titanium screw
     Input['v_titan'] = str(0.3)  # poisson ratio titanium screw
 
-    Input['expl'] = 1  # explicit hFE = 1, implicit hFE = 0
+    # For explicit simulations
+    if 'expl' in model_code:
+        Input['expl'] = 1
+    else:
+        Input['expl'] = 0
 
     # Check if folder exists, otherwise create it
     isExist = os.path.exists(Input['FEA_loc'])
@@ -161,7 +165,7 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]  # without 0
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # without 1
 
-for i in ti_samples:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
+for i in [8]:  # ti_samples:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
-    print(sample_list[i])
-    mapping(sample_list[i], 16, 0.2)  # samples, model, friction
+    print('Sample: ' + sample_list[i])
+    mapping(sample_list[i], 21, 0.2)  # samples, model, friction
