@@ -151,8 +151,8 @@ def HFE_mapping_trans(bone, inp):
 
             # Definition of the material parameters for the UMAT
             outfile2.write("*MATERIAL, NAME=Mat" + str(elem) + "\n")
-            outfile2.write("*Density")
-            outfile2.write("1e-07")
+            outfile2.write("*Density\n")
+            outfile2.write("1e-07,\n")
             outfile2.write("*DEPVAR, delete=36\n")
             outfile2.write("36,\n")
             outfile2.write("*USER MATERIAL, CONSTANTS=5\n")
