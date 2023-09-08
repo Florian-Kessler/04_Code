@@ -4,7 +4,7 @@ import SimpleITK as sitk
 
 
 # im_itk = sitk.ReadImage('/home/biomech/Downloads/FE_test/LowStiffnessScrew_test_v0.mhd')
-im_itk = sitk.ReadImage('/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/LowStiffnessScrew_test_v0.mhd')
+im_itk = sitk.ReadImage('/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/LowStiffnessScrew_v0.mhd')
 im0 = sitk.GetArrayFromImage(im_itk)
 im0 = np.transpose(im0, (2, 1, 0))
 plt.figure()
@@ -34,11 +34,11 @@ im_itk1.SetSpacing(spacing)
 im_itk1.SetOrigin(origin)
 # sitk.WriteImage(im_itk1, '/home/biomech/Downloads/FE_test/LowStiffnessScrew_test_v0_closed.mhd')
 sitk.WriteImage(im_itk1, '/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/'
-                         'LowStiffnessScrew_test_v0_closed.mhd')
+                         'LowStiffnessScrew_v0_closed.mhd')
 
 
 # im_itk = sitk.ReadImage('/home/biomech/Downloads/FE_test/LowStiffnessScrew_test_v0.mhd')
-im_itk = sitk.ReadImage('/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/LowStiffnessScrew_test_v0.mhd')
+im_itk = sitk.ReadImage('/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/LowStiffnessScrew_v0.mhd')
 im0 = sitk.GetArrayFromImage(im_itk)
 im0 = np.transpose(im0, (2, 1, 0))
 imc = np.flip(np.swapaxes(im0, 0, 2), 1)
@@ -51,12 +51,12 @@ im_itkc.SetSpacing(spacing)
 im_itkc.SetOrigin(origin)
 # sitk.WriteImage(im_itkc, '/home/biomech/Downloads/FE_test/LowStiffnessScrew_test_v0_can.mhd')
 sitk.WriteImage(im_itkc, '/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/'
-                         'LowStiffnessScrew_test_v0_can.mhd')
+                         'LowStiffnessScrew_v0_can.mhd')
 #%% Cut head off from DPS screw
 
 plt.close('all')
 # im = sitk.ReadImage('/home/biomech/Downloads/FE_test/DPSScrew_test_v0.mhd')
-im = sitk.ReadImage('/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/DPSScrew_test_v0.mhd')
+im = sitk.ReadImage('/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/DPSScrew_v0.mhd')
 img = sitk.GetArrayFromImage(im)
 img = np.transpose(img, (2, 1, 0))
 plt.figure()
@@ -90,7 +90,7 @@ im_itk_ = sitk.GetImageFromArray(img1, isVector=None)
 im_itk_.SetSpacing(spacing)
 im_itk_.SetOrigin(origin)
 # sitk.WriteImage(im_itk_, '/home/biomech/Downloads/FE_test/DPSScrew_test_v0_can.mhd')
-sitk.WriteImage(im_itk_, '/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/DPSScrew_test_v0_can.mhd')
+sitk.WriteImage(im_itk_, '/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/DPSScrew_v0_can.mhd')
 
 img1 = np.transpose(img, (2, 1, 0))
 img1 = np.flip(np.swapaxes(img1, 0, 2), 1)
@@ -139,4 +139,4 @@ im_itk_ = sitk.GetImageFromArray(img1, isVector=None)
 im_itk_.SetSpacing(spacing)
 im_itk_.SetOrigin(origin)
 # sitk.WriteImage(im_itk_, '/home/biomech/Downloads/FE_test/DPSScrew_test_v0_closed.mhd')
-sitk.WriteImage(im_itk_, '/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/DPSScrew_test_v0_closed.mhd')
+sitk.WriteImage(im_itk_, '/home/biomech/Documents/01_Icotec/02_FEA/02_uFE/99_Templates/DPSScrew_v0_closed.mhd')
