@@ -1,5 +1,4 @@
 import os
-import time
 
 
 def copy(spec, mod, doc, dir_):
