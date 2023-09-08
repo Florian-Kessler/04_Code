@@ -140,22 +140,42 @@ def HFE_mapping_trans(bone, inp):
     outfile2.write("** MATERIALS\n")
 
     # Write node sets as elements with material properties
-    for elem in elems:
-        outfile1.write("*Elset, ELSET=Elset" + str(elem) + "\n")
-        outfile1.write(str(elem) + ", \n")
-        outfile1.write("**POSITION: X = " + str(cogs[elem][0]) + " Y = " + str(cogs[elem][1]) + " Z = " + str(
-            cogs[elem][2]) + "\n")
-        outfile1.write("*SOLID SECTION, ELSET=Elset" + str(elem) + ",  MATERIAL=Mat" + str(elem) + "\n")
-        outfile1.write("***********************************************************\n")
+    if inp["expl"]:
+        for elem in elems:
+            outfile1.write("*Elset, ELSET=Elset" + str(elem) + "\n")
+            outfile1.write(str(elem) + ", \n")
+            outfile1.write("**POSITION: X = " + str(cogs[elem][0]) + " Y = " + str(cogs[elem][1]) + " Z = " + str(
+                cogs[elem][2]) + "\n")
+            outfile1.write("*SOLID SECTION, ELSET=Elset" + str(elem) + ",  MATERIAL=Mat" + str(elem) + "\n")
+            outfile1.write("***********************************************************\n")
 
-        # Definition of the material parameters for the UMAT
-        outfile2.write("*MATERIAL, NAME=Mat" + str(elem) + "\n")
-        outfile2.write("*DEPVAR\n")
-        outfile2.write("22,\n")
-        outfile2.write("*USER MATERIAL, CONSTANTS=5\n")
-        outfile2.write("**Probs1 (bone probs), BVTV of element, m1, m2, m2\n")
-        outfile2.write("0.0 " + ", " + str(np.round(RHOb[elem], 5)) + ", " + "1., 1., 1. \n")
-        outfile2.write("***********************************************************\n")
+            # Definition of the material parameters for the UMAT
+            outfile2.write("*MATERIAL, NAME=Mat" + str(elem) + "\n")
+            outfile2.write("*Density")
+            outfile2.write("1e-07")
+            outfile2.write("*DEPVAR, delete=36\n")
+            outfile2.write("36,\n")
+            outfile2.write("*USER MATERIAL, CONSTANTS=5\n")
+            outfile2.write("**Probs1 (bone probs), BVTV of element, m1, m2, m3\n")
+            outfile2.write("0.0 " + ", " + str(np.round(RHOb[elem], 5)) + ", " + "1., 1., 1. \n")
+            outfile2.write("***********************************************************\n")
+    else:
+        for elem in elems:
+            outfile1.write("*Elset, ELSET=Elset" + str(elem) + "\n")
+            outfile1.write(str(elem) + ", \n")
+            outfile1.write("**POSITION: X = " + str(cogs[elem][0]) + " Y = " + str(cogs[elem][1]) + " Z = " + str(
+                cogs[elem][2]) + "\n")
+            outfile1.write("*SOLID SECTION, ELSET=Elset" + str(elem) + ",  MATERIAL=Mat" + str(elem) + "\n")
+            outfile1.write("***********************************************************\n")
+
+            # Definition of the material parameters for the UMAT
+            outfile2.write("*MATERIAL, NAME=Mat" + str(elem) + "\n")
+            outfile2.write("*DEPVAR\n")
+            outfile2.write("22,\n")
+            outfile2.write("*USER MATERIAL, CONSTANTS=5\n")
+            outfile2.write("**Probs1 (bone probs), BVTV of element, m1, m2, m3\n")
+            outfile2.write("0.0 " + ", " + str(np.round(RHOb[elem], 5)) + ", " + "1., 1., 1. \n")
+            outfile2.write("***********************************************************\n")
 
     outfile1.close()
     outfile2.close()

@@ -54,6 +54,8 @@ def mapping(sample, mod, fric_):
     Input['YM_titan'] = str(100000)  # young's modulus titanium screw
     Input['v_titan'] = str(0.3)  # poisson ratio titanium screw
 
+    Input['expl'] = 1  # explicit hFE = 1, implicit hFE = 0
+
     # Check if folder exists, otherwise create it
     isExist = os.path.exists(Input['FEA_loc'])
     if not isExist:
