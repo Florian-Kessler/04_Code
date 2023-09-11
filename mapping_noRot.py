@@ -157,7 +157,7 @@ def HFE_mapping_trans(bone, inp):
             outfile2.write("36,\n")
             outfile2.write("*USER MATERIAL, CONSTANTS=5\n")
             outfile2.write("**Probs1 (bone probs), BVTV of element, m1, m2, m3\n")
-            outfile2.write("0.0 " + ", " + str(np.round(RHOb[elem], 5)) + ", " + "1., 1., 1. \n")
+            outfile2.write("3.0 " + ", " + str(np.round(RHOb[elem], 5)) + ", " + "1., 1., 1. \n")
             outfile2.write("***********************************************************\n")
     else:
         for elem in elems:
