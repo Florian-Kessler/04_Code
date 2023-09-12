@@ -14,15 +14,15 @@ def mapping(sample, mod, fric_):
     models = ['00_L50_S50_D30', '01_L50_S50_D35', '02_L50_S50_D40', '03_L50_S50_D45', '04_L50_S50_D27',  # 0, 1, 2, 3, 4
               '10_L50_S00_D30', '11_L50_S00_D35', '12_L50_S00_D40', '13_L50_S00_D45', '14_L50_S00_D27',  # 5, 6, 7, 8, 9
               '15_L50_S00_D44',  # 10
-              '31_L50_S50_D35', '43_L50_S00_D45',  # 11, 12
-              '50_L50_S00_D30', '55_L50_S00_D30',  # 13, 14
-              '63_L50_S50_D45',  # 15
-              '65_L50_S50_D45', '66_L50_S50_D45',  # 16, 17
-              '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',  # 18, 19, 20, 21
-              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 22, 23, 24, 25
-              '84_L50_S50_D45_expl',  # 26
-              '85_L50_S50_D45', '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 27, 28, 29, 30
-              '94_OSTP']  # 31
+              '31_L50_S50_D35', '43_L50_S00_D45', '44_L50_S00_D45_expl',  # 11, 12, 13
+              '50_L50_S00_D30', '55_L50_S00_D30',  # 14, 15
+              '63_L50_S50_D45',  # 16
+              '65_L50_S50_D45', '66_L50_S50_D45',  # 17, 18
+              '74_L50_S50_D45', '75_L50_S50_D45', '76_L50_S50_D45', '77_L50_S50_D45_expl',  # 19, 20, 21, 22
+              '80_L50_S50_D45', '81_L50_S50_D45', '82_L50_S50_D45', '83_L50_S50_D45',  # 23, 24, 25, 26
+              '84_L50_S50_D45_expl',  # 27
+              '85_L50_S50_D45', '86_L50_S50_D45', '87_L50_S50_D45', '88_L50_S50_D45',  # 28, 29, 30, 31
+              '94_OSTP']  # 32
 
     model_code = models[mod]  # FEA model name
     print('Model: ' + str(model_code))
@@ -58,6 +58,7 @@ def mapping(sample, mod, fric_):
     # For explicit simulations
     if 'expl' in model_code:
         Input['expl'] = 1
+        print(' --> Explicit analysis')
     else:
         Input['expl'] = 0
 
@@ -91,14 +92,14 @@ def mapping(sample, mod, fric_):
     orB = np.array(bone['GreyImage'].GetOrigin())
     insBefore = np.rint(abs(orB - orM) / Input['Resolution']).astype(int)
     bone['insBefore'] = insBefore
-    print('insBefore: ' + str(insBefore))
+    # print('insBefore: ' + str(insBefore))
     dimMask = np.array(imMask_np.shape)
     dimBone = np.array(bone['GreyImage'].GetSize())
     insAfter = (dimBone - dimMask - insBefore).astype(int)
     bone['insAfter'] = insAfter
-    print('insAfter: ' + str(insAfter))
-    print('mask dimension: ' + str(dimMask))
-    print('bone dimension: ' + str(dimBone))
+    # print('insAfter: ' + str(insAfter))
+    # print('mask dimension: ' + str(dimMask))
+    # print('bone dimension: ' + str(dimBone))
     imMask_np_corr = imMask_np
     imMask_np_corr = np.append(np.insert(imMask_np_corr, 0, np.zeros((insBefore[0], imMask_np_corr.shape[1],
                                                                       imMask_np_corr.shape[2])), 0),
@@ -111,7 +112,7 @@ def mapping(sample, mod, fric_):
     imMask_np_corr = np.append(
         np.insert(imMask_np_corr, 0, np.zeros((insBefore[2], imMask_np_corr.shape[0], imMask_np_corr.shape[1])), 2),
         np.zeros((imMask_np_corr.shape[0], imMask_np_corr.shape[1], insAfter[2])), 2)
-    print('new mask dimension: ' + str(np.array(imMask_np_corr.shape)))
+    # print('new mask dimension: ' + str(np.array(imMask_np_corr.shape)))
 
     plt.figure()
     plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
@@ -169,4 +170,4 @@ ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # wit
 for i in [8]:  # ti_samples:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
 
     print('Sample: ' + sample_list[i])
-    mapping(sample_list[i], 21, 0.2)  # samples, model, friction
+    mapping(sample_list[i], 13, 0.2)  # samples, model, friction

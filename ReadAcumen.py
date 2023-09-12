@@ -233,7 +233,7 @@ lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 # model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '66_L50_S50_D45_d1_02_P'
+model = '64_L50_S50_D45_d1_02_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
