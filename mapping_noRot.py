@@ -279,10 +279,10 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
             mask[i, :, :] = morph.closing(mask[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
             # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
-    print('x_min: ' + str(x_min))
-    print('y_min: ' + str(y_min))
-    print('z_min: ' + str(z_min))
-    print('z_min: ' + str(z_max))
+    # print('x_min: ' + str(x_min))
+    # print('y_min: ' + str(y_min))
+    # print('z_min: ' + str(z_min))
+    # print('z_min: ' + str(z_max))
     origin_mask = [-11.5 / 2, -17.5 / 2, -45]  # HERE hard coded, dimensions of ROI
 
     spacing = np.array([1, 1, 1]) * inp['Resolution']
@@ -301,7 +301,7 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     bone['MaskY'] = np.array([y_min, y_max])
     bone['MaskZ'] = np.array([z_min, z_max])
 
-    print('BoneMeshMask')
+    # print('BoneMeshMask')
     return bone
 
 
@@ -366,10 +366,10 @@ def HFE_inp_creator(inp):
                 if SimMat[i] == 'T':
                     # outfile.truncate()
                     outfile.write('*Solid Section, elset=Set-Impl, material=Ti\n')
-                    print('Section set to Ti.')
+                    # print('Section set to Ti.')
                 elif SimMat[i] == 'P':
                     outfile.write('*Solid Section, elset=Set-Impl, material=PEEK\n')
-                    print('Section set to PEEK.')
+                    # print('Section set to PEEK.')
             # Change material properties of implant
             elif '15000., 0.3' in lines:
                 outfile.write(inp['YM_peek'] + '., ' + inp['v_peek'] + '\n')
