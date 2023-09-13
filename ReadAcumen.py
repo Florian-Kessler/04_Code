@@ -124,10 +124,10 @@ def read_FE_(number, model_code, plot, fric_):
     loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:
         model_code1 = str(int(model_code[:2])-0) + model_code[2:19] + fric_.split('.')[-1] + '_P'
-        model_code2 = str(int(model_code[:2])-0) + model_code[2:19] + fric_.split('.')[-1] + '_P'  # HERE -0 --> -2
+        model_code2 = str(int(model_code[:2])-2) + model_code[2:19] + fric_.split('.')[-1] + '_P'  # HERE -0 --> -2
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:
         model_code1 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'
-        model_code2 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
+        model_code2 = str(int(model_code[:2])-3) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
     else:
         print('Invalid model code!')
     specimen = specimens[number]
@@ -231,9 +231,9 @@ ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 2
-x1 = 7  # max 7
-# model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '64_L50_S50_D45_d1_02_P'
+x1 = 6  # max 7
+model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
+# model = '64_L50_S50_D45_d1_02_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -249,7 +249,7 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 1
+loglog = 0
 alp = 0.3
 if loglog:
     F_range = np.array([0, 2.6])
