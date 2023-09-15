@@ -127,9 +127,9 @@ def read_FE_(number, model_code, plot, fric_):
         model_code2 = str(int(model_code[:2])-0) + model_code[2:19] + fric_.split('.')[-1] + '_P'  # HERE -0 --> -2
 
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # Ti
-        fric_ = '0.2'
-        model_code1 = str(int(model_code[:2])+1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE +1 --> -1
-        model_code2 = str(int(model_code[:2])+1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
+        fric_ = '0.2'  # HERE friction for Ti changed
+        model_code1 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE +1 --> -1
+        model_code2 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
     else:
         print('Invalid model code!')
     print(model_code1)
