@@ -1,10 +1,12 @@
 from MedtoolFunctions.med_classes import *
 import sys
+from sys import stdout
 import time
 import numpy as np
 import re
 import os
 from sys import exit
+import dpUtils
 
 
 def __init__(self, modelName='default'):
@@ -1193,3 +1195,134 @@ def writeEnsight(self, outFileName, title, nodes, nsets, elems, elsets, NscaResu
                 strOS.close()
 
     return
+
+def clean(self, curVoxelModel, thresList, cleanList, echo=False):
+    """
+    Functions cleans the voxel model - removes islands and not proper connected regions.
+    @param curVoxelModel: voxel model of the RVE
+          - TYPE: numpy.array[iZ, jY, kX] = grayValue
+          - int iX, jY, kZ ... voxels number ID in x,y,z start a 0, x fastest.
+          - int grayValue  ... gray value of voxel,
+    @param  thresList:  list of thresholds - only one threshold implemented!
+          - TYPE: list[thresId] = thres
+          - int thresID ... threshold id, sorted ascending
+          - int thres   ... threshold value 0..25
+    @param  cleanList: list of clean parameters
+          - TYPE: list[0] = nodeShared, list[1] = islandSize
+          - int nodeShared ... number of shared nodes of a bone to bone connection
+          - int islandSize ... number of Voxel isolated bone/marrow voxel region
+              which should be removed.
+    @param echo: Flag if extended echo should be written on stdout.
+          - TYPE: bool
+
+    @return:
+       cleanVoxelModel: cleaned voxel model of the RVE
+          - TYPE: numpy.array[iZ, jY, kX] = grayValue
+          - int iX, jY, kZ ... voxels number ID in x,y,z start a 0, x fastest.
+          - int grayValue  ... gray value of voxel,
+    """
+    print(' ... clean model')
+    nodeShared = cleanList[0]
+    islandSize = cleanList[1]
+    time1 = time.clock()
+    ok = False
+    nx, ny, nz = self.get_Shape(curVoxelModel)
+    cleanVoxelModel = self.createVoxelModel(nx, ny, nz, 'f')
+    cleanVoxelModel = curVoxelModel
+    step = 0
+    while not ok:
+        step = step + 1
+        stdout.write('     Analyses Step          : %10i       \n' % step)
+        stdout.flush()
+        sumid = 0
+        if thresList == None or len(thresList) != 1:
+            stdout.write('\n **ERROR** find_parts(): Exactly one threshold needed for this function!\n\n')
+            stdout.flush()
+            stdout.write('\n E N D E D  with ERRORS \n\n')
+            stdout.flush()
+            exit(1)
+        partMatNo = 0
+        checkList = []
+        partIdElemDict = {}
+        partIdsVolume = np.zeros((nz, ny, nx))
+        nbPartIdList = []
+        matid = thresList[0]
+        dpUtils.progressStart('     -> look for neighbours : ')
+        for k in range(nz):
+            progress = float(sumid) / float(nx * ny * nz) * 10.0
+            for j in range(ny):
+                for i in range(nx):
+                    sumid = sumid + 1
+                    if i - 1 >= 0:
+                        checkList.append((k, j, i - 1))
+                    if j - 1 >= 0:
+                        checkList.append((k, j - 1, i))
+                    if k - 1 >= 0:
+                        checkList.append((k - 1, j, i))
+                    if nodeShared <= 2:
+                        if i - 1 >= 0 and j - 1 >= 0:
+                            checkList.append((k, j - 1, i - 1))
+                        if i - 1 >= 0 and k - 1 >= 0:
+                            checkList.append((k - 1, j, i - 1))
+                        if k - 1 >= 0 and j - 1 >= 0:
+                            checkList.append((k - 1, j - 1, i))
+                    if nodeShared <= 1:
+                        if i - 1 >= 0 and j - 1 >= 0 and k - 1 >= 0:
+                            checkList.append((k - 1, j - 1, i - 1))
+                    for checkElem in checkList:
+                        iN = checkElem[2]
+                        jN = checkElem[1]
+                        kN = checkElem[0]
+                        if cleanVoxelModel[k, j, i] == cleanVoxelModel[kN, jN, iN]:
+                            partId = partIdsVolume[kN, jN, iN]
+                            if partId not in nbPartIdList:
+                                nbPartIdList.append(partId)
+
+                    partIdNo = len(nbPartIdList)
+                    if partIdNo == 0:
+                        partMatNo = partMatNo + 1
+                        partIdsVolume[k, j, i] = partMatNo
+                        partIdElemDict[partMatNo] = [(k, j, i)]
+                    elif partIdNo == 1:
+                        partIdsVolume[k, j, i] = nbPartIdList[0]
+                        partIdElemDict[nbPartIdList[0]].append((k, j, i))
+                    elif partIdNo > 1:
+                        maxElem = 0
+                        newPartId = 0
+                        for partId in nbPartIdList:
+                            if len(partIdElemDict[partId]) > maxElem:
+                                maxElem = len(partIdElemDict[partId])
+                                newPartId = partId
+
+                        nbPartIdList.remove(newPartId)
+                        for partId in nbPartIdList:
+                            for element in partIdElemDict[partId]:
+                                partIdElemDict[newPartId].append(element)
+
+                            for elemTuple in partIdElemDict[partId]:
+                                partIdsVolume[elemTuple[0], elemTuple[1], elemTuple[2]] = newPartId
+
+                            del partIdElemDict[partId]
+
+                        partIdsVolume[k, j, i] = newPartId
+                        partIdElemDict[newPartId].append((k, j, i))
+                    del nbPartIdList[0:len(nbPartIdList)]
+                    del checkList[0:len(checkList)]
+
+            dpUtils.progressNext(progress)
+
+        dpUtils.progressEnd()
+        ok = self.updateModel(partIdElemDict, cleanVoxelModel, thresList, islandSize)
+        if echo == True or ok == True:
+            for partId in partIdElemDict.keys():
+                ck = partIdElemDict[partId][0][0]
+                cj = partIdElemDict[partId][0][1]
+                ci = partIdElemDict[partId][0][2]
+                stdout.write('     -> Part %4i;  Elements in Part = %8i;  Material = %3i\n' % (
+                partId, len(partIdElemDict[partId]), cleanVoxelModel[ck, cj, ci]))
+                stdout.flush()
+
+    time2 = time.clock()
+    stdout.write('     -> clean finished in   :   %8.1f sec         \n' % (time2 - time1))
+    stdout.flush()
+    return cleanVoxelModel
