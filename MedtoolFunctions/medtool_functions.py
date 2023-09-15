@@ -6,7 +6,7 @@ import numpy as np
 import re
 import os
 from sys import exit
-import dpUtils
+import dputils as dpUtils
 
 
 def __init__(self, modelName='default'):
