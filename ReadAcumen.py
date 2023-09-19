@@ -237,7 +237,7 @@ lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 # model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '64_L50_S50_D45_d1_02_P'
+model = '66_L50_S50_D45_d1_02_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -261,9 +261,9 @@ else:
     F_range = np.array([-10, 450])
 plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
-friction = '0.5'
+friction = '0.2'
 for x in range(x0, x1):
-    for i in range(2, 34):  # [2, 3, 4, 5, 10, 11]:  # 2-34 because 0, 1 not existing in data frame
+    for i in [2, 5, 9, 11]:  # (for optimising)  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))
         RFy_exp_all[x, i] = Peak_exp(x, i)
         try:
@@ -309,8 +309,8 @@ if loglog:
 else:
     axs.set_xlabel('Experiment / N')
     axs.set_ylabel('FE / N')
-axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes, $\mu$ = ' +
-              friction)
+axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
+                                                                                       # ', $\mu$ = ' + friction)
 axs.set_aspect('equal')
 axs.set_xlim(F_range)
 axs.set_ylim(F_range)
