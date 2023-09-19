@@ -481,11 +481,13 @@ for i in ti_samples:  # range(2, 34):
     plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/01_Catalogue_FEA_Exp/' + sample + '.png')
 #%% uFE test files
 # file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_14_RFnode.txt'
-file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/hFE_P3_RFnode.txt'
+# file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/hFE_P3_RFnode.txt'
+# file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_A_3T_RFnode.txt'
+file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_A_2_RFnode.txt'
 [_, uy] = read_RFnodeFile_uFE(file)
 [_, rfy] = read_RFnodeFile_uFE(file.split('.txt')[0] + 'Fix.txt')
 
-sample = loc + specimen_names[3] + '_resample.csv'
+sample = loc + specimen_names[2] + '_resample.csv'
 [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
 
 # file2 = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_15_RFnode.txt'
