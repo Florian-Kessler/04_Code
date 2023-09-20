@@ -497,11 +497,11 @@ sample = loc + specimen_names[2] + '_resample.csv'
 
 plt.figure()
 plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
-plt.plot(uy, rfy, label='PEEK')
+plt.plot(uy, rfy, label='FE')
 # plt.plot(uy2, rfy2, label='Ti')
 # plt.scatter(uy[-1], rfy[-1], color='r', marker='x')
 # plt.scatter(uy2[-1], rfy2[-1], color='r', marker='x')
-plt.title('hFE tests')
+plt.title('μFE tests (Ti)')
 plt.xlabel('Displacement / mm')
 plt.ylabel('Force / N')
 plt.legend()
