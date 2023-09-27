@@ -437,13 +437,15 @@ axs5.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P)
 plt.legend()
 axs5.set_xlim(datarange)
 #%% FEA catalogue
-for i in ti_samples:  # range(2, 34):
+for i in [3]:#, ti_samples:  # range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
+    save = 0
     # # # # # Experiments # # # # #
     sample = loc + specimen + '_resample.csv'
     [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = read_resample(sample)
+    print(sample)
     print(specimen)
     sample = sample.split('_resample')[0].split('/')[-1]
     if i in peek_samples:
@@ -478,7 +480,8 @@ for i in ti_samples:  # range(2, 34):
     plt.ylabel('Force / N')
     plt.title(specimen)
     plt.legend()
-    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/01_Catalogue_FEA_Exp/' + sample + '.png')
+    if save:
+        plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/01_Catalogue_FEA_Exp/' + sample + '.png')
 #%% uFE test files
 # file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_14_RFnode.txt'
 # file = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/hFE_P3_RFnode.txt'

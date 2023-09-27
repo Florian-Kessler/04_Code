@@ -123,13 +123,13 @@ def read_FE_(number, model_code, plot, fric_):
     loc_Exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/'  # location experimental results
     loc_FEA = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/'  # location of fea results
     if number in [0, 2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # PEEK
-        model_code1 = str(int(model_code[:2])-0) + model_code[2:19] + fric_.split('.')[-1] + '_P'
-        model_code2 = str(int(model_code[:2])-0) + model_code[2:19] + fric_.split('.')[-1] + '_P'  # HERE -0 --> -2
+        model_code1 = str(int(model_code[:2]) - 0) + model_code[2:19] + fric_.split('.')[-1] + '_P'
+        model_code2 = str(int(model_code[:2]) - 0) + model_code[2:19] + fric_.split('.')[-1] + '_P'  # HERE -0 --> -2
 
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # Ti
         fric_ = '0.2'  # HERE friction for Ti changed
-        model_code1 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE +1 --> -1
-        model_code2 = str(int(model_code[:2])-1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
+        model_code1 = str(int(model_code[:2]) + 1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE +1 --> -1
+        model_code2 = str(int(model_code[:2]) + 1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
     else:
         print('Invalid model code!')
     print(model_code1)
@@ -146,7 +146,8 @@ def read_FE_(number, model_code, plot, fric_):
     # [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c]
     RFy = []
     Uy = []
-    [_, A_y, _, _, _, _, a_y, a_f, _] = read_resample(file[0])  # load experimental result file (csv)
+    [_, A_y, _, _, _, _, a_y, a_f, _] = read_resample(file[0])# load experimental result file (csv)
+    print(file[0])
     [Uy1, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
     [_, RFy1] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
     [Uy2, _] = read_RFnodeFile(file[3])  # read y displacement of moving reference node
@@ -169,7 +170,7 @@ def read_FE_(number, model_code, plot, fric_):
             ax1.plot(a_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
         # else:
         #     ax1.plot(A_y, a_f - a_f[0], label='Experiment', color='#ff7f0e')  # plot experimental results
-            # ax1.plot(a_y, a_f - a_f[0], '--', label='_nolegend_', color='#ff7f0e')  # plot y data from acumen
+        # ax1.plot(a_y, a_f - a_f[0], '--', label='_nolegend_', color='#ff7f0e')  # plot y data from acumen
 
         ax1.legend()
         ax1.set_xlabel('Displacement / mm')
@@ -223,7 +224,7 @@ def lin_reg(X, Y):
 # t1 = time.time()
 # print('Execution time: '+str(int((time.time()-t1)/60)) + ' min '+str(round(np.mod(time.time()-t1, 60), 1))+' sec.')
 
-#%% Linear regression
+# %% Linear regression
 
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
@@ -231,13 +232,12 @@ peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # witho
 # Titanium, without 1 (diff ampl)
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
 
-
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 # model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '66_L50_S50_D45_d1_02_P'
+model = '62_L50_S50_D45_d1_02_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -263,7 +263,7 @@ plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
 friction = '0.2'
 for x in range(x0, x1):
-    for i in [2, 5, 9, 11]:  # (for optimising)  # 2-34 because 0, 1 not existing in data frame
+    for i in range(2, 34):  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))
         RFy_exp_all[x, i] = Peak_exp(x, i)
         try:
@@ -310,7 +310,7 @@ else:
     axs.set_xlabel('Experiment / N')
     axs.set_ylabel('FE / N')
 axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
-                                                                                       # ', $\mu$ = ' + friction)
+# ', $\mu$ = ' + friction)
 axs.set_aspect('equal')
 axs.set_xlim(F_range)
 axs.set_ylim(F_range)
@@ -346,7 +346,7 @@ axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
 
 plt.legend(framealpha=1)
 
-#%% Each amplitude
+# %% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
 fig5.set_figheight(7)
 fig5.set_figwidth(7)
@@ -395,7 +395,7 @@ plt.xlabel('Amplitude')
 plt.ylabel('Max. Force / N')
 plt.xticks(np.arange(0, 7), lab)
 plt.title('Peak Forces')
-#%% Friction comparison
+# %% Friction comparison
 fig7, axs7 = plt.subplots(1, 1)
 
 with open('/home/biomech/Documents/01_Icotec/01_Experiments/03_Analysis/mergedDf.pkl', 'rb') as f:
@@ -481,7 +481,7 @@ for x in range(x0, 1):  # x1):
         # axs8.scatter(resExp, resFE)
         # print(resFE)
 
-#%% Linear regression incl friction
+# %% Linear regression incl friction
 
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)

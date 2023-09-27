@@ -50,7 +50,7 @@ def mapping(sample, mod, fric_):
     Input['Friction'] = fric_  # friction between screw and bone
     Input['Mapping_Diameter'] = 2  # diameter of sphere for mapping, in mm. should be larger than element size
 
-    Input['YM_peek'] = str(25000)  # young's modulus peek screw
+    Input['YM_peek'] = str(35000)  # young's modulus peek screw
     Input['v_peek'] = str(0.3)  # poisson ratio peek screw
     Input['YM_titan'] = str(100000)  # young's modulus titanium screw
     Input['v_titan'] = str(0.3)  # poisson ratio titanium screw
