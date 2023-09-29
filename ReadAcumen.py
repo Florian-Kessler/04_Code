@@ -141,7 +141,6 @@ def read_FE_(number, model_code, plot, fric_):
             loc_FEA + specimen + '/' + model_code2[:14] + '/' + model_code2 + '_RFnode.txt',
             loc_FEA + specimen + '/' + model_code2[:14] + '/' + model_code2 + '_RFnodeFix.txt'
             ]
-
     # Load data
     # [A_x, A_y, A_z, A_rx, A_ry, A_rz, a_y, a_f, a_c]
     RFy = []
@@ -237,7 +236,7 @@ lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 # model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '62_L50_S50_D45_d1_02_P'
+model = '62_L50_S50_D45_d1_07_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -261,9 +260,9 @@ else:
     F_range = np.array([-10, 450])
 plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
-friction = '0.2'
+friction = '0.7'
 for x in range(x0, x1):
-    for i in range(2, 34):  # 2-34 because 0, 1 not existing in data frame
+    for i in range(2, 14):  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))
         RFy_exp_all[x, i] = Peak_exp(x, i)
         try:
