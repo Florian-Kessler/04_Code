@@ -89,39 +89,34 @@ def mapping(sample, mod, fric_):
     # Read mask
     imMask = sitk.ReadImage(Input['FEA_loc'] + Input['Model_Code'] + '_mask.mhd')
     imMask_np = np.transpose(sitk.GetArrayFromImage(imMask), [2, 1, 0])
+    # Get origin from mask and bone images
     orM = np.array(imMask.GetOrigin())
     orB = np.array(bone['GreyImage'].GetOrigin())
-    insBefore = np.rint(abs(orB - orM) / Input['Resolution']).astype(int)
-    bone['insBefore'] = insBefore
-    # print('insBefore: ' + str(insBefore))
+    # Find dimension difference between mask and bone image
+    bone['insBefore'] = np.rint(abs(orB - orM) / Input['Resolution']).astype(int)
     dimMask = np.array(imMask_np.shape)
     dimBone = np.array(bone['GreyImage'].GetSize())
-    insAfter = (dimBone - dimMask - insBefore).astype(int)
-    bone['insAfter'] = insAfter
-    # print('insAfter: ' + str(insAfter))
-    # print('mask dimension: ' + str(dimMask))
-    # print('bone dimension: ' + str(dimBone))
+    bone['insAfter'] = (dimBone - dimMask - bone['insBefore']).astype(int)
+    # Increase mask dimension to bone image dimension
     imMask_np_corr = imMask_np
-    imMask_np_corr = np.append(np.insert(imMask_np_corr, 0, np.zeros((insBefore[0], imMask_np_corr.shape[1],
+    imMask_np_corr = np.append(np.insert(imMask_np_corr, 0, np.zeros((bone['insBefore'][0], imMask_np_corr.shape[1],
                                                                       imMask_np_corr.shape[2])), 0),
-                               np.zeros((insAfter[0], imMask_np_corr.shape[1], imMask_np_corr.shape[2])), 0)
-
+                               np.zeros((bone['insAfter'][0], imMask_np_corr.shape[1], imMask_np_corr.shape[2])), 0)
     imMask_np_corr = np.append(
-        np.insert(imMask_np_corr, 0, np.zeros((insBefore[1], imMask_np_corr.shape[0], imMask_np_corr.shape[2])), 1),
-        np.zeros((imMask_np_corr.shape[0], insAfter[1], imMask_np_corr.shape[2])), 1)
-
+        np.insert(imMask_np_corr, 0, np.zeros((bone['insBefore'][1], imMask_np_corr.shape[0], imMask_np_corr.shape[2])), 1),
+        np.zeros((imMask_np_corr.shape[0], bone['insAfter'][1], imMask_np_corr.shape[2])), 1)
     imMask_np_corr = np.append(
-        np.insert(imMask_np_corr, 0, np.zeros((insBefore[2], imMask_np_corr.shape[0], imMask_np_corr.shape[1])), 2),
-        np.zeros((imMask_np_corr.shape[0], imMask_np_corr.shape[1], insAfter[2])), 2)
-    # print('new mask dimension: ' + str(np.array(imMask_np_corr.shape)))
-
+        np.insert(imMask_np_corr, 0, np.zeros((bone['insBefore'][2], imMask_np_corr.shape[0], imMask_np_corr.shape[1])), 2),
+        np.zeros((imMask_np_corr.shape[0], imMask_np_corr.shape[1], bone['insAfter'][2])), 2)
+    # Save image for visual control of mask location within bone image
     plt.figure()
     plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
     plt.show()
     plt.savefig(Input['FEA_loc'] + 'mappingControlPlot.png')
     plt.close()
-
+    # Save new mask to bone dictionary
     bone['MASK'] = imMask_np_corr
+    # Load bone mask respecting also air around bone (not implemented yet)
     shape_mask_x = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + '_mask_x.npy')
     shape_mask_y = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + '_mask_y.npy')
     shape_mask_z = np.load('/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/' + sample_code + '_mask_z.npy')
@@ -129,6 +124,7 @@ def mapping(sample, mod, fric_):
     del shape_mask_x
     del shape_mask_y
     del shape_mask_z
+    # Save images if requested
     if write_output:
         img_screw = sitk.GetImageFromArray(np.transpose(bone['MASK'], [2, 1, 0]))
         img_screw.SetOrigin(bone['GreyImage'].GetOrigin())
@@ -141,7 +137,7 @@ def mapping(sample, mod, fric_):
         sitk.WriteImage(img_seg, path_fea + sample_code + '_seg.mhd')
         print('Segmented image saved.')
         del img_seg
-
+    # Mapping
     mappNR.HFE_mapping_trans(bone, Input)
 
     # Write final input file
@@ -153,22 +149,23 @@ def mapping(sample, mod, fric_):
         os.remove(path_fea + model_code + '_mask.mhd')
         os.remove(path_fea + model_code + '_mask.raw')
 
-        tRun = time.time() - t1
-        if tRun >= 3600:
-            print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
-                  str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
-        elif tRun >= 60:
-            print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
-        else:
-            print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
+    tRun = time.time() - t1
+    if tRun >= 3600:
+        print('Execution time: ' + str(int(tRun / 3600)) + ' h ' + str(int(np.mod(tRun, 3600) / 60)) + ' min ' +
+              str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+    elif tRun >= 60:
+        print('Execution time: ' + str(int(tRun / 60)) + ' min ' + str(round(np.mod(tRun, 60), 1)) + ' sec.\n')
+    else:
+        print('Execution time: ' + str(round(tRun, 1)) + ' sec.\n')
 
 
+# Load list with all sample numbers from 0-33
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
-
+# Sorted in peek and titanium groups
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]  # without 0
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # without 1
 
-for i in [8]:  # ti_samples:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):  # len(sample_list)):
+for i in [8]:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):
 
     print('Sample: ' + sample_list[i])
     mapping(sample_list[i], 13, 0.2)  # samples, model, friction
