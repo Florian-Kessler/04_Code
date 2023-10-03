@@ -16,6 +16,7 @@ def HFE_mapping_trans(bone, inp):
     Material Mapping, including PSL ghost padding layers as copy of most distal and proximal layers
     :param bone: bone dictionary
     :param inp: inputfile properties
+    :return: updated bone dictionary
     """
 
     print('... start material mapping with copying boundary layers as ghost layers')
@@ -43,8 +44,6 @@ def HFE_mapping_trans(bone, inp):
     cogs = {}
 
     ROI_BVTV_size = inp['Mapping_Diameter']  # sphere diameter in mm
-
-    # print("FEelSize material mapping = " + str(FEelSize))
 
     for i, elem in enumerate(elems):
 
@@ -102,26 +101,20 @@ def HFE_mapping_trans(bone, inp):
     elems = {elem: elems[elem] for elem in elsets["BONE"]}
     elems_bone = elems
 
-    # mf.writeAbaqus(INPname, None, nodes, None, elems, elsets, NscaResults=None)
     # *****************************************************************
     marray = np.real(np.mean([np.asarray(m[elem]) for elem in m.keys()], axis=0))
     mmarray1 = np.real(np.mean([np.asarray(mm[elem][0]) for elem in m.keys()], axis=0))
     mmarray2 = np.real(np.mean([np.asarray(mm[elem][1]) for elem in m.keys()], axis=0))
     mmarray3 = np.real(np.mean([np.asarray(mm[elem][2]) for elem in m.keys()], axis=0))
 
-    # io_utils.print_mem_usage()
-
     print("\n... material mapping finished")
 
-    # set bone values
-    # bone["RHOb_array"] = RHOb_array
     bone["RHOb_orig_array"] = RHOb_orig_array
     bone["RHOb_FE_array"] = RHOb_FE_array
     bone["PHIb_array"] = PHIb_array
     bone["elems"] = elems
     bone["elems_BONE"] = elems_bone
     bone["nodes"] = nodes
-    # bone["nodes_BONE"] = nodes_bone
     bone["elsets"] = elsets
     bone["marray"] = marray
     bone["mmarray1"] = mmarray1
@@ -194,9 +187,7 @@ def readInpBoneDummy(bone, inp):
 
     # Read information from Dummy input file of bone
     inpDummy = mf.readAbaqus(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.inp')
-    # title = inp[0]
     nodes = inpDummy[1]
-    # nsets = inpDummy[2]
     elems = inpDummy[3]
     elsets = inpDummy[4]
 
@@ -213,11 +204,15 @@ def readInpBoneDummy(bone, inp):
     bone["elsets"] = elsets
     bone["FEelSize"] = evol
 
-    # print('createEleSets')
     return bone
 
 
 def list_txt_files(path):
+    """
+    Find and list all text files from a directory
+    :param path: Path from the directory where text files are stored
+    :return: List of all text files in the directory
+    """
     # list all text files in path:
     files = []
     for i in os.listdir(path):
@@ -277,12 +272,6 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
         # close small holes and gabs:
         for i in range(0, mask.shape[0]):
             mask[i, :, :] = morph.closing(mask[i, :, :], np.ones([3, 3]))
-            # mask_copy[i, :, :] = morph.dilation(mask_copy[i, :, :], np.ones([3, 3]))
-            # mask_copy[i, :, :] = morph.erosion(mask_copy[i, :, :], np.ones([2, 2]))
-    # print('x_min: ' + str(x_min))
-    # print('y_min: ' + str(y_min))
-    # print('z_min: ' + str(z_min))
-    # print('z_min: ' + str(z_max))
     origin_mask = [-11.5 / 2, -17.5 / 2, -45]  # HERE hard coded, dimensions of ROI
 
     spacing = np.array([1, 1, 1]) * inp['Resolution']
@@ -301,7 +290,6 @@ def boneMeshMask(bone, inp, controlplot=False, reshape=True, closing=True):
     bone['MaskY'] = np.array([y_min, y_max])
     bone['MaskZ'] = np.array([z_min, z_max])
 
-    # print('BoneMeshMask')
     return bone
 
 
@@ -330,8 +318,8 @@ def load_BVTVdata(bone, filename):
 def HFE_inp_creator(inp):
     """
     Creates inputfile with specified details
-    :param inp: inputfile properties
-    :return: writes input file
+    :param inp: Inputfile properties
+    :return: No return, writes input file
     """
     SimMat = ['T', 'P']  # simulated materials
     for i in range(len(SimMat)):
@@ -405,8 +393,8 @@ def HFE_inp_creator(inp):
 def write_submit(inp):
     """
     Function to write a submit file, either for cortex or for ubelix
-    :param inp: inputfile properties
-    :return: writes .sh files
+    :param inp: Inputfile properties
+    :return: No return, writes .sh files
     """
     SimMat = ['P', 'T']
     for i in range(len(SimMat)):
@@ -436,8 +424,8 @@ def write_submit(inp):
 def write_mesh(inp):
     """
     Extracts the bone mesh from the input file. Part must be called name=Bone
-    :param inp: input file dictionary
-    :return: no return variable, writes an input file containing the bone mesh only
+    :param inp: Input file dictionary
+    :return: No return variable, writes an input file containing the bone mesh only
     """
     orig = open(inp['Project_Folder'] + '02_FEA/00_Model/' + inp['Model_Code'] + '_model.inp')
     mesh = open(inp['FEA_loc'] + inp['Model_Code'] + '_mesh.inp', 'w')
