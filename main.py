@@ -11,6 +11,7 @@ def mapping(sample, mod, fric_):
     t1 = time.time()
     # # # # # Input # # # # #
     # FE version
+    # Need to provide: .stl and .inp file
     models = ['00_L50_S50_D30', '01_L50_S50_D35', '02_L50_S50_D40', '03_L50_S50_D45', '04_L50_S50_D27',  # 0, 1, 2, 3, 4
               '10_L50_S00_D30', '11_L50_S00_D35', '12_L50_S00_D40', '13_L50_S00_D45', '14_L50_S00_D27',  # 5, 6, 7, 8, 9
               '15_L50_S00_D44',  # 10
