@@ -2,6 +2,14 @@ import os
 
 
 def copy(spec, mod, doc, dir_):
+    """
+    Function to copy files to and from UBELIX to the local machine
+    :param spec: Specimen number
+    :param mod: FEA model
+    :param doc: Specific document
+    :param dir_: Direction ('from' or 'to')
+    :return: No return variable
+    """
     specimens = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
 
     user = 'fk21b515'
