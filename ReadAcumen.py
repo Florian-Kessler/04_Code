@@ -128,8 +128,8 @@ def read_FE_(number, model_code, plot, fric_):
 
     elif number in [1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # Ti
         fric_ = '0.2'  # HERE friction for Ti changed
-        model_code1 = str(int(model_code[:2]) + 1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE +1 --> -1
-        model_code2 = str(int(model_code[:2]) + 1) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
+        model_code1 = str(int(model_code[:2]) + 3) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE +1 --> -1
+        model_code2 = str(int(model_code[:2]) + 3) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
     else:
         print('Invalid model code!')
     print(model_code1)
@@ -236,7 +236,7 @@ lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 x0 = 0
 x1 = 7  # max 7
 # model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '62_L50_S50_D45_d1_07_P'
+model = '60_L50_S50_D45_d1_05_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -260,7 +260,7 @@ else:
     F_range = np.array([-10, 450])
 plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
-friction = '0.7'
+friction = '0.5'
 for x in range(x0, x1):
     for i in range(2, 14):  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))

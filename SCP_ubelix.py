@@ -28,9 +28,9 @@ def copy(spec, mod, doc, dir_):
         print('Invalid direction.')
 
 
-document = '*07*.txt'
+document = '*05*.txt'
 direction = 'from'  # from local TO REMOTE or FROM REMOTE to local
-model = '62_L50_S50_D45'
+model = '60_L50_S50_D45'
 
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]
