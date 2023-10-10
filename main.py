@@ -1,4 +1,4 @@
-import mapping_noRot as mappNR
+import mapping_hFE as mappNR
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
