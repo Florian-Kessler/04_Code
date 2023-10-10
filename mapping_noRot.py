@@ -8,7 +8,7 @@ import skimage.morphology as morph
 import utils_SA as utils
 import sys
 import matplotlib.pyplot as plt
-import ReadRawMHD as rR
+import hFE_functions as hFEf
 
 
 def HFE_mapping_trans(bone, inp):
@@ -308,7 +308,7 @@ def load_BVTVdata(bone, filename):
     bone["Spacing"] = np.array(list(reversed(bone["GreyImage"].GetSpacing())))
     bone["Origin"] = bone["GreyImage"].GetOrigin()
 
-    bone["BVTVscaled"] = rR.zeros_and_ones(bone_img, 358)  # Segmentation of gray image, otsu mean of all images
+    bone["BVTVscaled"] = hFEf.zeros_and_ones(bone_img, 358)  # Segmentation of gray image, otsu mean of all images
 
     # Flip image 180° to get same COS origin
     # bone["BVTVscaled"] = bone["BVTVscaled"][:, :, ::-1]

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import SimpleITK as sitk
 import time
 import os
-import ReadRawMHD as rR
+import hFE_functions as rR
 import pandas as pd
 from scipy.signal import butter, filtfilt, find_peaks
 from ConcaveHull import ConcaveHull
