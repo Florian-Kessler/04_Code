@@ -103,11 +103,15 @@ def mapping(sample, mod, fric_):
                                                                       imMask_np_corr.shape[2])), 0),
                                np.zeros((bone['insAfter'][0], imMask_np_corr.shape[1], imMask_np_corr.shape[2])), 0)
     imMask_np_corr = np.append(
-        np.insert(imMask_np_corr, 0, np.zeros((bone['insBefore'][1], imMask_np_corr.shape[0], imMask_np_corr.shape[2])), 1),
-        np.zeros((imMask_np_corr.shape[0], bone['insAfter'][1], imMask_np_corr.shape[2])), 1)
+        np.insert(
+            imMask_np_corr, 0, np.zeros((bone['insBefore'][1], imMask_np_corr.shape[0], imMask_np_corr.shape[2])), 1),
+        np.zeros(
+            (imMask_np_corr.shape[0], bone['insAfter'][1], imMask_np_corr.shape[2])), 1)
     imMask_np_corr = np.append(
-        np.insert(imMask_np_corr, 0, np.zeros((bone['insBefore'][2], imMask_np_corr.shape[0], imMask_np_corr.shape[1])), 2),
-        np.zeros((imMask_np_corr.shape[0], imMask_np_corr.shape[1], bone['insAfter'][2])), 2)
+        np.insert(
+            imMask_np_corr, 0, np.zeros((bone['insBefore'][2], imMask_np_corr.shape[0], imMask_np_corr.shape[1])), 2),
+        np.zeros(
+            (imMask_np_corr.shape[0], imMask_np_corr.shape[1], bone['insAfter'][2])), 2)
     # Save image for visual control of mask location within bone image
     plt.figure()
     plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)

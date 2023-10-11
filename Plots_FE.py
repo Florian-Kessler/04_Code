@@ -88,7 +88,7 @@ plt.plot(mean_x, mean_y, color='r', label='Mean experiments icotec')
 plt.legend()
 # %% uFE result and energy
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
-no = 2
+no = 7
 specimen = sample_list[no]
 print(specimen)
 number = '16'
@@ -118,5 +118,5 @@ elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # with
     plt.title(number + '_' + specimen + ' (Ti)')
     print('Ti')
 
-plt.plot(U, -F)
 plt.plot(a_y, a_f-a_f[0])
+plt.plot(U, -F)
