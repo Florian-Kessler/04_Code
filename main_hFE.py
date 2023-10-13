@@ -35,7 +35,7 @@ def mapping(sample, mod, fric_):
     path_fea = path_project + '02_FEA/01_MainStudy/' + sample_code + '/' + model_code + '/'  # Folder of FEA files
     file_bone = [filename for filename in os.listdir(path_ct + '/') if
                  filename.endswith('image.mhd') and str(sample_code) in filename][0]
-    print(file_bone)
+    print('Imaging data: ' + file_bone)
 
     # # # # # Input # # # # #
     # Input FEA data
@@ -74,8 +74,8 @@ def mapping(sample, mod, fric_):
     Input['Submit'] = 'ubelix'
     mappNR.write_submit(Input)
 
-    # Write output images? segmented image and mask, for visual check
-    write_output = 0
+    # Write output images? segmented image and mask, for visual check (input: 0, 1)
+    write_output = 1
 
     # Write mesh input file
     mappNR.write_mesh(Input)  # Original input file, path for mesh.inp
@@ -114,7 +114,9 @@ def mapping(sample, mod, fric_):
             (imMask_np_corr.shape[0], imMask_np_corr.shape[1], bone['insAfter'][2])), 2)
     # Save image for visual control of mask location within bone image
     plt.figure()
-    plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
+    imSum = imMask_np_corr + bone['BVTVscaled']
+    plt.imshow(imSum[bone['insBefore'][0] + int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
+    # plt.imshow(imMask_np[int(dimMask[0] / 2), :, :], cmap=cm.RdBu_r)
     plt.show()
     plt.savefig(Input['FEA_loc'] + 'mappingControlPlot.png')
     plt.close()
@@ -134,7 +136,7 @@ def mapping(sample, mod, fric_):
         img_screw.SetOrigin(bone['GreyImage'].GetOrigin())
         img_screw.SetSpacing(bone['GreyImage'].GetSpacing())
         sitk.WriteImage(img_screw, path_fea + sample_code + '_screw.mhd')
-        print('Screw saved.')
+        print('Screw image saved.')
         img_seg = sitk.GetImageFromArray(np.transpose(bone['BVTVscaled'], [2, 1, 0]))
         img_seg.SetOrigin(bone['GreyImage'].GetOrigin())
         img_seg.SetSpacing(bone['GreyImage'].GetSpacing())
@@ -172,4 +174,4 @@ ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # wit
 for i in [8]:  # ti_samples:  # range(2, len(sample_list)):  # range(12, 20):
 
     print('Sample: ' + sample_list[i])
-    mapping(sample_list[i], 13, 0.2)  # samples, model, friction
+    mapping(sample_list[i], 29, 0.2)  # samples, model, friction

@@ -88,35 +88,55 @@ plt.plot(mean_x, mean_y, color='r', label='Mean experiments icotec')
 plt.legend()
 # %% uFE result and energy
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
-no = 7
-specimen = sample_list[no]
-print(specimen)
-number = '16'
-fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + specimen + '/'
-fe = number + '_' + specimen + '_0121399_'
 
-file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
-U, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
-# U, _ = read_RFnodeFile('/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_B_0T_' + 'RFnode.txt')
-_, F = hFEf.read_RFnodeFile(fe_path + fe + 'RFnodeFix.txt')
-# _, F = read_RFnodeFile('/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_B_0T_' + 'RFnodeFix.txt')
-[_, A_y, _, _, _, _, a_y, a_f, _] = hFEf.read_resample(file_exp)
-energy = 0
-if energy:
-    t_ke, ke = hFEf.read_energy(fe_path + fe + 'ke.txt')
-    t_ie, ie = hFEf.read_energy(fe_path + fe + 'ie.txt')
+samples = [5, 7, 8, 10, 15, 16, 18, 21]
+F_extrem = np.zeros((4, 22))
+#                    [0, 1, 2, 3, 4,     5, 6,      7,     8, 9,    10, 11, 12, 13, 14,     15,    16, 17,    18, 19, 20,    21]
+peaks_4mm = np.array([0, 0, 0, 0, 0, -92.6, 0, -101.5, -76.1, 0, -65.4,  0,  0,  0,  0, -114.0, -91.9,  0, -76.0,  0,  0, -80.2])
+for no in samples:
+    specimen = sample_list[no]
+    print(specimen)
+    number = '17'
+    fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + specimen + '/'
+    fe = number + '_' + specimen + '_0121399_'
+
+    file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
+    U, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
+    # U, _ = read_RFnodeFile('/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_B_0T_' + 'RFnode.txt')
+    _, F = hFEf.read_RFnodeFile(fe_path + fe + 'RFnodeFix.txt')
+    # _, F = read_RFnodeFile('/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_B_0T_' + 'RFnodeFix.txt')
+    [_, A_y, _, _, _, _, a_y, a_f, _] = hFEf.read_resample(file_exp)
+    energy = 0
+    if energy:
+        t_ke, ke = hFEf.read_energy(fe_path + fe + 'ke.txt')
+        t_ie, ie = hFEf.read_energy(fe_path + fe + 'ie.txt')
+        plt.figure()
+        # plt.plot(t_ke, ke)
+        # plt.plot(t_ie, ie)
+        plt.plot(t_ke, ke/ie)
+        plt.plot([t_ke[0], t_ke[-1]], [0.1, 0.1])
     plt.figure()
-    # plt.plot(t_ke, ke)
-    # plt.plot(t_ie, ie)
-    plt.plot(t_ke, ke/ie)
-    plt.plot([t_ke[0], t_ke[-1]], [0.1, 0.1])
-plt.figure()
-if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-    plt.title(number + '_' + specimen + ' (PEEK)')
-    print('PEEK')
-elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-    plt.title(number + '_' + specimen + ' (Ti)')
-    print('Ti')
+    if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+        plt.title(number + '_' + specimen + ' (PEEK)')
+        print('PEEK')
+    elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+        plt.title(number + '_' + specimen + ' (Ti)')
+        print('Ti')
 
-plt.plot(a_y, a_f-a_f[0])
-plt.plot(U, -F)
+    plt.plot(a_y, a_f-a_f[0])
+    plt.plot(U, -F)
+    plt.title(no)
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/' + number + '_'
+                + specimen + '_ForceDisplacement.png')
+    plt.close()
+    print(no)
+    F_extrem[0, no] = hFEf.Peak_exp(3, no)
+    F_extrem[1, no] = hFEf.Peak_exp(4, no)
+    F_extrem[2, no] = F[45]
+    F_extrem[3, no] = F[-1]
+plt.figure()
+plt.scatter(F_extrem[0, :], F_extrem[2, :])
+plt.scatter(F_extrem[1, :], F_extrem[3, :])
+# plt.scatter(F_extrem[0, :], -peaks_4mm)
+# plt.scatter(-peaks_4mm, -F_extrem[1, :])
+plt.plot([0, 120], [0, 120], 'k--')
