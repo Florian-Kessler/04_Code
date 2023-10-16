@@ -89,8 +89,8 @@ plt.legend()
 # %% uFE result and energy
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
-samples = [5, 7, 8, 10, 15, 16, 18, 21]
-F_extrem = np.zeros((4, 22))
+samples = [5, 7, 8, 10, 15, 16, 18, 21]  # 16 no hfe
+F_extrem = np.zeros((6, 22))
 #                    [0, 1, 2, 3, 4,     5, 6,      7,     8, 9,    10, 11, 12, 13, 14,     15,    16, 17,    18, 19, 20,    21]
 peaks_4mm = np.array([0, 0, 0, 0, 0, -92.6, 0, -101.5, -76.1, 0, -65.4,  0,  0,  0,  0, -114.0, -91.9,  0, -76.0,  0,  0, -80.2])
 for no in samples:
@@ -99,12 +99,13 @@ for no in samples:
     number = '17'
     fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + specimen + '/'
     fe = number + '_' + specimen + '_0121399_'
+    hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
 
     file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
-    U, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
-    # U, _ = read_RFnodeFile('/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_B_0T_' + 'RFnode.txt')
-    _, F = hFEf.read_RFnodeFile(fe_path + fe + 'RFnodeFix.txt')
-    # _, F = read_RFnodeFile('/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/Tests/test_B_0T_' + 'RFnodeFix.txt')
+    U_uFE, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
+    U_hFE, _ = hFEf.read_RFnodeFile(hfe_path + 'RFnode.txt')
+    _, F_uFE = hFEf.read_RFnodeFile(fe_path + fe + 'RFnodeFix.txt')
+    _, F_hFE = hFEf.read_RFnodeFile(hfe_path + 'RFnodeFix.txt')
     [_, A_y, _, _, _, _, a_y, a_f, _] = hFEf.read_resample(file_exp)
     energy = 0
     if energy:
@@ -123,20 +124,60 @@ for no in samples:
         plt.title(number + '_' + specimen + ' (Ti)')
         print('Ti')
 
-    plt.plot(a_y, a_f-a_f[0])
-    plt.plot(U, -F)
-    plt.title(no)
+    plt.plot(a_y, a_f-a_f[0], label='Experiment')
+    plt.plot(U_uFE, -F_uFE, label='uFE')
+    plt.plot(U_hFE, -F_hFE, label='hFE')
+    # plt.title(specimen + ' (No. ' + str(no) + ')')
+    plt.xlabel('Displacement / mm')
+    plt.ylabel('Force / N')
+    plt.legend()
     plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/' + number + '_'
                 + specimen + '_ForceDisplacement.png')
     plt.close()
-    print(no)
-    F_extrem[0, no] = hFEf.Peak_exp(3, no)
-    F_extrem[1, no] = hFEf.Peak_exp(4, no)
-    F_extrem[2, no] = F[45]
-    F_extrem[3, no] = F[-1]
+    if no != 16:
+        F_extrem[4, no] = F_hFE[73]
+        F_extrem[5, no] = F_hFE[94]
+        F_extrem[0, no] = hFEf.Peak_exp(3, no)
+        F_extrem[1, no] = hFEf.Peak_exp(4, no)
+        F_extrem[2, no] = F_uFE[45]
+        F_extrem[3, no] = F_uFE[-1]
+
 plt.figure()
-plt.scatter(F_extrem[0, :], F_extrem[2, :])
-plt.scatter(F_extrem[1, :], F_extrem[3, :])
-# plt.scatter(F_extrem[0, :], -peaks_4mm)
-# plt.scatter(-peaks_4mm, -F_extrem[1, :])
+plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
+plt.scatter(F_extrem[1, :], F_extrem[3, :], label='4 mm Amplitude')
 plt.plot([0, 120], [0, 120], 'k--')
+plt.xlabel('Force Experiment / N')
+plt.ylabel('Force uFE / N')
+plt.legend()
+plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_uFE_exp')
+
+plt.figure()
+plt.scatter(F_extrem[4, :], F_extrem[2, :], label='2 mm Amplitude')
+plt.scatter(F_extrem[5, :], F_extrem[3, :], label='4 mm Amplitude')
+plt.plot([0, 120], [0, 120], 'k--')
+plt.xlabel('Force hFE / N')
+plt.ylabel('Force uFE / N')
+plt.legend()
+plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE')
+
+plt.figure()
+plt.scatter(F_extrem[0, :], F_extrem[4, :], label='2 mm Amplitude')
+plt.scatter(F_extrem[1, :], F_extrem[5, :], label='4 mm Amplitude')
+plt.plot([0, 120], [0, 120], 'k--')
+plt.xlabel('Force Experiment / N')
+plt.ylabel('Force hFE / N')
+plt.legend()
+plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_exp')
+
+plt.figure()
+plt.scatter(F_extrem[0, :], F_extrem[4, :], label='2 mm Amplitude hFE')
+plt.scatter(F_extrem[1, :], F_extrem[5, :], label='4 mm Amplitude hFE')
+plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude uFE', color='#1f77b4', marker='x')
+plt.scatter(F_extrem[1, :], F_extrem[3, :], label='4 mm Amplitude uFE', color='#ff7f0e', marker='x')
+plt.plot([0, 120], [0, 120], 'k--')
+plt.xlabel('Force Experiment / N')
+plt.ylabel('Force FE / N')
+plt.legend()
+plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE_exp')
+
+plt.close('all')
