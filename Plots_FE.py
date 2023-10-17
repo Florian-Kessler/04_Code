@@ -119,9 +119,10 @@ data = read_icotec_experiment('1.3', 'ti')
 plt.plot(data['Dehnung'], data['Standardkraft'], color='k')
 # %% uFE result and energy
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
-
-samples = [5, 7, 8, 10, 15, 16, 18, 21]  # 16 no hfe
-F_extrem = np.zeros((6, 22))
+plt.close('all')
+#samples = [3, 4, 14, 17, 19, 20]
+samples = [5, 7, 8, 10, 15, 18, 21, 26, 29, 31]  # 16, 23 no hfe. 24 exp bad
+F_extrem = np.zeros((6, 32))
 for no in samples:
     specimen = sample_list[no]
     print(specimen)
@@ -129,8 +130,12 @@ for no in samples:
     fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + \
               specimen + '/'
     fe = number + '_' + specimen + '_0121399_'
-    hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
-               specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
+    if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+        hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+                  specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
+    elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+        hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+                   specimen + '/63_L50_S50_D45/63_L50_S50_D45_d1_02_T_'
 
     file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
     U_uFE, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
@@ -170,8 +175,11 @@ for no in samples:
         F_extrem[1, no] = hFEf.Peak_exp(4, no)  # Experiment 4 mm
         F_extrem[2, no] = F_uFE[45]  # uFE 2 mm
         F_extrem[3, no] = F_uFE[-1]  # uFE 4 mm
-        F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
-        F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
+        try:
+            F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
+            F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
+        except:
+            print('no hFE data')
 
 plt.figure()
 plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
@@ -180,7 +188,10 @@ plt.plot([0, 120], [0, 120], 'k--')
 plt.xlabel('Force Experiment / N')
 plt.ylabel('Force uFE / N')
 plt.legend()
-plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_uFE_exp')
+if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_uFE_exp_PEEK')
+elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_uFE_exp_Ti')
 
 plt.figure()
 plt.scatter(F_extrem[4, :], F_extrem[2, :], label='2 mm Amplitude')
@@ -189,7 +200,10 @@ plt.plot([0, 120], [0, 120], 'k--')
 plt.xlabel('Force hFE / N')
 plt.ylabel('Force uFE / N')
 plt.legend()
-plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE')
+if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE_PEEK')
+elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE_Ti')
 
 plt.figure()
 plt.scatter(F_extrem[0, :], F_extrem[4, :], label='2 mm Amplitude')
@@ -198,7 +212,10 @@ plt.plot([0, 120], [0, 120], 'k--')
 plt.xlabel('Force Experiment / N')
 plt.ylabel('Force hFE / N')
 plt.legend()
-plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_exp')
+if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_exp_PEEK')
+elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_exp_Ti')
 
 plt.figure()
 plt.scatter(F_extrem[0, :], F_extrem[4, :], label='2 mm Amplitude hFE')
@@ -209,6 +226,9 @@ plt.plot([0, 120], [0, 120], 'k--')
 plt.xlabel('Force Experiment / N')
 plt.ylabel('Force FE / N')
 plt.legend()
-plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE_exp')
+if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE_exp_PEEK')
+elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+    plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/02_uFE/scatter_hFE_uFE_exp_Ti')
 
-plt.close('all')
+#plt.close('all')
