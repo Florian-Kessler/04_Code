@@ -226,3 +226,4 @@ ax4.tick_params(
      top=False,          # ticks along the top edge are off
      labelbottom=False)  # labels along the bottom edge are off
 fig4.savefig('/home/biomech/Documents/GitHub/05_Report/02_Pictures_MM/Opt_PEEK_rel.eps')
+

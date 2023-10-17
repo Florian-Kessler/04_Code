@@ -12,8 +12,13 @@ def read_RFnodeFile_opt(file_):
     return uy_, rfy_
 
 
-def read_icotec_experiment(sheet_):
-    file_ = '/home/biomech/Documents/01_Icotec/01_Experiments/99_Others/Screw_Bending_test/F1798Cantilever_UniBern.xls'
+def read_icotec_experiment(sheet_, mat_):
+    if mat_ == 'peek':
+        file_ = '/home/biomech/Documents/01_Icotec/01_Experiments/99_Others/Screw_Bending_test/' \
+                'F1798Cantilever_UniBern.xls'
+    elif mat_ == 'ti':
+        file_ = '/home/biomech/Documents/01_Icotec/01_Experiments/99_Others/Screw_Bending_DPS/' \
+                'F1798Cantilever_UniBern_DPS.xls'
     f_ = pd.read_excel(file_, sheet_name=sheet_, header=[1, 2], )
     return f_
 
@@ -61,7 +66,7 @@ plt.ylabel('Force / N')
 plt.legend()
 tests = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '2.1', '2.2', '2.3']
 for i in range(len(tests)):
-    data[tests[i]] = read_icotec_experiment(tests[i])
+    data[tests[i]] = read_icotec_experiment(tests[i], 'peek')
     # if i < 6:
     #     plt.plot(data[tests[i]]['Dehnung'], data[tests[i]]['Standardkraft'], color='#045f5f')
     # else:
@@ -86,20 +91,46 @@ mean_y = np.mean((data[tests[0]]['Standardkraft'][:12000],
                   data[tests[8]]['Standardkraft'][:12000],), axis=0)
 plt.plot(mean_x, mean_y, color='r', label='Mean experiments icotec')
 plt.legend()
+
+#%% Ti material optimisation
+import matplotlib.pyplot as plt
+import matplotlib
+import numpy as np
+def read_RFnodeFile(file_):
+    # read data from text file
+    df_ = np.loadtxt(file_, delimiter=',')
+    uy_ = np.array(df_[:, 2])
+    fy_ = np.array(df_[:, 1])
+    return uy_, fy_
+
+
+#  0: YM = 100'000, no plastic
+#  1: YM = 110'000, no plastic
+#  2: YM = 113'000, no plastic
+#  3: YM = 113'000, pl (880/0)
+
+
+plt.figure()
+for i in [0, 2, 3]:
+    uy, fy = read_RFnodeFile('/home/biomech/Documents/01_Icotec/02_FEA/00_Model/99_screw_DPS_Bending_job_RFnode_'
+                             + str(i) + '.txt')
+    plt.plot(-uy, -fy)
+data = read_icotec_experiment('1.3', 'ti')
+plt.plot(data['Dehnung'], data['Standardkraft'], color='k')
 # %% uFE result and energy
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 
 samples = [5, 7, 8, 10, 15, 16, 18, 21]  # 16 no hfe
 F_extrem = np.zeros((6, 22))
-#                    [0, 1, 2, 3, 4,     5, 6,      7,     8, 9,    10, 11, 12, 13, 14,     15,    16, 17,    18, 19, 20,    21]
-peaks_4mm = np.array([0, 0, 0, 0, 0, -92.6, 0, -101.5, -76.1, 0, -65.4,  0,  0,  0,  0, -114.0, -91.9,  0, -76.0,  0,  0, -80.2])
 for no in samples:
     specimen = sample_list[no]
     print(specimen)
     number = '17'
-    fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + specimen + '/'
+    fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + \
+              specimen + '/'
     fe = number + '_' + specimen + '_0121399_'
-    hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
+    hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+               specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
 
     file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
     U_uFE, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
