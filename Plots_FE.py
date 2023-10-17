@@ -135,12 +135,12 @@ for no in samples:
                 + specimen + '_ForceDisplacement.png')
     plt.close()
     if no != 16:
-        F_extrem[4, no] = F_hFE[73]
-        F_extrem[5, no] = F_hFE[94]
-        F_extrem[0, no] = hFEf.Peak_exp(3, no)
-        F_extrem[1, no] = hFEf.Peak_exp(4, no)
-        F_extrem[2, no] = F_uFE[45]
-        F_extrem[3, no] = F_uFE[-1]
+        F_extrem[0, no] = hFEf.Peak_exp(3, no)  # Experiment 2 mm
+        F_extrem[1, no] = hFEf.Peak_exp(4, no)  # Experiment 4 mm
+        F_extrem[2, no] = F_uFE[45]  # uFE 2 mm
+        F_extrem[3, no] = F_uFE[-1]  # uFE 4 mm
+        F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
+        F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
 
 plt.figure()
 plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
