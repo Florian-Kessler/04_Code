@@ -26,7 +26,7 @@ def main(ODBn):
         return input
 
     ODBname = ODBn + '.odb'
-    OUTname = ODBn + '_RFnode_10.txt'
+    OUTname = ODBn + '_RFnode_4.txt'
     OUTname2 = ODBn
     OUTname3 = ODBn + '_BDI.txt'
     try:
@@ -36,7 +36,7 @@ def main(ODBn):
         print('Creating new file.')
     odb = openOdb(ODBname)
     a = odb.rootAssembly
-    nsetName2 = ['M_SET-3']
+    nsetName2 = ['M_SET-RP']
     opFile = OUTname
 
     if os.path.isfile(opFile):  # Append to file if it already exists
@@ -96,6 +96,5 @@ def main(ODBn):
     opFileU.close()
     print('Done.')
 if __name__ == '__main__':
-    main('96_screw_Osteoporosis_new_Bending')
-    main('97_screw_Osteoporosis_new_Bending_screw_no-nlgeom')
+    main('99_screw_DPS_Bending_job')
     print('Script has finished.')
