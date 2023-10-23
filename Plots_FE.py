@@ -148,6 +148,7 @@ for no in samples:
     _, F_hFE = hFEf.read_RFnodeFile(hfe_path + 'RFnodeFix.txt')
     [_, A_y, _, _, _, _, a_y, a_f, _] = hFEf.read_resample(file_exp)
     energy = 0
+
     if energy:
         t_ke, ke = hFEf.read_energy(fe_path + fe + 'ke.txt')
         t_ie, ie = hFEf.read_energy(fe_path + fe + 'ie.txt')
