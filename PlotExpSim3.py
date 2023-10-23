@@ -296,28 +296,35 @@ axs5.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P)
 plt.legend()
 axs5.set_xlim(datarange)
 #%% FEA catalogue
-for i in [3]:#, ti_samples:  # range(2, 34):
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]  # without 24
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]  # without 25
+fs = 13.5
+for i in range(2, 34):
     specimen = specimen_names[i]  # 'S131318_L4_right'
     uy = 0
     rfy = 0
-    save = 0
+    save = 1
     # # # # # Experiments # # # # #
     sample = loc + specimen + '_resample.csv'
-    [ArX, ArY, ArZ, ArrX, ArrY, ArrZ, AcY, AcFy, AcC] = hFEf.read_resample(sample)
+    [_, _, _, _, _, _, AcY_, AcFy_, _] = hFEf.read_resample(sample)
+    AcY = np.array(AcY_[:])
+    AcFy = np.array(AcFy_[:])
     print(sample)
     print(specimen)
     sample = sample.split('_resample')[0].split('/')[-1]
     if i in peek_samples:
-        file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/86_L50_S50_D45' + \
-                    '/86_L50_S50_D45_d1_02_P_RFnode.txt'
-        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/88_L50_S50_D45' + \
-                    '/88_L50_S50_D45_d1_02_P_RFnode.txt'
+        file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/60_L50_S50_D45' + \
+                    '/60_L50_S50_D45_d1_05_P_RFnode.txt'
+        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/60_L50_S50_D45' + \
+                    '/60_L50_S50_D45_d1_05_P_RFnode.txt'
+        scr = 'icotec'
     elif i in ti_samples:
         # file_path1 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/85_L50_S50_D45' + \
         #             '/85_L50_S50_D45_d1_02_T_RFnode.txt'
-        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/87_L50_S50_D45' + \
-                    '/87_L50_S50_D45_d1_02_T_RFnode.txt'
+        file_path2 = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + sample + '/63_L50_S50_D45' + \
+                    '/63_L50_S50_D45_d1_02_T_RFnode.txt'
         file_path1 = file_path2
+        scr = 'DPS'
     else:
         print('Specimen ' + specimen + ' not in list.')
         continue
@@ -333,14 +340,19 @@ for i in [3]:#, ti_samples:  # range(2, 34):
             uy = uy1
             rfy = rfy1
     plt.figure()
-    plt.plot(AcY, AcFy-AcFy['Acumen Fy'][0], label='Experiment')
-    plt.plot(uy, -rfy, label='FEA')
-    plt.xlabel('Displacement / mm')
-    plt.ylabel('Force / N')
-    plt.title(specimen)
-    plt.legend()
+    plt.plot(AcY, AcFy-AcFy[0], label='Experiment (' + scr + ')')
+    plt.plot(uy, -rfy, label='hFE')
+    plt.xlabel('Displacement / mm', fontsize=fs)
+    plt.ylabel('Force / N', fontsize=fs)
+    # plt.title(specimen)
+    plt.legend(fontsize=fs)
+    plt.tick_params(axis='both', which='major', labelsize=fs)
+    plt.tick_params(axis='both', which='minor', labelsize=fs - 2)
+    plt.subplots_adjust(left=0.15)
     if save:
         plt.savefig('/home/biomech/Documents/01_Icotec/02_FEA/91_Pictures/01_Catalogue_FEA_Exp/' + sample + '.png')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/Catalogue_hFE_' + sample + '.eps')
+    plt.close()
 
 #%% BVTV Plot
 radius = [6]
@@ -498,3 +510,32 @@ for j in range(len(stop)):
 # plt.plot(temp)
 # plt.plot([0, 33], [np.mean(temp), np.mean(temp)])
 print('Mean offset:\t' + str(np.round(np.mean(temp), 3)) + ' mm')
+# %% BVTV vs RF after virtual insertion
+#%% BVTV Plot
+radius = [6]
+radius_txt = [6]
+start = 0
+stop = [200]
+plt.figure()
+bvtvList = []
+specList = []
+indexList = []
+xdata = np.array([])
+ydata = np.array([])
+for i in range(len(specimen_names)):
+    loc_ = '/home/biomech/DATA/01_Icotec/01_Experiments/02_Scans/BVTV/BVTV_along_'
+    bvtv = np.load(loc_ + specimen_names[i] + '_' + str(radius[0]) + 'mm.npy')
+    offset = int((bvtv != 0).argmax(axis=0) / weight)
+    xdata = np.append(xdata, np.mean(bvtv[start + offset:stop[0] + offset], axis=0))
+
+
+
+    if i in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+        hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+                  specimen_names[i] + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
+    elif i in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+        hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+                   specimen_names[i] + '/63_L50_S50_D45/63_L50_S50_D45_d1_02_T_'
+    _, F_hFE = hFEf.read_RFnodeFile(hfe_path + 'RFnodeFix.txt')
+    ydata = np.append(ydata, F_hFE[0])
+plt.scatter(xdata, ydata)

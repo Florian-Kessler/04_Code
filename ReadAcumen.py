@@ -89,7 +89,7 @@ def read_FE_(number, model_code, plot, fric_):
 
 
 # %% Linear regression
-
+fs = 13.5
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
@@ -117,17 +117,17 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 0
+loglog = 1
 alp = 0.3
 if loglog:
-    F_range = np.array([0, 2.6])
+    F_range = np.array([-0.5, 2.6])
 else:
-    F_range = np.array([-10, 450])
-plt.scatter(-1e9, -1e9, color='k', marker='v', label='PEEK')
-plt.scatter(-1e9, -1e9, color='k', marker='s', label='Titanium')
+    F_range = np.array([-10, 410])
+plt.scatter(-1e9, -1e9, color='k', marker='v', label='icotec')
+plt.scatter(-1e9, -1e9, color='k', marker='s', label='DPS')
 friction = '0.5'
 for x in range(x0, x1):
-    for i in range(2, 14):  # 2-34 because 0, 1 not existing in data frame
+    for i in range(2, 32):  # 2-34 because 0, 1 not existing in data frame
         # print('x: ' + str(x) + ' , i: ' + str(i))
         RFy_exp_all[x, i] = Peak_exp(x, i)
         try:
@@ -151,7 +151,7 @@ for x in range(x0, x1):
                 RFy_exp[x, i] = np.log10(Peak_exp(x, i))
         else:
             RFy_exp[x, i] = Peak_exp(x, i)
-        if i == 29:
+        if i == 29:  # Displacement labels
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label=lab[x], marker='v')
         if i in peek_samples:  # P
             plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v')
@@ -162,18 +162,20 @@ for x in range(x0, x1):
             RFy_FE_T.append(RFy_FE[x, i])
             RFy_exp_T.append(RFy_exp[x, i])
         elif i == 24:  # HERE exclude sample from regression, plot transparent
-            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v', alpha=alp)
+            print('Excluded ' + str(i))
+            # plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='v', alpha=alp)
         elif i == 25:  # HERE exclude sample from regression, plot transparent
-            plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
+            print('Excluded ' + str(i))
+            # plt.scatter(RFy_exp[x, i], RFy_FE[x, i], color=col[x], label='_nolegend_', marker='s', alpha=alp)
         del RFy_
 axs.plot(F_range, F_range, 'k', label='1:1')
 if loglog:
-    axs.set_xlabel('log$_{10}$(Experiment / N)')
-    axs.set_ylabel('log$_{10}$(FE / N)')
+    axs.set_xlabel('log$_{10}$(Experiment / N)', fontsize=fs)
+    axs.set_ylabel('log$_{10}$(FE / N)', fontsize=fs)
 else:
-    axs.set_xlabel('Experiment / N')
-    axs.set_ylabel('FE / N')
-axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
+    axs.set_xlabel('Experiment / N', fontsize=fs)
+    axs.set_ylabel('FE / N', fontsize=fs)
+# axs.set_title('Peak Forces at ' + str(2 ** (x0 - 2)) + ' mm - ' + str(2 ** (x1 - 3)) + ' mm amplitudes')
 # ', $\mu$ = ' + friction)
 axs.set_aspect('equal')
 axs.set_xlim(F_range)
@@ -188,7 +190,7 @@ pd.DataFrame(RFy_exp_all).to_csv('/home/biomech/Downloads/corr2.csv', index_labe
 print('done1')
 regression_P, xx_P, yy_P = lin_reg(np.array(RFy_exp_P), np.array(RFy_FE_P))
 axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
-         label='PEEK:')
+         label='icotec:')
 if regression_P.pvalues[1] >= 0.05:
     lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
 else:
@@ -199,7 +201,7 @@ axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P + '\n')
 
 regression_T, xx_T, yy_T = lin_reg(np.array(RFy_exp_T), np.array(RFy_FE_T))
 axs.plot(F_range, F_range * regression_T.params[1] + regression_T.params[0], color='k', linestyle='dotted',
-         label='Titanium:')
+         label='DPS:')
 if regression_T.pvalues[1] >= 0.05:
     lab_pvalue_T = 'p = ' + str(np.round(regression_T.pvalues[1], 2))
 else:
@@ -208,7 +210,27 @@ axs.plot([-1, 0], [-1, 0], color='w', linestyle='dashed',
          label='R$^2$ = {:0.2f}'.format(np.round(regression_T.rsquared, 2)))
 axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_T)
 
-plt.legend(framealpha=1)
+if loglog:
+    plt.legend(framealpha=1, loc='upper left', fontsize=fs)
+else:
+    plt.legend(framealpha=1, loc='lower right', fontsize=fs)
+
+# axs.set_ylabel('Difference / %', fontsize=fs)
+# ax4.legend(fontsize=fs)
+# axs.set_ylim([-5, 5])
+axs.tick_params(axis='both', which='major', labelsize=fs)
+axs.tick_params(axis='both', which='minor', labelsize=fs-2)
+# plt.subplots_adjust(left=0.2)
+# ax4.tick_params(
+#      axis='x',           # changes apply to the x-axis
+#      which='both',       # both major and minor ticks are affected
+#      bottom=False,       # ticks along the bottom edge are off
+#      top=False,          # ticks along the top edge are off
+#      labelbottom=False)  # labels along the bottom edge are off
+if loglog:
+    plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression_log.eps')
+else:
+    plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression.eps')
 
 # %% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
