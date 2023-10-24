@@ -90,6 +90,7 @@ def read_FE_(number, model_code, plot, fric_):
 
 # %% Linear regression
 fs = 13.5
+
 # plt.close('all')
 # PEEK, without 0 (diff ampl), 24 (Exp. weird)
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
