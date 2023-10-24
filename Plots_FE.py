@@ -122,80 +122,98 @@ sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read(
 # plt.close('all')
 saving = 0
 fs = 13.5
-number = '35'
+numbers = ['18']
+# numbers = ['29', '30', '31', '32', '33', '34', '35']  # alpha all
+# damp = ['0.01', '0.03', '0.05', '0.07', '0.1', '0.15', '0.2']  # alpha all
+# numbers = ['17', '29', '33', '35']  # alpha some
+# damp = ['No damping', '0.01', '0.1', '0.2']  # alpha some
+# numbers = ['27', '28', '20', '24', '25', '19', '21', '22', ]  # beta all
+# damp = ['0.0001', '0.0005', '0.005', '0.01', '0.02', '0.05', '0.1', '1', '10']  # beta all
+# numbers = ['27', '24', '21', '22', '23']  # beta some
+# damp = ['0.0001', '0.01', '0.1', '1', '10']  # beta some
 # samples = [3, 4, 14, 17, 19, 20]
 # samples = [5, 7, 8, 10, 15, 18, 21, 26, 29, 31]  # 13 no uFE, 16, 23 no hfe. 24 exp bad. 2 and 32 still computing
-samples = [10]  # for damping
-# samples = [21]  # for entire cycle
+# samples = [10]  # for damping
+samples = [21]  # for entire cycle
 F_extrem = np.zeros((6, 32))
-for no in samples:
-    specimen = sample_list[no]
-    print(specimen)
-    fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + \
-              specimen + '/'
-    fe = number + '_' + specimen + '_0121399_'
-    if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
-                  specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
-    elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
-                   specimen + '/63_L50_S50_D45/63_L50_S50_D45_d1_02_T_'
+exp_hfe_plots = 0
+plt.figure()
+for n in range(len(numbers)):
+    number = numbers[n]
+    for no in samples:
+        specimen = sample_list[no]
+        print(specimen)
+        fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + \
+                  specimen + '/'
+        fe = number + '_' + specimen + '_0121399_'
+        if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+            hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+                      specimen + '/60_L50_S50_D45/60_L50_S50_D45_d1_05_P_'
+        elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+            hfe_path = '/home/biomech/Documents/01_Icotec/02_FEA/01_MainStudy/' + \
+                       specimen + '/63_L50_S50_D45/63_L50_S50_D45_d1_02_T_'
 
-    file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
-    U_uFE, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
-    U_hFE, _ = hFEf.read_RFnodeFile(hfe_path + 'RFnode.txt')
-    _, F_uFE = hFEf.read_RFnodeFile(fe_path + fe + 'RFnodeFix.txt')
-    _, F_hFE = hFEf.read_RFnodeFile(hfe_path + 'RFnodeFix.txt')
-    [_, A_y, _, _, _, _, a_y, a_f, _] = hFEf.read_resample(file_exp)
-    energy = 0
+        file_exp = '/home/biomech/Documents/01_Icotec/01_Experiments/00_Data/01_MainStudy/' + specimen + '_resample.csv'
+        U_uFE, _ = hFEf.read_RFnodeFile(fe_path + fe + 'RFnode.txt')
+        U_hFE, _ = hFEf.read_RFnodeFile(hfe_path + 'RFnode.txt')
+        _, F_uFE = hFEf.read_RFnodeFile(fe_path + fe + 'RFnodeFix.txt')
+        _, F_hFE = hFEf.read_RFnodeFile(hfe_path + 'RFnodeFix.txt')
+        [_, A_y, _, _, _, _, a_y, a_f, _] = hFEf.read_resample(file_exp)
+        energy = 0
 
-    if energy:
-        t_ke, ke = hFEf.read_energy(fe_path + fe + 'ke.txt')
-        t_ie, ie = hFEf.read_energy(fe_path + fe + 'ie.txt')
-        plt.figure()
-        # plt.plot(t_ke, ke)
-        # plt.plot(t_ie, ie)
-        plt.plot(t_ke, ke/ie)
-        plt.plot([t_ke[0], t_ke[-1]], [0.1, 0.1])
-    #plt.figure()
-    if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        # plt.title(number + '_' + specimen + ' (PEEK)')
-        print('PEEK')
-        scr = 'icotec'
-    elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        # plt.title(number + '_' + specimen + ' (Ti)')
-        print('Ti')
-        scr = 'DPS'
-
-    plt.plot(a_y, a_f-a_f[0], label='Experiment (' + scr + ')')
-    plt.plot(U_hFE, -F_hFE, label='hFE')
-    plt.plot(U_uFE, -F_uFE, label='uFE')
-    # plt.title(specimen + ' (No. ' + str(no) + ')')
-    plt.xlabel('Displacement / mm', fontsize=fs)
-    plt.ylabel('Force / N', fontsize=fs)
-    plt.legend(fontsize=fs)
-    plt.tick_params(axis='both', which='major', labelsize=fs)
-    plt.tick_params(axis='both', which='minor', labelsize=fs - 2)
-    plt.subplots_adjust(left=0.15)
-    if saving:
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_'
-                    + specimen + '_ForceDisplacement.eps')
-    if len(samples) > 1:
-        plt.close()
-    if no != 16:
-        F_extrem[0, no] = hFEf.Peak_exp(3, no)  # Experiment 2 mm
-        F_extrem[1, no] = hFEf.Peak_exp(4, no)  # Experiment 4 mm
-        if int(number) > 17:
-            F_extrem[2, no] = F_uFE[22]  # uFE 2 mm
-            F_extrem[3, no] = F_uFE[45]  # uFE 4 mm
+        if energy:
+            t_ke, ke = hFEf.read_energy(fe_path + fe + 'ke.txt')
+            t_ie, ie = hFEf.read_energy(fe_path + fe + 'ie.txt')
+            plt.figure()
+            # plt.plot(t_ke, ke)
+            # plt.plot(t_ie, ie)
+            plt.plot(t_ke, ke/ie)
+            plt.plot([t_ke[0], t_ke[-1]], [0.1, 0.1])
+            #plt.figure()
+        if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
+            # plt.title(number + '_' + specimen + ' (PEEK)')
+            print('PEEK')
+            scr = 'icotec'
+        elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
+            # plt.title(number + '_' + specimen + ' (Ti)')
+            print('Ti')
+            scr = 'DPS'
+        if not exp_hfe_plots:
+            plt.plot(a_y, a_f-a_f[0], label='Experiment (' + scr + ')')
+            plt.plot(U_hFE, -F_hFE, label='hFE')
+        if len(numbers) > 1:
+            plt.plot(U_uFE, -F_uFE, label=damp[n])
+            plt.xlim([-4.5, 0])
+            plt.ylim([-150, 50])
         else:
-            F_extrem[2, no] = F_uFE[45]  # uFE 2 mm
-            F_extrem[3, no] = F_uFE[90]  # uFE 4 mm
-        try:
-            F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
-            F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
-        except:
-            print('no hFE data')
+            plt.plot(U_uFE, -F_uFE, label='uFE')
+        # plt.title(specimen + ' (No. ' + str(no) + ')')
+        plt.xlabel('Displacement / mm', fontsize=fs)
+        plt.ylabel('Force / N', fontsize=fs)
+        plt.legend(fontsize=fs)
+        plt.tick_params(axis='both', which='major', labelsize=fs)
+        plt.tick_params(axis='both', which='minor', labelsize=fs - 2)
+        plt.subplots_adjust(left=0.15)
+        exp_hfe_plots = 1
+        if saving:
+            plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_'
+                        + specimen + '_ForceDisplacement.eps')
+        if len(samples) > 1:
+            plt.close()
+        # if no != 16:
+        #     F_extrem[0, no] = hFEf.Peak_exp(3, no)  # Experiment 2 mm
+        #     F_extrem[1, no] = hFEf.Peak_exp(4, no)  # Experiment 4 mm
+        #     if int(number) > 17:
+        #         F_extrem[2, no] = F_uFE[22]  # uFE 2 mm
+        #         F_extrem[3, no] = F_uFE[45]  # uFE 4 mm
+        #     else:
+        #         F_extrem[2, no] = F_uFE[45]  # uFE 2 mm
+        #         F_extrem[3, no] = F_uFE[90]  # uFE 4 mm
+        #     try:
+        #         F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
+        #         F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
+        #     except:
+        #         print('no hFE data')
 # %%
 plt.figure()
 plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
