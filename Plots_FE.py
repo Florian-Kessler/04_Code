@@ -120,7 +120,7 @@ plt.plot(data['Dehnung'], data['Standardkraft'], color='k')
 # %% uFE result
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 # plt.close('all')
-saving = 1
+saving = 0
 fs = 13.5
 numbers = ['17']
 Fe0_1 = []
@@ -334,9 +334,9 @@ plt.plot([-1, 0], [-1, 0], color='w', label='R$^2$ = {:0.2f}'.format(np.round(re
 plt.legend(fontsize=fs)
 if saving:
     if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_PEEK12.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_PEEK124.eps')
     elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_Ti12.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_Ti124.eps')
 
 plt.figure()
 plt.scatter(Fe0_1, Fe4_1, label='1 mm Amplitude')

@@ -239,17 +239,13 @@ if loglog:
 else:
     plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression.eps')
 # %% Stiffness hFE
-
 fs = 13.5
-
 plt.close('all')
-# PEEK, without 0 (diff ampl), 24 (Exp. weird)
-peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
-# Titanium, without 1 (diff ampl)
-ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # PEEK, without 0, 24
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # Ti, without 0, 25
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
-x0 = 0
+x0 = 4
 x1 = 7  # max 7
 model = '60_L50_S50_D45_d1_05_P'
 RFy_FE = np.zeros((x1, 34))
@@ -292,8 +288,8 @@ axs.plot(F_range, F_range, 'k', label='1:1')
 axs.set_xlabel('Stiffness Experiment / N/mm', fontsize=fs)
 axs.set_ylabel('Stiffness FE / N/mm', fontsize=fs)
 axs.set_aspect('equal')
-axs.set_xlim([0, 150])
-axs.set_ylim([0, 150])
+axs.set_xlim([0, 60])
+axs.set_ylim([0, 60])
 axs.scatter(st_exp, st_FE, color='k')
 specimen_names = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
 pd.DataFrame(RFy_FE).to_csv('/home/biomech/Downloads/corr.csv', index_label='Amplitude',
@@ -301,12 +297,16 @@ pd.DataFrame(RFy_FE).to_csv('/home/biomech/Downloads/corr.csv', index_label='Amp
 pd.DataFrame(RFy_exp_all).to_csv('/home/biomech/Downloads/corr2.csv', index_label='Amplitude',
                                  header=specimen_names)
 regression_P, xx_P, yy_P = lin_reg(np.array(st_exp), np.array(st_FE))
-axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
-         label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)))
-if regression_P.pvalues[1] >= 0.05:
-    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+if regression_P.params[0] < 0:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x - ' + str(round(-regression_P.params[0], 2))
 else:
-    lab_pvalue_P = 'p < 0.05'
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x + ' + str(round(regression_P.params[0], 2))
+axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label=lab_regr)
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P ='p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P ='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)) +  ', p < 0.05'
 axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P + '\n')
 plt.legend(framealpha=1, loc='lower right', fontsize=fs)
 axs.tick_params(axis='both', which='major', labelsize=fs)
@@ -316,7 +316,7 @@ high = str(2**(x-2)).replace('.', '')
 print(low)
 print(high)
 plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_stiffness_' + low + 'mm_' + high + 'mm.eps')
-plt.close()
+# plt.close()
 
 # %% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
