@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 
-from hFE_functions import read_RFnodeFile, read_resample, Peak_exp, lin_reg
+from hFE_functions import read_RFnodeFile, read_resample, Peak_exp, lin_reg, Peak_exp_d
 
 
 def read_FE_(number, model_code, plot, fric_):
@@ -23,8 +23,8 @@ def read_FE_(number, model_code, plot, fric_):
         model_code2 = str(int(model_code[:2]) + 3) + model_code[2:19] + fric_.split('.')[-1] + '_T'  # HERE -1 --> -3
     else:
         print('Invalid model code!')
-    print(model_code1)
-    print(model_code2)
+    # print(model_code1)
+    # print(model_code2)
     specimen = specimens[number]
     file = [loc_Exp + specimen + '_resample.csv',
             loc_FEA + specimen + '/' + model_code1[:14] + '/' + model_code1 + '_RFnode.txt',
@@ -37,7 +37,7 @@ def read_FE_(number, model_code, plot, fric_):
     RFy = []
     Uy = []
     [_, A_y, _, _, _, _, a_y, a_f, _] = read_resample(file[0])# load experimental result file (csv)
-    print(file[0])
+    # print(file[0])
     [Uy1, _] = read_RFnodeFile(file[1])  # read y displacement of moving reference node
     [_, RFy1] = read_RFnodeFile(file[2])  # read y reaction force of fixed reference node
     [Uy2, _] = read_RFnodeFile(file[3])  # read y displacement of moving reference node
@@ -99,15 +99,17 @@ ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without
 
 x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
 lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
+# lab = ['_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_']
 x0 = 0
 x1 = 7  # max 7
-# model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-model = '60_L50_S50_D45_d1_05_P'
+model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
+# model = '60_L50_S50_D45_d1_05_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
 RFy_exp = np.zeros((x1, 34))
-# col = ['k', 'k', 'k', 'k', 'k', 'k', 'k', 'k']
+# col = ['#1f77b4', '#1f77b4', '#1f77b4', '#1f77b4', '#1f77b4', '#1f77b4', '#1f77b4', '#1f77b4']
+# col = ['#ff7f0e', '#ff7f0e', '#ff7f0e', '#ff7f0e', '#ff7f0e', '#ff7f0e', '#ff7f0e', '#ff7f0e']
 col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
 fig, axs = plt.subplots(1, 1)
 fig.set_figheight(7)
@@ -118,7 +120,7 @@ RFy_exp_P = []
 RFy_exp_T = []
 
 RFy_exp_all = np.zeros((x1, 34))
-loglog = 1
+loglog = 0
 alp = 0.3
 if loglog:
     F_range = np.array([-0.5, 2.6])
@@ -126,9 +128,11 @@ else:
     F_range = np.array([-10, 410])
 plt.scatter(-1e9, -1e9, color='k', marker='v', label='icotec')
 plt.scatter(-1e9, -1e9, color='k', marker='s', label='DPS')
+# plt.scatter(-1e9, -1e9, color=col[0], marker='v', label='Mat A')
 friction = '0.5'
 for x in range(x0, x1):
     for i in range(2, 32):  # 2-34 because 0, 1 not existing in data frame
+    # for i in peek_samples:
         # print('x: ' + str(x) + ' , i: ' + str(i))
         RFy_exp_all[x, i] = Peak_exp(x, i)
         try:
@@ -192,6 +196,8 @@ print('done1')
 regression_P, xx_P, yy_P = lin_reg(np.array(RFy_exp_P), np.array(RFy_FE_P))
 axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
          label='icotec:')
+# axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+#          label='0.5:')
 if regression_P.pvalues[1] >= 0.05:
     lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
 else:
@@ -232,6 +238,85 @@ if loglog:
     plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression_log.eps')
 else:
     plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression.eps')
+# %% Stiffness hFE
+
+fs = 13.5
+
+plt.close('all')
+# PEEK, without 0 (diff ampl), 24 (Exp. weird)
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]  # without 24
+# Titanium, without 1 (diff ampl)
+ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 27, 28, 30, 33]  # without 25
+x = 0  # 0 = 0.25 mm, 1 = 0.5 mm, 2 = 1 mm, 3 = 2 mm, 4 = 4 mm, 5 = 8 mm, 6 = 16 mm
+lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
+x0 = 0
+x1 = 7  # max 7
+model = '60_L50_S50_D45_d1_05_P'
+RFy_FE = np.zeros((x1, 34))
+RFy_exp = np.zeros((x1, 34))
+col = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+fig, axs = plt.subplots(1, 1)
+fig.set_figheight(7)
+fig.set_figwidth(7)
+RFy_FE_P = []
+RFy_FE_T = []
+RFy_exp_P = []
+RFy_exp_T = []
+
+stiffness_FE = np.zeros((x1, 34))
+stiffness_exp = np.zeros((x1, 34))
+st_FE = []
+st_exp = []
+
+RFy_exp_all = np.zeros((x1, 34))
+loglog = 0
+alp = 0.3
+if loglog:
+    F_range = np.array([-0.5, 2.6])
+else:
+    F_range = np.array([-10, 410])
+friction = '0.5'
+for x in range(x0, x1):
+    for i in range(2, 32):  # 2-34 because 0, 1 not existing in data frame
+        try:
+            [_, RFy_, _, _, _] = read_FE_(i, model, 0, friction)
+        except FileNotFoundError:
+            continue
+        try:
+            st_FE.append(RFy_[x * 21 + 10] / (2 ** (x - 2)))
+            st_exp.append(Peak_exp(x, i) / (2 ** (x - 2)))
+        except IndexError:
+            continue
+
+axs.plot(F_range, F_range, 'k', label='1:1')
+axs.set_xlabel('Stiffness Experiment / N/mm', fontsize=fs)
+axs.set_ylabel('Stiffness FE / N/mm', fontsize=fs)
+axs.set_aspect('equal')
+axs.set_xlim([0, 150])
+axs.set_ylim([0, 150])
+axs.scatter(st_exp, st_FE, color='k')
+specimen_names = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()  # Read specimens
+pd.DataFrame(RFy_FE).to_csv('/home/biomech/Downloads/corr.csv', index_label='Amplitude',
+                            header=specimen_names)
+pd.DataFrame(RFy_exp_all).to_csv('/home/biomech/Downloads/corr2.csv', index_label='Amplitude',
+                                 header=specimen_names)
+regression_P, xx_P, yy_P = lin_reg(np.array(st_exp), np.array(st_FE))
+axs.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)))
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+axs.plot([-1, 0], [-1, 0], color='w', label=lab_pvalue_P + '\n')
+plt.legend(framealpha=1, loc='lower right', fontsize=fs)
+axs.tick_params(axis='both', which='major', labelsize=fs)
+axs.tick_params(axis='both', which='minor', labelsize=fs-2)
+low = str(2**(x0-2)).replace('.', '')
+high = str(2**(x-2)).replace('.', '')
+print(low)
+print(high)
+plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_stiffness_' + low + 'mm_' + high + 'mm.eps')
+plt.close()
 
 # %% Each amplitude
 fig5, axs5 = plt.subplots(1, 1)
@@ -370,8 +455,7 @@ for x in range(x0, 1):  # x1):
 
 # %% Linear regression incl friction
 
-# plt.close('all')
-# PEEK, without 0 (diff ampl), 24 (Exp. weird)
+
 peek_samples = [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 26, 29, 31, 32]
 # Titanium, without 1 (diff ampl)
 ti_samples = [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]

@@ -744,12 +744,14 @@ def read_exp_peaks():
 
 def Peak_exp(ampl_, number_):
     d_ = read_exp_peaks()
-    # level = 2 ** (ampl - 2)
     peakF_ = d_['MaxForce'][(number_ - 2) * 7 + ampl_]
-    # print(d['DisplacementLevel'][(number - 2) * 7 + ampl])
-    # print(d['Specimen'][(number - 2) * 7 + ampl])
-    # print(peakF)
     return peakF_
+
+
+def Peak_exp_d(ampl_, number_):
+    d_ = read_exp_peaks()
+    peakD_ = d_['DisplacementLevel'][(number_ - 2) * 7 + ampl_]
+    return peakD_
 
 
 def lin_reg(X, Y):

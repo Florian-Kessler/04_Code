@@ -120,9 +120,18 @@ plt.plot(data['Dehnung'], data['Standardkraft'], color='k')
 # %% uFE result
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
 # plt.close('all')
-saving = 0
+saving = 1
 fs = 13.5
-numbers = ['18']
+numbers = ['17']
+Fe0_1 = []
+Fe0 = []
+Fe1 = []
+Fe2_1 = []
+Fe2 = []
+Fe3 = []
+Fe4_1 = []
+Fe4 = []
+Fe5 = []
 # numbers = ['29', '30', '31', '32', '33', '34', '35']  # alpha all
 # damp = ['0.01', '0.03', '0.05', '0.07', '0.1', '0.15', '0.2']  # alpha all
 # numbers = ['17', '29', '33', '35']  # alpha some
@@ -132,9 +141,9 @@ numbers = ['18']
 # numbers = ['27', '24', '21', '22', '23']  # beta some
 # damp = ['0.0001', '0.01', '0.1', '1', '10']  # beta some
 # samples = [3, 4, 14, 17, 19, 20]
-# samples = [5, 7, 8, 10, 15, 18, 21, 26, 29, 31]  # 13 no uFE, 16, 23 no hfe. 24 exp bad. 2 and 32 still computing
+samples = [5, 7, 8, 10, 15, 18, 21, 26, 29, 31]  # 13 no uFE, 16, 23 no hfe. 24 exp bad. 2 and 32 still computing
 # samples = [10]  # for damping
-samples = [21]  # for entire cycle
+# samples = [21]  # for entire cycle
 F_extrem = np.zeros((6, 32))
 exp_hfe_plots = 0
 plt.figure()
@@ -167,9 +176,12 @@ for n in range(len(numbers)):
             plt.figure()
             # plt.plot(t_ke, ke)
             # plt.plot(t_ie, ie)
-            plt.plot(t_ke, ke/ie)
-            plt.plot([t_ke[0], t_ke[-1]], [0.1, 0.1])
-            #plt.figure()
+            plt.plot(t_ke, ke/ie*100)
+            plt.plot([t_ke[0], t_ke[-1]], [10, 10])
+            plt.xlabel('Time / s')
+            plt.ylabel('Energy ratio / %')
+            plt.ylim([0, 15])
+            plt.figure()
         if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
             # plt.title(number + '_' + specimen + ' (PEEK)')
             print('PEEK')
@@ -186,7 +198,7 @@ for n in range(len(numbers)):
             plt.xlim([-4.5, 0])
             plt.ylim([-150, 50])
         else:
-            plt.plot(U_uFE, -F_uFE, label='uFE')
+            plt.plot(U_uFE, -F_uFE, label='uFE, fast')
         # plt.title(specimen + ' (No. ' + str(no) + ')')
         plt.xlabel('Displacement / mm', fontsize=fs)
         plt.ylabel('Force / N', fontsize=fs)
@@ -194,89 +206,160 @@ for n in range(len(numbers)):
         plt.tick_params(axis='both', which='major', labelsize=fs)
         plt.tick_params(axis='both', which='minor', labelsize=fs - 2)
         plt.subplots_adjust(left=0.15)
-        exp_hfe_plots = 1
+        # exp_hfe_plots = 1
         if saving:
             plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_'
                         + specimen + '_ForceDisplacement.eps')
         if len(samples) > 1:
             plt.close()
-        # if no != 16:
-        #     F_extrem[0, no] = hFEf.Peak_exp(3, no)  # Experiment 2 mm
-        #     F_extrem[1, no] = hFEf.Peak_exp(4, no)  # Experiment 4 mm
-        #     if int(number) > 17:
-        #         F_extrem[2, no] = F_uFE[22]  # uFE 2 mm
-        #         F_extrem[3, no] = F_uFE[45]  # uFE 4 mm
-        #     else:
-        #         F_extrem[2, no] = F_uFE[45]  # uFE 2 mm
-        #         F_extrem[3, no] = F_uFE[90]  # uFE 4 mm
-        #     try:
-        #         F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
-        #         F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
-        #     except:
-        #         print('no hFE data')
+        if no != 16:
+            Fe0_1.append(hFEf.Peak_exp(2, no))  # Experiment 1 mm
+            F_extrem[0, no] = hFEf.Peak_exp(3, no)  # Experiment 2 mm
+            Fe0.append(hFEf.Peak_exp(3, no))
+            F_extrem[1, no] = hFEf.Peak_exp(4, no)  # Experiment 4 mm
+            Fe1.append(hFEf.Peak_exp(4, no))
+
+            Fe2_1.append((F_uFE[32] + F_uFE[33]) / 2)  # uFE 1 mm, average (no datapoint at 1 mm)
+            F_extrem[2, no] = F_uFE[45]  # uFE 2 mm
+            Fe2.append(F_uFE[45])
+            F_extrem[3, no] = F_uFE[90]  # uFE 4 mm
+            Fe3.append(F_uFE[90])
+            try:
+                Fe4_1.append(F_hFE[52])  # hFE 1 mm
+                F_extrem[4, no] = F_hFE[73]  # hFE 2 mm
+                Fe4.append(F_hFE[73])
+                F_extrem[5, no] = F_hFE[94]  # hFE 4 mm
+                Fe5.append(F_hFE[94])
+            except:
+                print('no hFE data')
 # %%
+F_range = np.array([0, 140])
 plt.figure()
-plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
-plt.scatter(F_extrem[1, :], F_extrem[3, :], label='4 mm Amplitude')
-plt.plot([0, 120], [0, 120], 'k--')
+# plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
+# plt.scatter(F_extrem[1, :], F_extrem[3, :], label='4 mm Amplitude')
+plt.scatter(Fe0_1, Fe2_1, label='1 mm Amplitude')
+plt.scatter(Fe0, Fe2, label='2 mm Amplitude')
+# plt.scatter(Fe1, Fe3, label='4 mm Amplitude')
+plt.plot(F_range, F_range, 'k')
 plt.xlabel('Force Experiment / N', fontsize=fs)
 plt.ylabel('Force uFE / N', fontsize=fs)
-plt.legend(fontsize=fs)
+plt.xlim(F_range)
+plt.ylim(F_range)
 plt.tick_params(axis='both', which='major', labelsize=fs)
 plt.tick_params(axis='both', which='minor', labelsize=fs-2)
-
+# regression_P, xx_P, yy_P = hFEf.lin_reg(np.array(np.append(np.append(Fe0_1, Fe0), Fe1)),
+#                                         np.array(np.append(np.append(Fe2_1, Fe2), Fe3)))
+regression_P, xx_P, yy_P = hFEf.lin_reg(np.array(np.append(Fe0_1, Fe0)),
+                                        np.array(np.append(Fe2_1, Fe2)))
+if regression_P.params[0] < 0:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x - ' + str(round(-regression_P.params[0], 2))
+else:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x + ' + str(round(regression_P.params[0], 2))
+plt.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label=lab_regr)
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+plt.plot([-1, 0], [-1, 0], color='w', label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)) +
+                                            ', ' + lab_pvalue_P)
+plt.legend(fontsize=fs)
 if saving:
     if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_uFE_exp_PEEK.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_uFE_exp_PEEK12.eps')
     elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_uFE_exp_Ti.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_uFE_exp_Ti12.eps')
 
 plt.figure()
-plt.scatter(F_extrem[4, :], F_extrem[2, :], label='2 mm Amplitude')
-plt.scatter(F_extrem[5, :], F_extrem[3, :], label='4 mm Amplitude')
-plt.plot([0, 120], [0, 120], 'k--')
+plt.scatter(Fe4_1, Fe2_1, label='1 mm Amplitude')
+plt.scatter(Fe4, Fe2, label='2 mm Amplitude')
+# plt.scatter(Fe5, Fe3, label='4 mm Amplitude')
+plt.plot(F_range, F_range, 'k')
 plt.xlabel('Force hFE / N', fontsize=fs)
 plt.ylabel('Force uFE / N', fontsize=fs)
-plt.legend(fontsize=fs)
+plt.xlim(F_range)
+plt.ylim(F_range)
 plt.tick_params(axis='both', which='major', labelsize=fs)
 plt.tick_params(axis='both', which='minor', labelsize=fs-2)
+# regression_P, xx_P, yy_P = hFEf.lin_reg(np.array(np.append(np.append(Fe4_1, Fe4), Fe5)),
+#                                         np.array(np.append(np.append(Fe2_1, Fe2), Fe3)))
+regression_P, xx_P, yy_P = hFEf.lin_reg(np.array(np.append(Fe4_1, Fe4)),
+                                        np.array(np.append(Fe2_1, Fe2)))
+if regression_P.params[0] < 0:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x - ' + str(round(-regression_P.params[0], 2))
+else:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x + ' + str(round(regression_P.params[0], 2))
+plt.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label=lab_regr)
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+plt.plot([-1, 0], [-1, 0], color='w', label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)) +
+                                            ', ' + lab_pvalue_P)
+plt.legend(fontsize=fs)
 if saving:
     if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_PEEK.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_PEEK12.eps')
     elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_Ti.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_Ti12.eps')
 
 plt.figure()
-plt.scatter(F_extrem[0, :], F_extrem[4, :], label='2 mm Amplitude')
-plt.scatter(F_extrem[1, :], F_extrem[5, :], label='4 mm Amplitude')
-plt.plot([0, 120], [0, 120], 'k--')
+plt.scatter(Fe0_1, Fe4_1, label='1 mm Amplitude')
+plt.scatter(Fe0, Fe4, label='2 mm Amplitude')
+# plt.scatter(Fe1, Fe5, label='4 mm Amplitude')
+plt.plot(F_range, F_range, 'k')
 plt.xlabel('Force Experiment / N', fontsize=fs)
 plt.ylabel('Force hFE / N', fontsize=fs)
-plt.legend(fontsize=fs)
+plt.xlim(F_range)
+plt.ylim(F_range)
 plt.tick_params(axis='both', which='major', labelsize=fs)
 plt.tick_params(axis='both', which='minor', labelsize=fs-2)
+# regression_P, xx_P, yy_P = hFEf.lin_reg(np.array(np.append(np.append(Fe0_1, Fe0), Fe1)),
+#                                         np.array(np.append(np.append(Fe4_1, Fe4), Fe5)))
+regression_P, xx_P, yy_P = hFEf.lin_reg(np.array(np.append(Fe0_1, Fe0)),
+                                        np.array(np.append(Fe4_1, Fe4)))
+if regression_P.params[0] < 0:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x - ' + str(round(-regression_P.params[0], 2))
+else:
+    lab_regr = str(round(regression_P.params[1], 2)) + 'x + ' + str(round(regression_P.params[0], 2))
+plt.plot(F_range, F_range * regression_P.params[1] + regression_P.params[0], color='k', linestyle='dashdot',
+         label=lab_regr)
+if regression_P.pvalues[1] >= 0.05:
+    lab_pvalue_P = 'p = ' + str(np.round(regression_P.pvalues[1], 2))
+else:
+    lab_pvalue_P = 'p < 0.05'
+plt.plot([-1, 0], [-1, 0], color='w', label='R$^2$ = {:0.2f}'.format(np.round(regression_P.rsquared, 2)) +
+                                            ', ' + lab_pvalue_P)
+plt.legend(fontsize=fs)
 if saving:
     if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_PEEK.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_PEEK12.eps')
     elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_Ti.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_Ti12.eps')
 
 plt.figure()
-plt.scatter(F_extrem[0, :], F_extrem[4, :], label='2 mm Amplitude hFE')
-plt.scatter(F_extrem[1, :], F_extrem[5, :], label='4 mm Amplitude hFE')
-plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude uFE', color='#1f77b4', marker='x')
-plt.scatter(F_extrem[1, :], F_extrem[3, :], label='4 mm Amplitude uFE', color='#ff7f0e', marker='x')
-plt.plot([0, 120], [0, 120], 'k--')
+plt.scatter(Fe0_1, Fe4_1, label='1 mm Amplitude')
+plt.scatter(Fe0, Fe4, label='2 mm Amplitude')
+# plt.scatter(Fe1, Fe5, label='4 mm Amplitude')
+plt.scatter(Fe0_1, Fe2_1, label='_nolegend_', color='#1f77b4', marker='x')
+plt.scatter(Fe0, Fe2, label='_nolegend_', color='#ff7f0e', marker='x')
+# plt.scatter(Fe1, Fe3, label='_nolegend_', color='#2ca02c', marker='x')
+plt.scatter(-1e9, -1e9, label='hFE', color='k')
+plt.scatter(-1e9, -1e9, label='uFE', color='k', marker='x')
+plt.plot(F_range, F_range, 'k')
 plt.xlabel('Force Experiment / N', fontsize=fs)
 plt.ylabel('Force FE / N', fontsize=fs)
-plt.legend(fontsize=fs)
+plt.xlim(F_range)
+plt.ylim(F_range)
 plt.tick_params(axis='both', which='major', labelsize=fs)
 plt.tick_params(axis='both', which='minor', labelsize=fs-2)
+plt.legend(fontsize=fs)
 if saving:
     if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_exp_PEEK.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_exp_PEEK12.eps')
     elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_exp_Ti.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_uFE_exp_Ti12.eps')
 
 #plt.close('all')
 
