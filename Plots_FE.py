@@ -119,8 +119,8 @@ data = read_icotec_experiment('1.3', 'ti')
 plt.plot(data['Dehnung'], data['Standardkraft'], color='k')
 # %% uFE result
 sample_list = open('/home/biomech/Documents/01_Icotec/Specimens.txt', 'r').read().splitlines()
-# plt.close('all')
-saving = 0
+plt.close('all')
+saving = 1
 fs = 13.5
 numbers = ['17']
 Fe0_1 = []
@@ -132,6 +132,7 @@ Fe3 = []
 Fe4_1 = []
 Fe4 = []
 Fe5 = []
+peek_samples = [2, 5, 7, 8, 10, 13, 15, 18, 21, 26, 29, 31, 32]
 # numbers = ['29', '30', '31', '32', '33', '34', '35']  # alpha all
 # damp = ['0.01', '0.03', '0.05', '0.07', '0.1', '0.15', '0.2']  # alpha all
 # numbers = ['17', '29', '33', '35']  # alpha some
@@ -144,12 +145,13 @@ Fe5 = []
 samples = [5, 7, 8, 10, 15, 18, 21, 26, 29, 31]  # 13 no uFE, 16, 23 no hfe. 24 exp bad. 2 and 32 still computing
 # samples = [10]  # for damping
 # samples = [21]  # for entire cycle
-F_extrem = np.zeros((6, 32))
+F_extrem = np.zeros((6, 34))
 exp_hfe_plots = 0
-plt.figure()
+# plt.figure()
 for n in range(len(numbers)):
     number = numbers[n]
-    for no in samples:
+    for no in samples:  # samples:
+        plt.figure()
         specimen = sample_list[no]
         print(specimen)
         fe_path = '/home/biomech/DATA/01_Icotec/02_FEA/02_uFE/01_MainStudy/' + \
@@ -198,7 +200,7 @@ for n in range(len(numbers)):
             plt.xlim([-4.5, 0])
             plt.ylim([-150, 50])
         else:
-            plt.plot(U_uFE, -F_uFE, label='uFE, fast')
+            plt.plot(U_uFE, -F_uFE, label='uFE')
         # plt.title(specimen + ' (No. ' + str(no) + ')')
         plt.xlabel('Displacement / mm', fontsize=fs)
         plt.ylabel('Force / N', fontsize=fs)
@@ -210,9 +212,9 @@ for n in range(len(numbers)):
         if saving:
             plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_'
                         + specimen + '_ForceDisplacement.eps')
-        if len(samples) > 1:
-            plt.close()
-        if no != 16:
+        # if len(samples) > 1:
+            # plt.close()
+        if no != 160:
             Fe0_1.append(hFEf.Peak_exp(2, no))  # Experiment 1 mm
             F_extrem[0, no] = hFEf.Peak_exp(3, no)  # Experiment 2 mm
             Fe0.append(hFEf.Peak_exp(3, no))
@@ -232,8 +234,9 @@ for n in range(len(numbers)):
                 Fe5.append(F_hFE[94])
             except:
                 print('no hFE data')
-# %%
+
 F_range = np.array([0, 140])
+# %%
 plt.figure()
 # plt.scatter(F_extrem[0, :], F_extrem[2, :], label='2 mm Amplitude')
 # plt.scatter(F_extrem[1, :], F_extrem[3, :], label='4 mm Amplitude')
@@ -334,10 +337,10 @@ plt.plot([-1, 0], [-1, 0], color='w', label='R$^2$ = {:0.2f}'.format(np.round(re
 plt.legend(fontsize=fs)
 if saving:
     if no in [2, 5, 7, 8, 10, 13, 15, 16, 18, 21, 23, 24, 26, 29, 31, 32]:  # without 0
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_PEEK124.eps')
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_PEEK12.eps')
     elif no in [3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 27, 28, 30, 33]:  # without 1
-        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_Ti124.eps')
-
+        plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/' + number + '_scatter_hFE_exp_Ti12.eps')
+# %%
 plt.figure()
 plt.scatter(Fe0_1, Fe4_1, label='1 mm Amplitude')
 plt.scatter(Fe0, Fe4, label='2 mm Amplitude')
@@ -347,6 +350,7 @@ plt.scatter(Fe0, Fe2, label='_nolegend_', color='#ff7f0e', marker='x')
 # plt.scatter(Fe1, Fe3, label='_nolegend_', color='#2ca02c', marker='x')
 plt.scatter(-1e9, -1e9, label='hFE', color='k')
 plt.scatter(-1e9, -1e9, label='uFE', color='k', marker='x')
+F_range = np.array([0, 140])
 plt.plot(F_range, F_range, 'k')
 plt.xlabel('Force Experiment / N', fontsize=fs)
 plt.ylabel('Force FE / N', fontsize=fs)

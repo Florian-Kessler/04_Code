@@ -102,8 +102,8 @@ lab = ['0.25 mm', '0.5 mm', '1 mm', '2 mm', '4 mm', '8 mm', '16 mm']
 # lab = ['_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_', '_nolegend_']
 x0 = 0
 x1 = 7  # max 7
-model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
-# model = '60_L50_S50_D45_d1_05_P'
+# model = '88_L50_S50_D45_d1_02_P'  # automatically switches to titanium for respective samples
+model = '60_L50_S50_D45_d1_05_P'
 
 # peak_FE
 RFy_FE = np.zeros((x1, 34))
@@ -234,10 +234,10 @@ axs.tick_params(axis='both', which='minor', labelsize=fs-2)
 #      bottom=False,       # ticks along the bottom edge are off
 #      top=False,          # ticks along the top edge are off
 #      labelbottom=False)  # labels along the bottom edge are off
-if loglog:
-    plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression_log.eps')
-else:
-    plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression.eps')
+# if loglog:
+#     plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression_log.eps')
+# else:
+#     plt.savefig('/home/biomech/Documents/GitHub/05_Report/03_Pictures_Res/hFE_regression.eps')
 # %% Stiffness hFE
 fs = 13.5
 plt.close('all')
